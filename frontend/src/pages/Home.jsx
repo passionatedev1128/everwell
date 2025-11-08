@@ -1,321 +1,370 @@
 import { Link } from 'react-router-dom';
 import FAQAccordion from '../components/FAQAccordion';
 
+const heroVideo = 'https://cdn.coverr.co/videos/coverr-balance-your-body-1689250530998?download=1';
+
+const trustBadges = [
+  {
+    title: 'Suporte Médico Premium',
+    subtitle: 'Equipe especializada para acompanhar cada etapa'
+  },
+  {
+    title: 'Conformidade total Anvisa',
+    subtitle: 'Produtos auditados e aprovados lote a lote'
+  },
+  {
+    title: 'Entrega em todo Brasil',
+    subtitle: 'Logística discreta e rastreável'
+  },
+  {
+    title: 'Compra 100% Segura',
+    subtitle: 'Protocolos de segurança avançados'
+  }
+];
+
+const processSteps = [
+  {
+    number: '01',
+    title: 'Consulta & Avaliação',
+    copy: 'Conecte-se com médicos parceiros certificados e receba orientação personalizada.',
+    link: {
+      label: 'Agendar consulta',
+      href: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+    }
+  },
+  {
+    number: '02',
+    title: 'Autorização & Importação',
+    copy: 'Acompanhamos o processo regulatório e garantimos importação segura e ágil.',
+    link: {
+      label: 'Solicitar autorização',
+      href: 'https://pro.quaddro.co/yourbestversion/servicos/xUJjRT'
+    }
+  },
+  {
+    number: '03',
+    title: 'Entrega & Performance',
+    copy: 'Receba seus produtos com rastreio e suporte contínuo para resultados reais.'
+  }
+];
+
+const productHighlights = [
+  {
+    name: 'EverWell Focus Gummies',
+    description: 'Blend inteligente de CBD e nootrópicos para foco sustentado e equilíbrio mental.',
+    image: 'https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    name: 'EverWell Performance Oil',
+    description: 'Formulação full spectrum com absorção otimizada e controle preciso de dosagem.',
+    image: 'https://images.unsplash.com/photo-1617653513183-0e3d963902df?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    name: 'EverWell Recovery Cream',
+    description: 'Tecnologia transdérmica com CBD e ativos naturais para alívio e recuperação muscular.',
+    image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf100?auto=format&fit=crop&w=900&q=80'
+  }
+];
+
+const testimonials = [
+  {
+    quote: 'Experiência impecável do início ao fim. Performance elevada, sono equilibrado e suporte de alto nível.',
+    name: 'Joana Fontes',
+    title: 'Executiva de Marketing',
+    avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80'
+  },
+  {
+    quote: 'Os protocolos personalizados transformaram minha rotina esportiva. Recuperação mais rápida e foco absoluto.',
+    name: 'Maria Silva',
+    title: 'Atleta Profissional',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80'
+  },
+  {
+    quote: 'Nunca tive um acompanhamento tão humanizado. A EverWell entrega ciência, sofisticação e resultado.',
+    name: 'Antônio Santos',
+    title: 'Empreendedor',
+    avatar: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=200&q=80'
+  }
+];
+
+const differentiators = [
+  {
+    icon: '✨',
+    title: 'Formulações exclusivas',
+    copy: 'Desenvolvidas por especialistas e testadas lote a lote com laudos certificados.'
+  },
+  {
+    icon: '🛡️',
+    title: 'Compliance integral',
+    copy: 'Estrutura regulatória robusta, seguindo rigorosamente RDC 327/2019 e 660/2022.'
+  },
+  {
+    icon: '🤝',
+    title: 'Acompanhamento contínuo',
+    copy: 'Equipe dedicada para ajustar protocolos e potencializar resultados.'
+  },
+  {
+    icon: '📊',
+    title: 'Insights orientados a dados',
+    copy: 'Dashboard completo para monitorar evolução, adesão e performance.'
+  }
+];
+
+const heroStats = [
+  { label: 'Pacientes acompanhados', value: '2.1K+' },
+  { label: 'Protocolos personalizados', value: '320+' },
+  { label: 'Níveis de satisfação', value: '97%' }
+];
+
 const Home = () => {
   return (
-    <div className="bg-white">
-      {/* Section 1: Trust Badges */}
-      <section className="bg-accent py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-            <div className="p-4">
-              <div className="text-3xl mb-2">🏥</div>
-              <p className="text-sm font-semibold text-gray-700">Suporte Médico Especializado</p>
-            </div>
-            <div className="p-4">
-              <div className="text-3xl mb-2">📦</div>
-              <p className="text-sm font-semibold text-gray-700">Entrega em todo o Brasil</p>
-            </div>
-            <div className="p-4">
-              <div className="text-3xl mb-2">✅</div>
-              <p className="text-sm font-semibold text-gray-700">Produtos Aprovados pela Anvisa</p>
-            </div>
-            <div className="p-4">
-              <div className="text-3xl mb-2">🔒</div>
-              <p className="text-sm font-semibold text-gray-700">Compra 100% Segura</p>
-            </div>
-            <div className="p-4">
-              <div className="text-3xl mb-2">📦</div>
-              <p className="text-sm font-semibold text-gray-700">Embalagem Discreta</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 2: Hero */}
-      <section className="bg-gradient-to-br from-white via-accent to-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-text-dark mb-6">
-            Focus.<br />
-            Performance.<br />
-            Recovery.
-          </h1>
-          <p className="text-2xl md:text-3xl text-primary mb-4 font-semibold">
-            EverWell, every day.
+    <div className="bg-transparent">
+      {/* Hero with video background */}
+      <section className="relative min-h-[640px] overflow-hidden">
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={heroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0f1f2b]/80 via-[#0f2f2b]/75 to-primary/60" />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-28 text-center text-white">
+          <p className="section-heading text-white/70">EverWell Performance Lab</p>
+          <h1 className="hero-title text-white">Focus. Performance. Recovery.</h1>
+          <p className="hero-subtitle">
+            Protocolos personalizados com cannabis medicinal e inovação científica para alcançar a sua melhor versão.
           </p>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-            Combinando ciência e inovação, criamos produtos à base de CBD que promovem bem-estar e alta performance, 
-            apoiando sua jornada pessoal ou profissional com qualidade de vida e resultados concretos.
-          </p>
-          <a
-            href="https://wa.me/5521998170460?text=Gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20EverWell"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary inline-block"
-          >
-            Comece agora
-          </a>
-        </div>
-      </section>
-
-      {/* Section 3: Quality Statement */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xl md:text-2xl text-gray-700 font-semibold">
-            Produtos importados, testados e<br />
-            <span className="text-primary">com qualidade reconhecida:</span>
-          </p>
-        </div>
-      </section>
-
-      {/* Section 4: Value Proposition */}
-      <section className="py-20 bg-accent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-text-dark mb-6">
-                Imagine
-              </h2>
-              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                Criamos fórmulas que funcionam de verdade, com ingredientes naturais eficazes e propósito definido. 
-                Elaborados por especialistas e analisados lote a lote para garantir excelência.
-              </p>
-              <Link to="/produtos" className="btn-primary inline-block">
-                SAIBA MAIS
-              </Link>
-            </div>
-            <div className="text-center">
-              <h3 className="text-3xl font-bold text-primary mb-4">
-                Unlock the power of our products
-              </h3>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 5: Purchase Process (3 Steps) */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-text-dark mb-12">
-            As etapas de compra
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {/* Step 1 */}
-            <div className="card text-center">
-              <div className="text-4xl font-bold text-primary mb-4">1</div>
-              <h3 className="text-xl font-semibold mb-4">Compra Descomplicada</h3>
-              <div className="space-y-3">
-                <a
-                  href="https://pro.quaddro.co/yourbestversion/servicos/vgwg3F"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-primary hover:underline"
-                >
-                  Consulta Médica
-                </a>
-                <a
-                  href="https://pro.quaddro.co/yourbestversion/servicos/xUJjRT"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-primary hover:underline"
-                >
-                  Autorização da Anvisa
-                </a>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="card text-center">
-              <div className="text-4xl font-bold text-primary mb-4">2</div>
-              <h3 className="text-xl font-semibold mb-4">Importação e Entrega</h3>
-              <p className="text-gray-600">
-                Processamento seguro e entrega em todo o Brasil
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="card text-center">
-              <div className="text-4xl font-bold text-primary mb-4">3</div>
-              <h3 className="text-xl font-semibold mb-4">Pronto!</h3>
-              <p className="text-gray-600">
-                Receba seus produtos com qualidade garantida
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <Link
-              to="/agendar"
-              className="btn-primary"
-            >
-              Inicie agora
+          <div className="hero-cta">
+            <Link to="/agendar" className="btn-primary">
+              Agendar consulta
+            </Link>
+            <Link to="/produtos" className="btn-secondary">
+              Catálogo exclusivo
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Section 6: Objective Definition Form */}
-      <section className="py-20 bg-accent">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-text-dark mb-6">
-            defina seus objetivos
-          </h2>
-          <p className="text-lg text-gray-700 mb-4">
-            Compartilhe seus objetivos e histórico de saúde para que possamos criar a melhor estratégia 
-            de bem-estar e performance para você.
-          </p>
-          <p className="text-xl font-semibold text-primary mb-8">
-            Atinja sua melhor perfomance, seja pessoal ou profissional.<br />
-            Avance para seu próximo nível e se surpreenda do que você é capaz
-          </p>
-          <iframe
-            src="https://form.jotform.com/252618050339051"
-            title="Formulário de Objetivos"
-            className="w-full h-[600px] border-0 rounded-lg"
-          />
-        </div>
-      </section>
-
-      {/* Section 7: Products Preview */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-text-dark mb-12">
-            Produtos
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            <div className="card text-center">
-              <div className="h-48 bg-accent rounded-lg mb-4 flex items-center justify-center">
-                <span className="text-4xl">🍬</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Gummy</h3>
-            </div>
-            <div className="card text-center">
-              <div className="h-48 bg-accent rounded-lg mb-4 flex items-center justify-center">
-                <span className="text-4xl">💧</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Óleo</h3>
-            </div>
-            <div className="card text-center">
-              <div className="h-48 bg-accent rounded-lg mb-4 flex items-center justify-center">
-                <span className="text-4xl">🧴</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Creme</h3>
+          <div className="mt-12 flex justify-center">
+            <div className="glass-panel px-8 py-5 flex flex-col md:flex-row gap-6 md:gap-12 text-left md:text-center">
+              {heroStats.map((item) => (
+                <div key={item.label} className="flex flex-col">
+                  <span className="text-3xl md:text-4xl font-heading font-semibold text-white">{item.value}</span>
+                  <span className="text-sm uppercase tracking-[0.35em] text-white/70">{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="text-center">
-            <Link to="/produtos" className="btn-primary">
-              Conheça os produtos
+        </div>
+      </section>
+
+      {/* Trust Badges */}
+      <section className="-mt-20 relative z-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto glass-panel p-8 md:p-10">
+          <div className="grid md:grid-cols-4 gap-6">
+            {trustBadges.map((badge) => (
+              <div key={badge.title} className="space-y-2">
+                <p className="text-sm uppercase tracking-[0.3em] text-primary/80">{badge.title}</p>
+                <p className="text-darkTeal/80 text-sm leading-relaxed">{badge.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Define Goals */}
+      <section className="py-24 bg-gradient-to-br from-white via-primary/5 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <p className="section-heading">Estratégia personalizada</p>
+            <h2 className="section-title">Defina seus objetivos com especialistas EverWell</h2>
+            <p className="muted-text">
+              Compartilhe histórico, metas e desafios. Nossa equipe analisa seus dados, define a dosagem ideal e acompanha a evolução com métricas claras.
+            </p>
+            <div className="grid gap-4">
+              {['Ajustes contínuos guiados por dados', 'Suporte médico premium', 'Protocolos exclusivos de performance'].map((item) => (
+                <div key={item} className="flex items-center gap-3 text-darkTeal/85">
+                  <span className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center">•</span>
+                  <span className="font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
+            <Link to="/agendar" className="btn-primary inline-flex items-center gap-3">
+              Iniciar jornada
+              <span aria-hidden>→</span>
             </Link>
           </div>
+          <div className="glass-panel p-6 md:p-8">
+            <div className="mb-6 text-left">
+              <h3 className="text-2xl font-semibold text-darkTeal mb-2">Mapeie sua melhor versão</h3>
+              <p className="text-sm text-mediumTeal">
+                Responda ao diagnóstico oficial e receba plano personalizado.
+              </p>
+            </div>
+            <div className="rounded-3xl overflow-hidden shadow-inner border border-white/50">
+              <iframe
+                src="https://form.jotform.com/252618050339051"
+                title="Formulário de Objetivos"
+                className="w-full h-[520px] border-0"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Section 8: Testimonials */}
-      <section className="py-20 bg-accent">
+      {/* Purchase Process */}
+      <section className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-text-dark mb-12">
-            Clientes Satisfeitos
-          </h2>
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <p className="section-heading">Onboarding premium</p>
+            <h2 className="section-title">Uma experiência desenhada para alcançar resultados reais</h2>
+            <p className="muted-text">
+              Da primeira consulta à entrega, cada etapa é orientada por especialistas e acompanhada com total transparência.
+            </p>
+          </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="card">
-              <p className="text-gray-700 mb-4 italic">
-                "Tinha uma dor crônica nos braços que sumiram após algumas semanas. Muito Obrigado EverWell"
-              </p>
-              <p className="font-semibold text-primary">Joana Fontes</p>
-            </div>
-            <div className="card">
-              <p className="text-gray-700 mb-4 italic">
-                "As gomas me fizeram ter equílibrio mental e físico no meu dia-a-dia, agora consigo performar bem no meu trabalho"
-              </p>
-              <p className="font-semibold text-primary">Maria Silva</p>
-            </div>
-            <div className="card">
-              <p className="text-gray-700 mb-4 italic">
-                "Com a EverWell consigo me concentrar em meus estudos e dormir bem. Sou muito grato por conhecê-los"
-              </p>
-              <p className="font-semibold text-primary">Antônio Santos</p>
-            </div>
+            {processSteps.map((step) => (
+              <div key={step.number} className="card space-y-4">
+                <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
+                <p className="text-4xl font-heading text-darkTeal">{step.number}</p>
+                <h3 className="text-2xl font-semibold text-darkTeal">{step.title}</h3>
+                <p className="muted-text">{step.copy}</p>
+                {step.link && (
+                  <a
+                    href={step.link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide"
+                  >
+                    {step.link.label}
+                    <span aria-hidden>↗</span>
+                  </a>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Section 9: Why EverWell */}
-      <section className="py-20 bg-white">
+      {/* Products Preview */}
+      <section className="py-24 bg-gradient-to-br from-primary/5 via-white to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-text-dark mb-12">
-            Por que a EverWell ?
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="card text-center">
-              <div className="text-4xl mb-4">⭐</div>
-              <h3 className="text-xl font-semibold mb-2">Qualidade é Inegociável</h3>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <div>
+              <p className="section-heading">Coleção exclusiva</p>
+              <h2 className="section-title">Produtos desenhados para performance, foco e recuperação</h2>
             </div>
-            <div className="card text-center">
-              <div className="text-4xl mb-4">⚖️</div>
-              <h3 className="text-xl font-semibold mb-2">Transparência e Conformidade Legal</h3>
-            </div>
-            <div className="card text-center">
-              <div className="text-4xl mb-4">💚</div>
-              <h3 className="text-xl font-semibold mb-2">Foco em Wellness</h3>
-            </div>
-            <div className="card text-center">
-              <div className="text-4xl mb-4">🤝</div>
-              <h3 className="text-xl font-semibold mb-2">Acompanhamento de Ponta a Ponta</h3>
+            <Link to="/produtos" className="btn-secondary">
+              Ver catálogo completo
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {productHighlights.map((product) => (
+              <div key={product.name} className="product-card space-y-4">
+                <img src={product.image} alt={product.name} className="product-card-image" />
+                <h3 className="text-xl font-semibold text-darkTeal">{product.name}</h3>
+                <p className="text-mediumTeal">{product.description}</p>
+                <Link to="/produtos" className="text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                  Detalhes
+                  <span aria-hidden>→</span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <p className="section-heading">Satisfied customers</p>
+            <h2 className="section-title">Histórias reais de alta performance com EverWell</h2>
+            <p className="muted-text">
+              Resultados sustentáveis, suporte contínuo e uma comunidade que vive bem-estar todos os dias.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.name} className="card text-left flex flex-col gap-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60"
+                  />
+                  <div>
+                    <p className="font-semibold text-darkTeal">{testimonial.name}</p>
+                    <p className="text-xs uppercase tracking-[0.35em] text-primary/70">{testimonial.title}</p>
+                  </div>
+                </div>
+                <p className="text-darkTeal/80 italic leading-relaxed">“{testimonial.quote}”</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Differentials */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <p className="section-heading">Por que EverWell</p>
+            <h2 className="section-title">Uma plataforma completa para alta performance e bem-estar</h2>
+          </div>
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {differentiators.map((item) => (
+              <div key={item.title} className="card space-y-4">
+                <span className="text-4xl">{item.icon}</span>
+                <h3 className="text-xl font-semibold text-darkTeal">{item.title}</h3>
+                <p className="muted-text">{item.copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f1f2b] via-primary/90 to-[#124f45] text-white p-12 md:p-16">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent)]" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-10">
+              <div className="max-w-2xl space-y-4">
+                <p className="section-heading text-white/70">Pronto para começar?</p>
+                <h2 className="text-4xl md:text-5xl font-semibold leading-tight">Sua melhor versão começa agora</h2>
+                <p className="text-white/75">
+                  Avance para seu próximo nível com fórmulas EverWell, acompanhamento premium e métricas claras.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4 md:text-right">
+                <Link to="/agendar" className="btn-primary">
+                  Agendar consulta
+                </Link>
+                <Link to="/duvidas" className="btn-secondary inline-flex items-center gap-2 self-start md:self-end">
+                  Fale com especialistas
+                  <span aria-hidden>→</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 10: CTA */}
-      <section className="py-20 bg-gradient-to-r from-primary to-secondary text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Sua Melhor Versão começa agora!
-          </h2>
-          <Link
-            to="/agendar"
-            className="bg-white text-primary px-8 py-4 rounded-lg font-semibold hover:bg-accent transition-colors inline-block"
-          >
-            AGENDAR CONSULTA
-          </Link>
-        </div>
-      </section>
-
-      {/* Section 11: Social Proof */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-text-dark mb-8">
-            Clientes Satisfeitos
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Placeholder for customer logos/images */}
-            <div className="h-24 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">Logo</span>
-            </div>
-            <div className="h-24 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">Logo</span>
-            </div>
-            <div className="h-24 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">Logo</span>
-            </div>
-            <div className="h-24 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-gray-400">Logo</span>
-            </div>
+      {/* FAQ */}
+      <section className="py-24 bg-gradient-to-br from-white via-primary/5 to-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <p className="section-heading">FAQ EverWell</p>
+            <h2 className="section-title">Dúvidas frequentes</h2>
+            <p className="muted-text">
+              Transparência e clareza em cada etapa. Confira as respostas para as perguntas mais frequentes.
+            </p>
           </div>
-        </div>
-      </section>
-
-      {/* Section 12: FAQ */}
-      <section className="py-20 bg-accent">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-text-dark mb-12">
-            Dúvidas Frequentes
-          </h2>
           <FAQAccordion />
-          <div className="text-center mt-8">
-            <Link to="/duvidas" className="text-primary hover:underline font-semibold">
-              Ver todas as dúvidas →
+          <div className="text-center mt-10">
+            <Link to="/duvidas" className="btn-secondary inline-flex items-center gap-2">
+              Ver todas as dúvidas
+              <span aria-hidden>→</span>
             </Link>
           </div>
         </div>

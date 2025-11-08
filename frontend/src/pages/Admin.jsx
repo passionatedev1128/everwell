@@ -19,6 +19,14 @@ const Admin = () => {
   const [userFilter, setUserFilter] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
 
+  const totalUsers = users.length;
+  const authorizedUsers = users.filter((user) => user.isAuthorized).length;
+  const pendingUsers = totalUsers - authorizedUsers;
+  const totalOrders = orders.length;
+  const deliveredOrders = orders.filter((order) => order.status === 'delivered').length;
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+  const processingOrders = orders.filter((order) => ['pending', 'processing', 'paid'].includes(order.status)).length;
+
   useEffect(() => {
     if (activeTab === 'users') {
       fetchUsers();
@@ -204,61 +212,103 @@ const Admin = () => {
     });
   };
 
-  if (loading && activeTab === 'users') {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bgSecondary">
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f5faf7] via-white to-[#e7f5f1]">
+        <div className="glass-panel px-10 py-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-mediumTeal">Carregando...</p>
+          <p className="text-mediumTeal">Carregando painel...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-bgSecondary py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-darkTeal mb-8 font-heading">
-          Painel Administrativo
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#f7fbf9] via-white to-[#eaf6f3] py-14 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <p className="section-heading">Painel EverWell</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-darkTeal font-heading">Painel Administrativo</h1>
+            <p className="text-mediumTeal max-w-2xl mt-3">
+              Acompanhe usuários, pedidos e evolução do negócio com uma visão centrada em dados.
+            </p>
+          </div>
+          <div className="glass-panel px-6 py-4 flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-[0.35em] text-primary/70">Usuários ativos</p>
+              <p className="text-2xl font-heading text-darkTeal">{authorizedUsers}</p>
+            </div>
+            <div className="w-px h-10 bg-white/60" />
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-[0.35em] text-primary/70">Pedidos em andamento</p>
+              <p className="text-2xl font-heading text-darkTeal">{processingOrders}</p>
+            </div>
+          </div>
+        </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
+          <div className="glass-panel border border-red-200/60 bg-red-50/60 text-red-700 px-6 py-5">
             {error}
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="mb-6 bg-white rounded-lg shadow-md p-2 flex gap-2">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="card">
+            <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Usuários cadastrados</p>
+            <p className="text-3xl font-heading text-darkTeal">{totalUsers}</p>
+            <p className="text-xs text-mediumTeal mt-2">{authorizedUsers} autorizados · {pendingUsers} pendentes</p>
+          </div>
+          <div className="card">
+            <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Pedidos totais</p>
+            <p className="text-3xl font-heading text-darkTeal">{totalOrders}</p>
+            <p className="text-xs text-mediumTeal mt-2">{deliveredOrders} entregues · {processingOrders} em processamento</p>
+          </div>
+          <div className="card">
+            <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Receita acumulada</p>
+            <p className="text-3xl font-heading text-darkTeal">R$ {totalRevenue.toFixed(2)}</p>
+            <p className="text-xs text-mediumTeal mt-2">Baseado nos pedidos confirmados</p>
+          </div>
+          <div className="card">
+            <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Status geral</p>
+            <div className="flex flex-wrap gap-3 mt-3">
+              <span className="badge badge-success">Autorizados {authorizedUsers}</span>
+              <span className="badge badge-warning">Pendentes {pendingUsers}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-panel p-3 inline-flex gap-2">
           <button
             onClick={() => setActiveTab('users')}
-            className={`px-6 py-2 rounded-md transition-colors ${
+            className={`px-6 py-2 rounded-full text-sm font-semibold uppercase tracking-wide transition-all ${
               activeTab === 'users'
-                ? 'bg-primary text-white'
-                : 'text-darkTeal hover:bg-bgSecondary'
+                ? 'bg-primary text-white shadow-[0_18px_38px_-20px_rgba(79,179,168,0.8)]'
+                : 'text-darkTeal/70 bg-white/70'
             }`}
           >
             Usuários
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`px-6 py-2 rounded-md transition-colors ${
+            className={`px-6 py-2 rounded-full text-sm font-semibold uppercase tracking-wide transition-all ${
               activeTab === 'orders'
-                ? 'bg-primary text-white'
-                : 'text-darkTeal hover:bg-bgSecondary'
+                ? 'bg-primary text-white shadow-[0_18px_38px_-20px_rgba(79,179,168,0.8)]'
+                : 'text-darkTeal/70 bg-white/70'
             }`}
           >
             Pedidos
           </button>
         </div>
 
-        {/* Users Tab */}
         {activeTab === 'users' && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-darkTeal mb-4 font-heading">Gerenciar Usuários</h2>
-            <p className="text-mediumTeal mb-6">
-              Autorize ou desautorize usuários para acessar os produtos restritos.
-            </p>
+          <div className="glass-panel p-8 space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-darkTeal mb-2 font-heading">Gerenciar usuários</h2>
+              <p className="text-mediumTeal">
+                Aprove ou revogue acessos à área restrita de produtos e acompanhe novos cadastros em tempo real.
+              </p>
+            </div>
             <AdminTable
               users={users}
               onToggleAuthorization={handleToggleAuthorization}
@@ -266,61 +316,48 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Orders Tab */}
         {activeTab === 'orders' && (
-          <div>
-            {/* Enhanced Filters and Search */}
+          <div className="space-y-8">
             {orders.length > 0 && (
-              <div className="mb-6 bg-white rounded-lg shadow-md p-6 space-y-4">
-                {/* Search Bar */}
-                <div>
-                  <label className="block text-sm font-medium text-darkTeal mb-2">
-                    Buscar Pedidos
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Buscar por ID do pedido, cliente, email ou produto..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full input-field"
-                  />
-                </div>
-
-                {/* Date Range and User Filter */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="glass-panel p-8 space-y-6">
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                   <div>
-                    <label className="block text-sm font-medium text-darkTeal mb-2">
-                      Data Inicial
-                    </label>
+                    <label className="form-label">Buscar pedidos</label>
+                    <input
+                      type="text"
+                      placeholder="ID do pedido, cliente, email ou produto..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Data inicial</label>
                     <input
                       type="date"
                       value={dateFilter.from}
                       onChange={(e) => setDateFilter({ ...dateFilter, from: e.target.value })}
-                      className="w-full input-field"
+                      className="input-field"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-darkTeal mb-2">
-                      Data Final
-                    </label>
+                    <label className="form-label">Data final</label>
                     <input
                       type="date"
                       value={dateFilter.to}
                       onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                      className="w-full input-field"
+                      className="input-field"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-darkTeal mb-2">
-                      Ordenar por
-                    </label>
+                    <label className="form-label">Ordenar por</label>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="w-full input-field"
+                      className="input-field"
                     >
-                      <option value="date-desc">Data (Mais Recente)</option>
-                      <option value="date-asc">Data (Mais Antigo)</option>
+                      <option value="date-desc">Data (Mais recente)</option>
+                      <option value="date-asc">Data (Mais antigo)</option>
                       <option value="amount-desc">Valor (Maior)</option>
                       <option value="amount-asc">Valor (Menor)</option>
                       <option value="status">Status</option>
@@ -329,7 +366,6 @@ const Admin = () => {
                   </div>
                 </div>
 
-                {/* Clear Filters Button */}
                 {(dateFilter.from || dateFilter.to || searchQuery || userFilter) && (
                   <button
                     onClick={() => {
@@ -337,36 +373,35 @@ const Admin = () => {
                       setSearchQuery('');
                       setUserFilter('');
                     }}
-                    className="text-sm text-primary hover:underline"
+                    className="text-sm font-semibold text-primary hover:underline"
                   >
-                    Limpar Filtros
+                    Limpar filtros ativos
                   </button>
                 )}
 
-                {/* Status Filters */}
-                <div className="flex flex-wrap gap-2 pt-2 border-t">
+                <div className="flex flex-wrap gap-3 pt-4 border-t border-white/40">
                   <button
                     onClick={() => setStatusFilter('all')}
-                    className={`px-4 py-2 rounded-md transition-colors ${
+                    className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wide ${
                       statusFilter === 'all'
                         ? 'bg-primary text-white'
-                        : 'bg-bgSecondary text-darkTeal hover:bg-primary hover:text-white'
+                        : 'bg-white/70 text-darkTeal/80'
                     }`}
                   >
                     Todos ({orders.length})
                   </button>
                   {['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => {
-                    const count = orders.filter(o => o.status === status).length;
+                    const count = orders.filter((o) => o.status === status).length;
                     if (count === 0) return null;
                     const badge = getStatusBadge(status);
                     return (
                       <button
                         key={status}
                         onClick={() => setStatusFilter(status)}
-                        className={`px-4 py-2 rounded-md transition-colors ${
+                        className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wide ${
                           statusFilter === status
                             ? 'bg-primary text-white'
-                            : 'bg-bgSecondary text-darkTeal hover:bg-primary hover:text-white'
+                            : 'bg-white/70 text-darkTeal/80'
                         }`}
                       >
                         {badge.label} ({count})
@@ -378,15 +413,15 @@ const Admin = () => {
             )}
 
             {ordersLoading ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <div className="glass-panel p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                 <p className="text-mediumTeal">Carregando pedidos...</p>
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <p className="text-mediumTeal mb-4">
-                  {orders.length === 0 
-                    ? 'Nenhum pedido encontrado.' 
+              <div className="glass-panel p-10 text-center space-y-4">
+                <p className="text-mediumTeal">
+                  {orders.length === 0
+                    ? 'Nenhum pedido encontrado.'
                     : 'Nenhum pedido encontrado com os filtros selecionados.'}
                 </p>
                 {(dateFilter.from || dateFilter.to || searchQuery || userFilter || statusFilter !== 'all') && (
@@ -399,7 +434,7 @@ const Admin = () => {
                     }}
                     className="btn-secondary"
                   >
-                    Limpar Filtros
+                    Limpar filtros
                   </button>
                 )}
               </div>
@@ -408,8 +443,8 @@ const Admin = () => {
                 {filteredOrders.map((order) => {
                   const badge = getStatusBadge(order.status);
                   return (
-                    <div key={order._id} className="bg-white rounded-lg shadow-md p-6 animate-fade-in hover:shadow-lg transition-all duration-300">
-                      <div className="flex justify-between items-start mb-4">
+                    <div key={order._id} className="glass-panel p-6 animate-fade-in">
+                      <div className="flex justify-between items-start mb-4 gap-4">
                         <div>
                           <h3 className="text-xl font-semibold text-darkTeal mb-2">
                             Pedido #{order._id.slice(-8).toUpperCase()}
@@ -441,12 +476,12 @@ const Admin = () => {
                         </div>
                         <div>
                           <p className="text-sm text-mediumTeal mb-1">Ações</p>
-                          <div className="flex gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <button
                               onClick={() => handleViewOrderDetails(order._id)}
-                              className="btn-secondary text-sm"
+                              className="btn-secondary text-xs"
                             >
-                              Ver Detalhes
+                              Ver detalhes
                             </button>
                             <select
                               value={order.status}
@@ -471,14 +506,13 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Order Details Modal */}
         {selectedOrder && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in"
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
             onClick={() => setSelectedOrder(null)}
           >
-            <div 
-              className="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-scale-in"
+            <div
+              className="glass-panel max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
@@ -495,10 +529,9 @@ const Admin = () => {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Order Info */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-mediumTeal mb-1">Cliente</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="card bg-white/80">
+                      <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Cliente</p>
                       <p className="text-darkTeal font-semibold">
                         {selectedOrder.userId?.name || 'N/A'}
                       </p>
@@ -506,8 +539,8 @@ const Admin = () => {
                         {selectedOrder.userId?.email || 'N/A'}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-sm text-mediumTeal mb-1">Status</p>
+                    <div className="card bg-white/80">
+                      <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Status</p>
                       <select
                         value={selectedOrder.status}
                         onChange={(e) => handleStatusUpdate(selectedOrder._id, e.target.value)}
@@ -523,134 +556,62 @@ const Admin = () => {
                     </div>
                   </div>
 
-                  {/* Order Date */}
-                  <div>
-                    <p className="text-sm text-mediumTeal mb-1">Data do Pedido</p>
-                    <p className="text-darkTeal font-semibold">{formatDate(selectedOrder.createdAt)}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="card bg-white/80">
+                      <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Data do pedido</p>
+                      <p className="text-darkTeal font-semibold">{formatDate(selectedOrder.createdAt)}</p>
+                      <p className="text-sm text-mediumTeal">Atualizado em {formatDate(selectedOrder.updatedAt)}</p>
+                    </div>
+                    <div className="card bg-white/80">
+                      <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-2">Total do pedido</p>
+                      <p className="text-darkTeal font-semibold">R$ {selectedOrder.totalAmount?.toFixed(2) || '0.00'}</p>
+                      <p className="text-sm text-mediumTeal">Itens: {selectedOrder.products?.length || 0}</p>
+                    </div>
                   </div>
 
-                  {/* Products */}
-                  <div>
-                    <h3 className="font-semibold text-darkTeal mb-3">Itens do Pedido</h3>
+                  <div className="card bg-white/80">
+                    <h3 className="text-lg font-semibold text-darkTeal mb-4">Itens</h3>
                     <div className="space-y-3">
-                      {selectedOrder.products?.map((item, index) => (
-                        <div key={index} className="flex gap-4 p-4 bg-bgSecondary rounded-md">
-                          {item.productId?.images?.[0] ? (
-                            <img
-                              src={item.productId.images[0]}
-                              alt={item.name}
-                              className="w-20 h-20 object-cover rounded-md flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center flex-shrink-0">
-                              <span className="text-gray-400 text-xs text-center px-2">Sem imagem</span>
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-darkTeal font-medium mb-1">{item.name || 'Produto'}</p>
-                            <p className="text-sm text-mediumTeal mb-2">
-                              Quantidade: {item.quantity} × R$ {item.price?.toFixed(2)}
-                            </p>
-                            {item.productId?.slug && (
-                              <a
-                                href={`/produtos/${item.productId.slug}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-primary hover:underline"
-                              >
-                                Ver produto →
-                              </a>
-                            )}
+                      {selectedOrder.products?.map((product, idx) => (
+                        <div key={`${product.productId?._id || product.productId || product._id}-${idx}`} className="flex justify-between items-center">
+                          <div>
+                            <p className="text-darkTeal font-medium">{product.name}</p>
+                            <p className="text-sm text-mediumTeal">Quantidade: {product.quantity || 1}</p>
                           </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-darkTeal font-semibold text-lg">
-                              R$ {(item.price * item.quantity).toFixed(2)}
-                            </p>
-                          </div>
+                          <p className="text-sm font-semibold text-primary">R$ {(product.price || 0).toFixed(2)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Shipping Address */}
                   {selectedOrder.shippingAddress && (
-                    <div>
-                      <h3 className="font-semibold text-darkTeal mb-3">Endereço de Entrega</h3>
-                      <div className="p-3 bg-bgSecondary rounded-md">
-                        <p className="text-darkTeal">
-                          {selectedOrder.shippingAddress.street}
-                        </p>
-                        <p className="text-darkTeal">
-                          {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}
-                        </p>
-                        <p className="text-darkTeal">
-                          CEP: {selectedOrder.shippingAddress.zipCode}
-                        </p>
-                        {selectedOrder.shippingAddress.country && (
-                          <p className="text-darkTeal">
-                            {selectedOrder.shippingAddress.country}
-                          </p>
-                        )}
+                    <div className="card bg-white/80">
+                      <h3 className="text-lg font-semibold text-darkTeal mb-4">Endereço de envio</h3>
+                      <div className="text-mediumTeal space-y-1">
+                        <p>{selectedOrder.shippingAddress.fullName}</p>
+                        <p>{selectedOrder.shippingAddress.street}, {selectedOrder.shippingAddress.number}</p>
+                        <p>{selectedOrder.shippingAddress.neighborhood}</p>
+                        <p>{selectedOrder.shippingAddress.city} - {selectedOrder.shippingAddress.state}</p>
+                        <p>{selectedOrder.shippingAddress.zipCode}</p>
+                        <p>{selectedOrder.shippingAddress.country}</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Payment Proof */}
-                  <div>
-                    <h3 className="font-semibold text-darkTeal mb-3">Comprovante de Pagamento</h3>
-                    {selectedOrder.paymentProof?.url ? (
-                      <div className="p-4 bg-bgSecondary rounded-md space-y-3">
-                        <div className="flex items-center gap-4">
-                          <a
-                            href={selectedOrder.paymentProof.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:text-primary-dark font-medium"
-                          >
-                            Ver comprovante →
-                          </a>
-                          {selectedOrder.paymentProof.uploadedAt && (
-                            <p className="text-xs text-lightTeal">
-                              Enviado em: {formatDate(selectedOrder.paymentProof.uploadedAt)}
-                            </p>
-                          )}
-                        </div>
-                        {selectedOrder.paymentProof.status && (
-                          <div>
-                            <p className="text-sm text-mediumTeal mb-1">Status do Comprovante:</p>
-                            <span className={`badge ${getStatusBadge(selectedOrder.paymentProof.status).class}`}>
-                              {getStatusBadge(selectedOrder.paymentProof.status).label}
-                            </span>
-                          </div>
-                        )}
-                        {/* Preview if image */}
-                        {selectedOrder.paymentProof.url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
-                          <div className="mt-3">
-                            <img
-                              src={selectedOrder.paymentProof.url}
-                              alt="Comprovante de pagamento"
-                              className="max-w-full h-auto rounded-md border border-gray-300"
-                              style={{ maxHeight: '300px' }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                        <p className="text-sm text-yellow-800">
-                          Nenhum comprovante de pagamento foi enviado ainda.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Total */}
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between text-xl font-bold text-darkTeal">
-                      <span>Total:</span>
-                      <span className="text-primary">R$ {selectedOrder.totalAmount?.toFixed(2)}</span>
+                  {selectedOrder.paymentProof && (
+                    <div className="card bg-white/80">
+                      <h3 className="text-lg font-semibold text-darkTeal mb-3">Comprovante de pagamento</h3>
+                      <a
+                        href={selectedOrder.paymentProof}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-secondary inline-flex items-center gap-2"
+                      >
+                        Ver comprovante
+                        <span aria-hidden>↗</span>
+                      </a>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

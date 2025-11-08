@@ -12,7 +12,6 @@ const FAQAccordion = () => {
         setFaqs(response.data.faqs || []);
       } catch (error) {
         console.error('Error fetching FAQs:', error);
-        // Fallback to default FAQs
         setFaqs([
           {
             question: 'O que é Cannabis Medicinal ?',
@@ -55,18 +54,25 @@ const FAQAccordion = () => {
   return (
     <div className="space-y-4">
       {faqs.map((faq, index) => (
-        <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div key={index} className="glass-panel overflow-hidden">
           <button
             onClick={() => toggleFAQ(index)}
-            className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+            className="w-full px-6 md:px-8 py-5 flex items-center justify-between gap-6 text-left"
           >
-            <span className="font-semibold text-text-dark">{faq.question}</span>
-            <span className="text-2xl text-primary">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-1">Pergunta</p>
+              <span className="font-semibold text-lg text-darkTeal leading-snug">{faq.question}</span>
+            </div>
+            <span
+              className={`flex items-center justify-center w-10 h-10 rounded-full border border-primary/30 text-primary transition-transform duration-300 ${
+                openIndex === index ? 'rotate-45 bg-primary/15' : ''
+              }`}
+            >
               {openIndex === index ? '−' : '+'}
             </span>
           </button>
           {openIndex === index && (
-            <div className="px-6 py-4 bg-gray-50 text-gray-700">
+            <div className="px-6 md:px-8 pb-6 text-darkTeal/80 leading-relaxed border-t border-white/40 bg-white/60">
               {faq.answer}
             </div>
           )}
