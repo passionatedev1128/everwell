@@ -162,7 +162,7 @@ Transform EverWell from a Canva prototype into a full-stack MERN application wit
 3. **Marketing Integrations**
    - Google Analytics 4 setup
    - Google Tag Manager integration
-   - Facebook Pixel implementation
+   - HubSpot tracking implementation
    - Event tracking for:
      - User registration
      - Product views
@@ -235,7 +235,7 @@ Transform EverWell from a Canva prototype into a full-stack MERN application wit
 ### Marketing Tools
 - **Analytics**: Google Analytics 4 (gtag.js)
 - **Tag Manager**: Google Tag Manager
-- **Facebook Pixel**: Facebook Pixel code
+- **HubSpot tracking**: HubSpot tracking code
 - **Booking**: SimplyBook widget (iframe/script)
 
 ### Deployment (Recommendations)
@@ -255,7 +255,7 @@ Transform EverWell from a Canva prototype into a full-stack MERN application wit
 5. ✅ Payment proof upload
 6. ✅ User dashboard
 7. ✅ Google Analytics 4 + GTM
-8. ✅ Facebook Pixel
+8. ✅ HubSpot tracking
 9. ✅ SimplyBook widget
 10. ✅ Email automation (Brevo)
 
@@ -294,6 +294,6 @@ Transform EverWell from a Canva prototype into a full-stack MERN application wit
 2. Set up Cloudinary account for file storage
 3. Set up Brevo account for email
 4. Get Google Analytics 4 tracking ID
-5. Get Facebook Pixel ID
+5. Get HubSpot portal ID
 6. Get SimplyBook widget code
 

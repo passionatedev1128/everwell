@@ -2,7 +2,7 @@
 
 ## Overview
 
-Google Tag Manager has been integrated into the EverWell application to manage all marketing tags (GA4, Facebook Pixel, etc.) from a single interface without code changes.
+Google Tag Manager has been integrated into the EverWell application to manage all marketing tags (GA4, HubSpot tracking, etc.) from a single interface without code changes.
 
 ## Setup Instructions
 
@@ -118,7 +118,7 @@ All events are pushed to `dataLayer` and can be configured in GTM to fire tags.
 2. Click **New** to create a tag
 3. Configure tags for:
    - Google Analytics 4 (if not already set up)
-   - Facebook Pixel (if not already set up)
+   - HubSpot tracking (if not already set up)
    - Other marketing tools
 
 ### Creating Triggers
@@ -145,11 +145,11 @@ All events are pushed to `dataLayer` and can be configured in GTM to fire tags.
    - Event Name: Use dataLayer event name (e.g., `view_item`, `add_to_cart`)
    - Trigger: Create custom trigger for each event
 
-### Example: Setting Up Facebook Pixel via GTM
+### Example: Setting Up HubSpot Tracking via GTM
 
 1. **Create a Tag:**
    - Tag Type: **Custom HTML**
-   - HTML: Facebook Pixel base code
+   - HTML: HubSpot tracking base code
    - Trigger: **All Pages**
 
 2. **Create Event Tags:**
@@ -248,12 +248,12 @@ All events are pushed to `dataLayer` and can be configured in GTM to fire tags.
 - [ ] Tested with real user data (if possible)
 - [ ] Verified tags are firing correctly
 - [ ] Set up GA4 via GTM (if using)
-- [ ] Set up Facebook Pixel via GTM (if using)
+- [ ] Set up HubSpot tracking via GTM (if using)
 
 ## Best Practices
 
 1. **Use GTM for All Tags:**
-   - Don't hardcode GA4 or Facebook Pixel scripts
+   - Don't hardcode GA4 or HubSpot tracking scripts
    - Manage everything through GTM
    - Makes it easier to add/remove tags without code changes
 
@@ -290,8 +290,8 @@ All events are pushed to `dataLayer` and can be configured in GTM to fire tags.
 - All tracking is non-blocking (won't affect app performance)
 - Console logs are only shown in development
 - Events are pushed to dataLayer asynchronously
-- GTM works alongside direct GA4 and Facebook Pixel implementations
-- You can use GTM to manage GA4 and Facebook Pixel instead of direct implementation
+- GTM works alongside direct GA4 and HubSpot tracking implementations
+- You can use GTM to manage GA4 and HubSpot tracking instead of direct implementation
 - GTM Preview mode is essential for debugging
 - Always test in Preview mode before publishing
 
@@ -299,12 +299,12 @@ All events are pushed to `dataLayer` and can be configured in GTM to fire tags.
 
 The current implementation includes:
 - Direct GA4 tracking (via `analytics.js`)
-- Direct Facebook Pixel tracking (via `facebookPixel.js`)
+- Direct HubSpot tracking (via `hubspot.js`)
 - GTM dataLayer tracking (via `gtm.js`)
 
 You can:
 1. **Keep all three** for redundancy and flexibility
-2. **Use only GTM** and configure GA4/Facebook Pixel through GTM
+2. **Use only GTM** and configure GA4/HubSpot tracking through GTM
 3. **Use GTM for new tags** while keeping direct implementations
 
 The choice depends on your needs and preferences.

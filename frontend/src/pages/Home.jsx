@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import FAQAccordion from '../components/FAQAccordion';
+import GoalForm from '../components/GoalForm';
 
 const heroVideo = 'https://cdn.coverr.co/videos/coverr-balance-your-body-1689250530998?download=1';
 
@@ -193,21 +194,7 @@ const Home = () => {
               <span aria-hidden>→</span>
             </Link>
           </div>
-          <div className="glass-panel p-6 md:p-8">
-            <div className="mb-6 text-left">
-              <h3 className="text-2xl font-semibold text-darkTeal mb-2">Mapeie sua melhor versão</h3>
-              <p className="text-sm text-mediumTeal">
-                Responda ao diagnóstico oficial e receba plano personalizado.
-              </p>
-            </div>
-            <div className="rounded-3xl overflow-hidden shadow-inner border border-white/50">
-              <iframe
-                src="https://form.jotform.com/252618050339051"
-                title="Formulário de Objetivos"
-                className="w-full h-[520px] border-0"
-              />
-            </div>
-          </div>
+          <GoalForm />
         </div>
       </section>
 

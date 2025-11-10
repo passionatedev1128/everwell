@@ -5,8 +5,8 @@ import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import { setToken, setUser } from '../utils/auth';
 import OAuthButtons from '../components/OAuthButtons';
-import { trackSignUp, trackLogin } from '../utils/analytics';
-import { trackCompleteRegistration } from '../utils/facebookPixel';
+import { trackLogin, trackSignUp } from '../utils/analytics';
+import { trackCompleteRegistration } from '../utils/hubspot';
 import { trackSignUp as gtmTrackSignUp, trackLogin as gtmTrackLogin } from '../utils/gtm';
 
 const Login = () => {

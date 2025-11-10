@@ -4,7 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { Toaster } from 'react-hot-toast'
 import { initGA4 } from './utils/analytics'
-import { initFacebookPixel } from './utils/facebookPixel'
+import { initHubspot } from './utils/hubspot'
 import { initGTM } from './utils/gtm'
 
 // Initialize Google Tag Manager
@@ -35,12 +35,12 @@ if (ga4MeasurementId) {
   console.warn('GA4: VITE_GA4_MEASUREMENT_ID not set in environment variables');
 }
 
-// Initialize Facebook Pixel
-const facebookPixelId = import.meta.env.VITE_FACEBOOK_PIXEL_ID;
-if (facebookPixelId) {
-  initFacebookPixel(facebookPixelId);
+// Initialize HubSpot Tracking
+const hubspotPortalId = import.meta.env.VITE_HUBSPOT_PORTAL_ID;
+if (hubspotPortalId) {
+  initHubspot(hubspotPortalId);
 } else {
-  console.warn('Facebook Pixel: VITE_FACEBOOK_PIXEL_ID not set in environment variables');
+  console.warn('HubSpot: VITE_HUBSPOT_PORTAL_ID not set in environment variables');
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

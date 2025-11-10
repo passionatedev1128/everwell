@@ -42,7 +42,7 @@ EVERWELL WEBSITE
 │   │
 │   ├── 📝 Section 6: Objective Form
 │   │   ├── Description: Share health goals
-│   │   └── Form: Jotform link
+│   │   └── Formulário interno de objetivos
 │   │
 │   ├── 🛍️ Section 7: Products Preview
 │   │   ├── Gummy
@@ -118,8 +118,8 @@ EXTERNAL SERVICES
 │   ├── Consulta Médica: pro.quaddro.co/yourbestversion/servicos/vgwg3F
 │   └── Autorização Anvisa: pro.quaddro.co/yourbestversion/servicos/xUJjRT
 │
-├── 📋 Forms (Jotform)
-│   └── Objective Form: form.jotform.com/252618050339051
+├── 📋 Formulários Internos
+│   └── Objetivos: submissão para `/api/leads/goals`
 │
 └── 💬 WhatsApp
     └── Number: +55 21 99817-0460
@@ -301,7 +301,7 @@ EXTERNAL SERVICES
 ### Integrations to Maintain:
 - [ ] Booking widget (SimplyBook)
 - [ ] WhatsApp integration
-- [ ] Form submission (Jotform replacement or custom)
+- [ ] Form submission (integração interna concluída)
 - [ ] Medical consultation links (Quaddro)
 
 ---

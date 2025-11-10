@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { setToken, setUser } from '../utils/auth';
 import { toast } from 'react-hot-toast';
 import { trackLogin, trackSignUp } from '../utils/analytics';
-import { trackCompleteRegistration } from '../utils/facebookPixel';
+import { trackCompleteRegistration } from '../utils/hubspot';
 import { trackLogin as gtmTrackLogin } from '../utils/gtm';
 
 const OAuthCallback = () => {
@@ -37,7 +37,7 @@ const OAuthCallback = () => {
         // For simplicity, we'll track as login. In production, you might want to check if user is new
         trackLogin('google');
         gtmTrackLogin('google');
-        // Also track as registration completion for Facebook Pixel
+        // Also track as registration completion for HubSpot behavioral events
         trackCompleteRegistration('google');
 
         toast.success('Login realizado com sucesso!');

@@ -71,7 +71,7 @@ Five trust indicators displayed:
 - **Heading**: "defina seus objetivos"
 - **Description**: "Compartilhe seus objetivos e histórico de saúde para que possamos criar a melhor estratégia de bem-estar e performance para você."
 - **Sub-heading**: "Atinja sua melhor perfomance, seja pessoal ou profissional. Avance para seu próximo nível e se surpreenda do que você é capaz"
-- **Form Link**: `https://form.jotform.com/252618050339051`
+- **Formulário interno**: /api/leads/goals
 
 #### Section 7: Products Preview
 - **Heading**: "Produtos"
@@ -187,8 +187,8 @@ Four key features:
 - **Autorização Anvisa**: `https://pro.quaddro.co/yourbestversion/servicos/xUJjRT`
 - **Purpose**: Medical consultation and Anvisa authorization services
 
-### 3. Forms (Jotform)
-- **Objective Form**: `https://form.jotform.com/252618050339051`
+### 3. Formulários Internos
+- **Formulário de Objetivos**: `/api/leads/goals` (envia email via Brevo/SMTP)
 - **Purpose**: Collect user health objectives and history
 
 ### 4. WhatsApp Integration
@@ -267,7 +267,7 @@ Four key features:
 ### External Services
 - Booking widget (Vercel)
 - Service platform (Quaddro)
-- Form service (Jotform)
+- Form service (formulário interno + notificação por email)
 - WhatsApp integration
 
 ### Content Management

@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { uploadPaymentProofFile } from '../utils/api';
 import { trackPaymentProofUpload } from '../utils/analytics';
-import { trackContact } from '../utils/facebookPixel';
+import { trackContact } from '../utils/hubspot';
 import { trackPaymentProofUpload as gtmTrackPaymentProofUpload } from '../utils/gtm';
 
 const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) => {

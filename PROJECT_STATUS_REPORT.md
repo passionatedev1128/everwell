@@ -70,11 +70,11 @@
   - ✅ Document upload tracking
   - ✅ Complete analytics utility
 
-- ✅ **Facebook Pixel** - COMPLETE
-  - ✅ Facebook Pixel script integration
-  - ✅ Standard event tracking (ViewContent, AddToCart, Purchase, etc.)
-  - ✅ Custom event tracking (Lead, Contact)
-  - ✅ Complete Facebook Pixel utility
+- ✅ **HubSpot Tracking** - COMPLETE
+  - ✅ HubSpot script integration
+  - ✅ Standard behavioral events (page view, purchases, registrations)
+  - ✅ Custom event tracking (document upload, payment proof)
+  - ✅ Complete HubSpot utility
 
 - ✅ **Google Tag Manager** - COMPLETE
   - ✅ GTM container integration
@@ -133,7 +133,7 @@
 
 ### **Integrations: 100%** ✅
 - ✅ Google Analytics 4
-- ✅ Facebook Pixel
+- ✅ HubSpot Tracking
 - ✅ Google Tag Manager
 - ✅ SimplyBook Widget
 - ✅ Email (Gmail, Outlook, Yahoo, Custom SMTP)
@@ -172,7 +172,7 @@
 ### **Day 4: External Integrations** ✅ **COMPLETE**
 **Status:** 100% Complete
 - Google Analytics 4 integrated
-- Facebook Pixel integrated
+- HubSpot Tracking integrated
 - Google Tag Manager integrated
 - SimplyBook Widget integrated
 
@@ -253,10 +253,10 @@
   - ✅ Custom events (document_upload, payment_proof_upload)
   - ⚠️ **Requires:** `VITE_GA4_MEASUREMENT_ID` environment variable
 
-- ✅ Facebook Pixel integration (all utilities implemented)
-  - ✅ Standard events (ViewContent, AddToCart, Purchase, etc.)
-  - ✅ Custom events (Lead, Contact)
-  - ⚠️ **Requires:** `VITE_FACEBOOK_PIXEL_ID` environment variable
+- ✅ HubSpot Tracking integration (all utilities implemented)
+  - ✅ Standard events (PageView, Purchase, Registration)
+  - ✅ Custom events (DocumentUpload, PaymentProofUpload)
+  - ⚠️ **Requires:** `VITE_HUBSPOT_PORTAL_ID` environment variable
 
 - ✅ Google Tag Manager integration (all utilities implemented)
   - ✅ dataLayer initialization
@@ -290,7 +290,7 @@
 
 #### **⚠️ What Needs Configuration (Not Implementation):**
 1. **Environment Variables:**
-   - Frontend: `VITE_GA4_MEASUREMENT_ID`, `VITE_FACEBOOK_PIXEL_ID`, `VITE_GTM_CONTAINER_ID`, `VITE_SIMPLYBOOK_COMPANY_ID`
+   - Frontend: `VITE_GA4_MEASUREMENT_ID`, `VITE_HUBSPOT_PORTAL_ID`, `VITE_GTM_CONTAINER_ID`, `VITE_SIMPLYBOOK_COMPANY_ID`
    - Backend: Production database URL, production email credentials, production JWT secrets
 
 2. **Production Setup:**
@@ -395,7 +395,7 @@
 
 1. **Environment Variables Setup:**
    - [ ] Get GA4 Measurement ID → Set `VITE_GA4_MEASUREMENT_ID`
-   - [ ] Get Facebook Pixel ID → Set `VITE_FACEBOOK_PIXEL_ID`
+   - [ ] Get HubSpot portal ID → Set `VITE_HUBSPOT_PORTAL_ID`
    - [ ] Get GTM Container ID → Set `VITE_GTM_CONTAINER_ID`
    - [ ] Get SimplyBook Company ID → Set `VITE_SIMPLYBOOK_COMPANY_ID`
    - [ ] Set up production backend environment variables
@@ -473,7 +473,7 @@
 - ✅ **Utils:** api.js, auth.js, analytics.js, facebookPixel.js, gtm.js
 - ✅ Protected routes implementation
 - ✅ Toast notifications (react-hot-toast)
-- ✅ Analytics utilities (GA4, Facebook Pixel, GTM)
+- ✅ Analytics utilities (GA4, HubSpot, GTM)
 - ✅ SimplyBook widget component
 - ✅ Responsive design
 - ✅ Loading states and empty states
@@ -506,7 +506,7 @@
 - **User Features:** 10+ (dashboard, profile, documents, orders)
 - **Admin Features:** 8+ (user management, order management, document approval)
 - **Authentication Features:** 6+ (email, OAuth, verification, password reset)
-- **Analytics Features:** 15+ (GA4, Facebook Pixel, GTM events)
+- **Analytics Features:** 15+ (GA4, HubSpot, GTM events)
 - **UI/UX Features:** 20+ (loading states, empty states, animations, responsive design)
 
 ### **Technical Stack:**
@@ -515,7 +515,7 @@
 - **Authentication:** JWT, Google OAuth, Email/Password
 - **File Storage:** Local file system (ready for cloud migration)
 - **Email:** Multi-provider support (Gmail, Outlook, Yahoo, SMTP)
-- **Analytics:** GA4, Facebook Pixel, Google Tag Manager
+- **Analytics:** GA4, HubSpot, Google Tag Manager
 - **Booking:** SimplyBook widget integration
 
 **You've built a complete, feature-rich MERN stack e-commerce application!** 🚀

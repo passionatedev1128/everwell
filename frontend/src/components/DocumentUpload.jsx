@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
-import { uploadDocument } from '../utils/api';
+import api from '../utils/api';
 import { trackDocumentUpload } from '../utils/analytics';
-import { trackLead } from '../utils/facebookPixel';
+import { trackLead } from '../utils/hubspot';
 import { trackDocumentUpload as gtmTrackDocumentUpload } from '../utils/gtm';
 
 const DocumentUpload = ({ user, onUploadSuccess }) => {
@@ -72,7 +72,7 @@ const DocumentUpload = ({ user, onUploadSuccess }) => {
     setSuccess({ ...success, [documentType]: '' });
 
     try {
-      const response = await uploadDocument(documentType, file);
+      const response = await api.uploadDocument(documentType, file);
       if (response.success) {
         // Track document upload
         trackDocumentUpload(documentType);

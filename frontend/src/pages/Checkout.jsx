@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import api from '../utils/api';
 import { useCart } from '../context/CartContext';
-import { createOrder } from '../utils/api';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
-import { trackInitiateCheckout, trackPurchase as fbTrackPurchase } from '../utils/facebookPixel';
-import { trackBeginCheckout as gtmTrackBeginCheckout, trackPurchase as gtmTrackPurchase } from '../utils/gtm';
+import { trackInitiateCheckout, trackPurchase as hsTrackPurchase } from '../utils/hubspot';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ const Checkout = () => {
     if (cartItems.length > 0) {
       trackBeginCheckout(cartItems, total);
       trackInitiateCheckout(cartItems, total);
-      gtmTrackBeginCheckout(cartItems, total);
     }
   }, []); // Only on mount
 
@@ -53,14 +51,13 @@ const Checkout = () => {
         totalAmount: total
       };
 
-      const response = await createOrder(orderData);
+      const response = await api.createOrder(orderData);
       
       if (response.success) {
         // Track purchase
         const order = response.order || orderData;
         trackPurchase(order);
-        fbTrackPurchase(order);
-        gtmTrackPurchase(order);
+        hsTrackPurchase(order);
         
         clearCart();
         toast.success('Pedido criado com sucesso!');

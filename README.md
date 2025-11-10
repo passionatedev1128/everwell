@@ -145,7 +145,7 @@ npm run dev
 - **Booking Widget**: `https://v0-booking-widget-frontend.vercel.app`
 - **Consulta Médica**: `https://pro.quaddro.co/yourbestversion/servicos/vgwg3F`
 - **Autorização Anvisa**: `https://pro.quaddro.co/yourbestversion/servicos/xUJjRT`
-- **Objective Form**: `https://form.jotform.com/252618050339051`
+- **Formulário de Objetivos**: enviado internamente para `/api/leads/goals` com email de notificação
 - **WhatsApp**: `https://wa.me/5521998170460`
 
 ## 🚀 Deployment
@@ -172,7 +172,7 @@ npm run dev
 
 - ✅ User cannot view `/produtos` before login + authorization
 - ✅ All content from original site preserved
-- ✅ Booking, Jotform, and WhatsApp fully functional
+- ✅ Booking, formulário interno e WhatsApp plenamente funcionais
 - ✅ Admin can toggle authorization successfully
 - ✅ Fully responsive and mobile-friendly
 - ✅ Passes Anvisa compliance checks

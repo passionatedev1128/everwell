@@ -17,6 +17,7 @@ import faqRoutes from './routes/faqs.js';
 import adminRoutes from './routes/admin.js';
 import userRoutes from './routes/users.js';
 import orderRoutes from './routes/orders.js';
+import leadRoutes from './routes/leads.js';
 
 dotenv.config();
 
@@ -65,6 +66,7 @@ app.use('/api/faqs', faqRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/leads', leadRoutes);
 
 // Error handling
 app.use(errorHandler);

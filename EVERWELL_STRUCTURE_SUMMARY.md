@@ -79,7 +79,7 @@ I've thoroughly analyzed the live Canva site at https://everwell.my.canva.site/e
 
 7. **Objective Definition Form**
    - Health goals collection
-   - Form link to Jotform
+   - Formulário interno de objetivos
 
 8. **Products Preview** (3 products)
    - Gummy
@@ -129,8 +129,8 @@ I've thoroughly analyzed the live Canva site at https://everwell.my.canva.site/e
 - **Autorização Anvisa**: `https://pro.quaddro.co/yourbestversion/servicos/xUJjRT`
 - **Purpose**: Medical services and Anvisa authorization
 
-### 3. Forms (Jotform)
-- **Objective Form**: `https://form.jotform.com/252618050339051`
+### 3. Formulários Internos
+- **Formulário de Objetivos**: `/api/leads/goals` (envio com notificação por email)
 - **Replacement**: Custom form in MERN app
 
 ### 4. WhatsApp
@@ -263,7 +263,7 @@ frontend/src/
 
 ### Phase 4: Integrations
 - [ ] Google Analytics 4
-- [ ] Facebook Pixel
+- [ ] HubSpot tracking
 - [ ] Email automation (Brevo)
 - [ ] Document upload system
 

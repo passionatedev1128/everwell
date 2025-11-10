@@ -6,7 +6,7 @@
 - ✅ Build UI and structure first
 - ✅ Implement core functionality locally
 - ✅ Test everything locally before deployment
-- ⏳ External API integrations (GA4, Facebook Pixel, SimplyBook) deferred to end
+- ⏳ External API integrations (GA4, HubSpot tracking, SimplyBook) deferred to end
 - 📁 Document storage works locally first (local files or Cloudinary tested locally)
 
 ---
@@ -31,7 +31,7 @@
 5. **Document Storage** - Local file storage or Cloudinary (tested locally)
 6. **Payment Proof Upload** - Order payment tracking
 7. **Testing & Polish** - UI/UX improvements, error handling
-8. **External Integrations** - GA4, Facebook Pixel, SimplyBook (Last)
+8. **External Integrations** - GA4, HubSpot tracking, SimplyBook (Last)
 
 ---
 
@@ -283,16 +283,11 @@
      - [ ] Document uploads
    - [ ] Test tracking locally (GA4 DebugView)
 
-2. **Facebook Pixel Setup** (45 mins)
-   - [ ] Add Facebook Pixel script to `frontend/index.html`
-   - [ ] Create `frontend/src/utils/facebookPixel.js`
-   - [ ] Track standard events:
-     - [ ] ViewContent
-     - [ ] AddToCart
-     - [ ] InitiateCheckout
-     - [ ] Purchase
-     - [ ] CompleteRegistration
-   - [ ] Test tracking locally (Facebook Events Manager)
+2. **HubSpot Tracking Setup** (45 mins)
+   - [ ] Add HubSpot tracking script to `frontend/index.html`
+   - [ ] Create `frontend/src/utils/hubspot.js`
+   - [ ] Track HubSpot events (view_content, add_to_cart, purchase, etc.)
+   - [ ] Test tracking locally (HubSpot analytics)
 
 3. **Google Tag Manager** (45 mins)
    - [ ] Add GTM container to `frontend/index.html`
@@ -402,7 +397,7 @@
 ### Day 4 Tasks
 #### External Integrations
 - [ ] Google Analytics 4
-- [ ] Facebook Pixel
+- [ ] HubSpot tracking
 - [ ] Google Tag Manager
 - [ ] SimplyBook widget
 
@@ -480,7 +475,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 1. **UI First**: Build all UI components before connecting to backend
 2. **Local Storage**: Document storage works locally first
-3. **External APIs Last**: GA4, Facebook Pixel, SimplyBook moved to Day 4
+3. **External APIs Last**: GA4, HubSpot tracking, SimplyBook moved to Day 4
 4. **Local Testing**: Everything tested locally before deployment
 5. **No Deployment on Day 4**: Day 4 focuses on integrations and prep, actual deployment can be Day 5 or separate
 
@@ -512,7 +507,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ### Day 4 Checklist
 - [ ] GA4 tracking working
-- [ ] Facebook Pixel tracking
+- [ ] HubSpot tracking
 - [ ] SimplyBook widget integrated
 - [ ] All testing complete
 - [ ] Documentation ready
@@ -530,7 +525,7 @@ By the end of Day 4, the application should have:
 ✅ **Document Storage** - Working locally (local files or Cloudinary)  
 ✅ **Order Management** - Complete order workflow  
 ✅ **UI/UX Polish** - Loading states, notifications, error handling  
-✅ **External Integrations** - GA4, Facebook Pixel, SimplyBook  
+✅ **External Integrations** - GA4, HubSpot tracking, SimplyBook  
 ✅ **Production Ready** - Tested, documented, deployment-ready  
 
 ---

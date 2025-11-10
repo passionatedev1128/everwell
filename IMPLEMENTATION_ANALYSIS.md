@@ -206,40 +206,41 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
 ```
 
-#### Facebook Pixel:
+#### HubSpot Tracking:
 ```html
-<!-- Facebook Pixel Code -->
+<!-- HubSpot Tracking Code -->
 <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', 'YOUR_PIXEL_ID');
-  fbq('track', 'PageView');
+  var _hsq = window._hsq = window._hsq || [];
+  _hsq.push(['trackPageView']);
+  (function() {
+    var hs = document.createElement('script');
+    hs.type = 'text/javascript';
+    hs.async = true;
+    hs.src = 'https://js.hs-scripts.com/YOUR_PORTAL_ID.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(hs, s);
+  })();
 </script>
 ```
 
 #### Event Tracking:
 ```javascript
 // Track registration
-gtag('event', 'sign_up', { method: 'email' });
-fbq('track', 'CompleteRegistration');
+window._hsq = window._hsq || [];
+window._hsq.push(['trackCustomBehavioralEvent', {
+  name: 'complete_registration',
+  properties: { method: 'email' }
+}]);
 
 // Track purchase
-gtag('event', 'purchase', {
-  transaction_id: orderId,
-  value: totalAmount,
-  currency: 'USD',
-  items: products
-});
-fbq('track', 'Purchase', {
-  value: totalAmount,
-  currency: 'USD'
-});
+window._hsq.push(['trackCustomBehavioralEvent', {
+  name: 'purchase',
+  properties: {
+    order_id: orderId,
+    value: totalAmount,
+    currency: 'BRL'
+  }
+}]);
 ```
 
 ---
@@ -479,7 +480,7 @@ await apiInstance.sendTransacEmail({
 - [ ] Add order history to dashboard
 - [ ] Integrate Google Analytics 4
 - [ ] Integrate Google Tag Manager
-- [ ] Integrate Facebook Pixel
+- [ ] Integrate HubSpot tracking
 - [ ] Add SimplyBook widget
 - [ ] Test all integrations
 
@@ -514,7 +515,7 @@ await apiInstance.sendTransacEmail({
 - ✅ Users can view and purchase products
 - ✅ Users can upload payment proof
 - ✅ Google Analytics tracking works
-- ✅ Facebook Pixel tracking works
+- ✅ HubSpot tracking works
 - ✅ SimplyBook widget embedded
 - ✅ Welcome emails sent
 - ✅ Mobile responsive

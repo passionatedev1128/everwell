@@ -197,6 +197,13 @@ export const trackViewItemList = (products, listName = 'Products') => {
   });
 };
 
+// Track lead submissions (e.g., goal form)
+export const trackLead = (leadSource = 'goal_form') => {
+  trackEvent('lead', {
+    lead_source: leadSource,
+  });
+};
+
 // Track share (if sharing features are added)
 export const trackShare = (contentType, itemId, method = 'web') => {
   trackEvent('share', {
@@ -241,6 +248,7 @@ export default {
   trackLogin,
   trackDocumentUpload,
   trackPaymentProofUpload,
+  trackLead,
   trackSearch,
   trackViewItemList,
   trackShare,

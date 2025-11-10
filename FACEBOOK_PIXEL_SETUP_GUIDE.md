@@ -1,28 +1,25 @@
-# Facebook Pixel Setup Guide
+# HubSpot Tracking Setup Guide
 
 ## Overview
 
-Facebook Pixel has been integrated into the EverWell application to track user behavior, conversions, and enable Facebook advertising campaigns.
+HubSpot tracking is now integrated into the EverWell frontend to capture behavioral events, page views, and conversions for CRM automation and marketing workflows.
 
 ## Setup Instructions
 
-### 1. Get Your Facebook Pixel ID
+### 1. Get Your HubSpot Tracking (Portal) ID
 
-1. Go to [Facebook Events Manager](https://business.facebook.com/events_manager2)
-2. Click **Connect Data Sources** → **Web**
-3. Select **Facebook Pixel**
-4. Click **Connect**
-5. Name your pixel (e.g., "EverWell Pixel")
-6. Copy your **Pixel ID** (format: 15-digit number like `123456789012345`)
+1. Sign in to [HubSpot](https://app.hubspot.com/login)
+2. Navigate to **Settings → Tracking & Analytics → Tracking code**
+3. Locate your Hub ID (portal ID). Example: `1234567`
 
 ### 2. Configure Environment Variable
 
-Add the Facebook Pixel ID to your frontend environment:
+Add the Hub ID to your frontend environment:
 
 **For local development:**
 Create or update `frontend/.env.local`:
 ```env
-VITE_FACEBOOK_PIXEL_ID=123456789012345
+VITE_HUBSPOT_PORTAL_ID=1234567
 ```
 
 **For production:**
@@ -33,218 +30,101 @@ Add the same variable to your hosting platform's environment variables.
 1. Start your development server:
    ```bash
    cd frontend
+   npm install
    npm run dev
    ```
-
 2. Open your browser's Developer Console (F12)
-3. You should see: `Facebook Pixel: Initialized with Pixel ID 123456789012345`
-4. Navigate through the app and check console for tracking logs
+3. You should see: `HubSpot: Initialized with portal ID 1234567`
+4. Navigate through the app and check for HubSpot tracking logs
 
-### 4. Test with Facebook Events Manager
+### 4. Check HubSpot Analytics
 
-1. Go to [Facebook Events Manager](https://business.facebook.com/events_manager2)
-2. Select your pixel
-3. Click **Test Events** tab
-4. Enter your website URL
-5. Navigate through your app
-6. You should see events appearing in real-time
+1. Go to **Reports → Analytics Tools → Traffic analytics**
+2. Filter by your environment (domain or stage) to verify page views and events
+3. For custom events, open **Reports → Behavioral Events** (Enterprise) or use **Lists/Workflows** to build segments leveraging tracked metadata
 
 ## Tracked Events
 
-### Standard Events
+HubSpot automatically captures page views. The app also fires custom behavioral events through `window._hsq` for richer analytics.
 
-#### `PageView`
-- **Triggered:** Automatically on all route changes
-- **Purpose:** Track page views across the site
+### Page Views
+- **Triggered:** On every route change
+- **Data:** Path and document title (when available)
 
-#### `ViewContent`
-- **Triggered:** When user views a product detail page
-- **Data:** Product name, ID, price, currency
+### Custom Behavioral Events
 
-#### `AddToCart`
-- **Triggered:** When user adds a product to cart
-- **Data:** Product name, ID, price, quantity, currency
+| Event Name                | Trigger                                                                              | Properties                                                                 |
+|---------------------------|--------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| `view_content`            | User views a product detail page                                                    | `product_name`, `product_id`, `category`, `price`                          |
+| `add_to_cart`             | User adds an item to the cart                                                        | `product_name`, `product_id`, `category`, `price`, `quantity`              |
+| `begin_checkout`          | User proceeds to checkout                                                            | `total_value`, `items` (array of `{ product_id, name, quantity, price }`)  |
+| `purchase`                | Order successfully created                                                           | `order_id`, `total_value`, `items`                                         |
+| `complete_registration`   | Registration completed (email or OAuth)                                             | `method`                                                                   |
+| `search`                  | Product search performed                                                             | `query`                                                                    |
+| `document_upload`         | User uploads compliance documentation                                               | `document_type`                                                            |
+| `payment_proof_upload`    | User uploads payment proof                                                           | `order_id`                                                                 |
+| `view_category`           | Product listing viewed                                                              | `category`, `items` (array of `{ product_id, name, price }`)               |
 
-#### `InitiateCheckout`
-- **Triggered:** When user navigates to checkout page
-- **Data:** Cart items, total amount, currency, item count
-
-#### `Purchase`
-- **Triggered:** When order is successfully created
-- **Data:** Order items, total amount, currency, item count
-
-#### `CompleteRegistration`
-- **Triggered:** When user registers (email or Google OAuth)
-- **Data:** Registration method ('email' or 'google')
-
-### Custom Events
-
-#### `ViewCategory`
-- **Triggered:** When user views the products listing page
-- **Data:** Product IDs, names, category
-
-#### `Lead`
-- **Triggered:** When user uploads a document
-- **Data:** Document type (medicalPrescription, importAuthorization, proofOfResidence)
-
-#### `Contact`
-- **Triggered:** When user uploads payment proof
-- **Data:** Order ID
-
-## Event Parameters
-
-All e-commerce events include:
-- `content_ids`: Array of product IDs
-- `content_name`: Product name(s)
-- `content_type`: 'product'
-- `value`: Monetary value
-- `currency`: 'BRL' (Brazilian Real)
-- `num_items`: Number of items (for cart/checkout/purchase)
+> HubSpot custom events (Behavioural Events) require Marketing Hub Enterprise to view the event stream out-of-the-box. Even without enterprise, the events populate `_hsq` allowing you to trigger workflows via custom code or HubSpot APIs.
 
 ## Testing
 
 ### Manual Testing
 
-1. **Page Views:**
-   - Navigate between pages
-   - Check console for: `Facebook Pixel: Event tracked { eventName: 'PageView', ... }`
+1. Navigate between pages and check the console for `HubSpot: Page view tracked ...`
+2. Perform key user flows (product view, add to cart, checkout, upload documents)
+3. Confirm events log to the console (only in development)
+4. After a few minutes, verify in HubSpot traffic analytics or event reporting
 
-2. **View Content:**
-   - Visit a product detail page
-   - Check console for: `Facebook Pixel: Event tracked { eventName: 'ViewContent', ... }`
-
-3. **Add to Cart:**
-   - Add a product to cart
-   - Check console for: `Facebook Pixel: Event tracked { eventName: 'AddToCart', ... }`
-
-4. **Initiate Checkout:**
-   - Go to checkout page
-   - Check console for: `Facebook Pixel: Event tracked { eventName: 'InitiateCheckout', ... }`
-
-5. **Purchase:**
-   - Complete an order
-   - Check console for: `Facebook Pixel: Event tracked { eventName: 'Purchase', ... }`
-
-6. **Complete Registration:**
-   - Register a new account
-   - Check console for: `Facebook Pixel: Event tracked { eventName: 'CompleteRegistration', ... }`
-
-### Using Facebook Events Manager
-
-1. Go to [Facebook Events Manager](https://business.facebook.com/events_manager2)
-2. Select your pixel
-3. Click **Test Events** tab
-4. Enter your website URL: `http://localhost:5173` (for local) or your production URL
-5. Navigate through your app
-6. Events should appear in real-time in the Test Events tab
-
-### Using Browser Network Tab
+### Network Inspection
 
 1. Open Developer Tools → Network tab
-2. Filter by "facebook" or "fbevents"
-3. Navigate through your app
-4. You should see requests to `https://www.facebook.com/tr`
+2. Filter by `hs-analytics` or `hs-scripts`
+3. Confirm requests to `https://js.hs-scripts.com/<portalId>.js`
+4. Additional requests (e.g., to `track.hubspot.com`) indicate events being sent
 
-### Using Facebook Pixel Helper (Chrome Extension)
+### HubSpot Debugging Tips
 
-1. Install [Facebook Pixel Helper](https://chrome.google.com/webstore/detail/facebook-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc)
-2. Navigate to your website
-3. Click the extension icon
-4. You should see all tracked events
+- Install the [HubSpot Chrome Extension](https://chrome.google.com/webstore/detail/hubspot-sales/nhfjnlgeljbhcgdmggemkfojbdgccffj) to confirm tracking on the page
+- Use HubSpot's browser console helper to inspect `_hsq` events:
+  ```js
+  window._hsq
+  ```
+- For enterprise portals, use **Reports → Analytics Tools → Events** to verify custom events
 
 ## Troubleshooting
 
-### Facebook Pixel Not Initializing
+### Script Not Loading
+- Ensure `VITE_HUBSPOT_PORTAL_ID` is set and server restarted
+- Confirm no Content Security Policy (CSP) blocks `https://js.hs-scripts.com`
+- Disable strict ad blockers during testing
 
-**Problem:** Console shows "Facebook Pixel: Pixel ID not provided"
+### Events Missing in HubSpot
+- HubSpot dashboards can take a few minutes to refresh
+- Custom behavioral events require Marketing Hub Enterprise for native reporting
+- Verify that the event names match exactly when building workflows or lists
 
-**Solution:**
-1. Check that `VITE_FACEBOOK_PIXEL_ID` is set in `.env.local`
-2. Restart the development server after adding the variable
-3. Make sure the variable name starts with `VITE_` (required for Vite)
-
-### Events Not Showing in Facebook Events Manager
-
-**Problem:** Events tracked in console but not appearing in Events Manager
-
-**Solutions:**
-1. Wait a few minutes for events to appear (not always real-time)
-2. Use Test Events tab for real-time verification
-3. Check that Pixel ID is correct
-4. Verify no ad blockers are interfering
-5. Check browser console for errors
-6. Make sure you're using the correct Facebook Business account
-
-### Page Views Not Tracking
-
-**Problem:** Page views not being tracked
-
-**Solution:**
-1. Check that `PageViewTracker` component is in `App.jsx`
-2. Verify React Router is working correctly
-3. Check console for tracking logs
-
-### Events Blocked by Ad Blockers
-
-**Problem:** Events not firing due to ad blockers
-
-**Solution:**
-1. Disable ad blockers for testing
-2. Inform users that ad blockers may prevent tracking
-3. Consider server-side tracking for production (advanced)
+### Duplication or Multiple Loads
+- The loader guards against double initialization using `window.__hubspotInitialized`
+- If embedding the standard HubSpot snippet elsewhere (e.g., via CMS), ensure only one loader runs
 
 ## Production Checklist
 
-- [ ] Facebook Pixel ID added to production environment variables
-- [ ] Tested all events in production environment
-- [ ] Verified events in Facebook Events Manager Test Events
-- [ ] Set up conversion events in Facebook Events Manager
-- [ ] Configured custom conversions (if needed)
-- [ ] Tested with real user data (if possible)
-- [ ] Verified pixel is firing on all key pages
-- [ ] Set up Facebook Ads campaigns (if applicable)
-
-## Facebook Ads Integration
-
-Once your pixel is set up and tracking events, you can:
-
-1. **Create Custom Audiences:**
-   - Go to Facebook Ads Manager → Audiences
-   - Create audiences based on pixel events (e.g., "Added to Cart but Didn't Purchase")
-
-2. **Set Up Conversions:**
-   - Go to Facebook Events Manager → Aggregated Event Measurement
-   - Configure conversion events (Purchase, CompleteRegistration, etc.)
-
-3. **Create Retargeting Campaigns:**
-   - Target users who viewed products but didn't purchase
-   - Target users who added to cart but didn't checkout
-
-4. **Optimize for Conversions:**
-   - Use Facebook's machine learning to optimize ad delivery
-   - Target users most likely to convert
+- [ ] `VITE_HUBSPOT_PORTAL_ID` configured in all environments
+- [ ] QA verified key flows with HubSpot tracking enabled
+- [ ] Privacy policy updated to reflect HubSpot usage
+- [ ] Cookie consent or tracking opt-in aligned with regulatory requirements (GDPR/LGPD/CCPA)
+- [ ] Marketing team informed about new events for workflows and segmentation
 
 ## Additional Resources
 
-- [Facebook Pixel Documentation](https://developers.facebook.com/docs/facebook-pixel)
-- [Facebook Pixel Events Reference](https://developers.facebook.com/docs/facebook-pixel/reference)
-- [Facebook Events Manager](https://business.facebook.com/events_manager2)
-- [Facebook Pixel Helper](https://chrome.google.com/webstore/detail/facebook-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc)
-
-## Notes
-
-- Facebook Pixel only loads if `VITE_FACEBOOK_PIXEL_ID` is set
-- All tracking is non-blocking (won't affect app performance)
-- Console logs are only shown in development
-- Events are sent asynchronously to Facebook
-- Facebook Pixel works alongside Google Analytics 4
-- Some events may take a few minutes to appear in Events Manager
-- Test Events tab shows real-time events for verification
+- [HubSpot Tracking Code Documentation](https://knowledge.hubspot.com/reports/install-the-hubspot-tracking-code)
+- [Custom Behavioral Events Guide](https://developers.hubspot.com/docs/api/events/custom-behavioral-events)
+- [HubSpot Privacy & Consent Tools](https://knowledge.hubspot.com/privacy-and-consent)
 
 ## Privacy Considerations
 
-- Inform users about Facebook Pixel tracking in your privacy policy
-- Consider implementing cookie consent banner
-- Comply with GDPR, CCPA, and other privacy regulations
-- Allow users to opt-out if required by law
+- Inform users about HubSpot tracking in your privacy/cookie policy
+- Configure cookie consent banners if required in your jurisdiction
+- HubSpot honors the `__hs_opt_out` cookie; consider exposing opt-out mechanisms if mandated
 

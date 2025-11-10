@@ -5,7 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/SkeletonLoader';
 import { EmptyProducts } from '../components/EmptyState';
 import { trackViewItemList } from '../utils/analytics';
-import { trackViewCategory } from '../utils/facebookPixel';
+import { trackViewCategory } from '../utils/hubspot';
 import { trackViewItemList as gtmTrackViewItemList } from '../utils/gtm';
 
 const Products = () => {

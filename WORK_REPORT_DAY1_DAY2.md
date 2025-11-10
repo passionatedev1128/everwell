@@ -402,7 +402,7 @@
 
 ### Planned for Day 3
 1. Google Analytics 4 integration
-2. Facebook Pixel integration
+2. HubSpot tracking integration
 3. Google Tag Manager setup
 4. SimplyBook widget integration
 5. UI/UX improvements

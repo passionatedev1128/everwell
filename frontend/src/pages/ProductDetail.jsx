@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackProductView } from '../utils/analytics';
-import { trackViewContent } from '../utils/facebookPixel';
+import { trackViewContent } from '../utils/hubspot';
 import { trackProductView as gtmTrackProductView } from '../utils/gtm';
 
 const ProductDetail = () => {

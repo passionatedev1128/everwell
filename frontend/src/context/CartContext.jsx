@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { trackAddToCart, trackRemoveFromCart } from '../utils/analytics';
-import { trackAddToCart as fbTrackAddToCart } from '../utils/facebookPixel';
+import { trackAddToCart as hsTrackAddToCart } from '../utils/hubspot';
 import { trackAddToCart as gtmTrackAddToCart, trackRemoveFromCart as gtmTrackRemoveFromCart } from '../utils/gtm';
 
 const CartContext = createContext();
@@ -45,7 +45,7 @@ export const CartProvider = ({ children }) => {
         );
         // Track add to cart (increment quantity)
         trackAddToCart({ ...product, productId: product._id }, 1);
-        fbTrackAddToCart({ ...product, productId: product._id }, 1);
+        hsTrackAddToCart({ ...product, productId: product._id }, 1);
         gtmTrackAddToCart({ ...product, productId: product._id }, 1);
         return updatedItems;
       }
@@ -61,7 +61,7 @@ export const CartProvider = ({ children }) => {
       
       // Track add to cart (new item)
       trackAddToCart({ ...product, productId: product._id }, 1);
-      fbTrackAddToCart({ ...product, productId: product._id }, 1);
+      hsTrackAddToCart({ ...product, productId: product._id }, 1);
       gtmTrackAddToCart({ ...product, productId: product._id }, 1);
       
       return [...prevItems, newItem];

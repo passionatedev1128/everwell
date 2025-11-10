@@ -103,7 +103,7 @@ everwell/
 
 ### Integrations ✅
 - [x] Booking widget link (SimplyBook alternative)
-- [x] Jotform embed (objective form)
+- [x] Formulário interno de objetivos (frontend + email notification)
 - [x] WhatsApp integration
 - [x] Quaddro links (Consulta Médica, Autorização Anvisa)
 
@@ -217,7 +217,7 @@ everwell/
 
 - ✅ User cannot view `/produtos` before login + authorization
 - ✅ All content from original site preserved
-- ✅ Booking, Jotform, and WhatsApp fully functional
+- ✅ Booking, formulário de objetivos interno e WhatsApp plenamente funcionais
 - ✅ Admin can toggle authorization successfully
 - ✅ Fully responsive and mobile-friendly
 - ✅ Passes Anvisa compliance checks

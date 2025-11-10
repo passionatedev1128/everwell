@@ -208,7 +208,7 @@ useEffect(() => {
       });
     }
     
-    // Track with Facebook Pixel
+    // Track with HubSpot
     if (window.fbq) {
       window.fbq('track', 'Schedule', {
         content_name: event.detail.serviceName,

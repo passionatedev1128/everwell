@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
 import { trackPageView } from './utils/analytics';
-import { trackPageView as fbTrackPageView } from './utils/facebookPixel';
+import { trackPageView as hubspotTrackPageView } from './utils/hubspot';
 import { trackPageView as gtmTrackPageView } from './utils/gtm';
 
 // Pages
@@ -33,7 +33,7 @@ function PageViewTracker() {
   useEffect(() => {
     // Track page view on route change
     trackPageView(location.pathname + location.search, document.title);
-    fbTrackPageView();
+    hubspotTrackPageView();
     gtmTrackPageView(location.pathname + location.search, document.title);
   }, [location]);
 

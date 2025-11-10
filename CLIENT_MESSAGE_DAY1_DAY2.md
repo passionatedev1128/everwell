@@ -126,7 +126,7 @@ All features have been tested locally and are working correctly:
 According to our timeline, Day 3 will focus on:
 1. **Marketing Integrations:**
    - Google Analytics 4 setup
-   - Facebook Pixel integration
+   - HubSpot tracking integration
    - Google Tag Manager configuration
 
 2. **SimplyBook Integration:**

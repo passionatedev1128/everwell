@@ -16,7 +16,7 @@
 1. **E-commerce System** (Shopping cart, checkout, orders)
 2. **Order Management** (Order model, endpoints, history)
 3. **User Dashboard** (Profile page, order history, document management UI)
-4. **Marketing Integrations** (Google Analytics 4, Facebook Pixel)
+4. **Marketing Integrations** (Google Analytics 4, HubSpot tracking)
 5. **SimplyBook Widget** (Booking integration)
 6. **Cloud Storage** (Cloudinary for document uploads)
 7. **Payment Proof Upload** (Order payment tracking)
@@ -175,15 +175,11 @@
      - Purchase completion
      - Document uploads
 
-2. **Facebook Pixel Setup** (1 hour)
-   - Add Facebook Pixel script to `frontend/index.html`
-   - Create `frontend/src/utils/facebookPixel.js`
-   - Track standard events:
-     - ViewContent
-     - AddToCart
-     - InitiateCheckout
-     - Purchase
-     - CompleteRegistration
+2. **HubSpot Tracking Setup** (1 hour)
+   - Add HubSpot tracking script to `frontend/index.html`
+   - Create `frontend/src/utils/hubspot.js`
+   - Track HubSpot behavioral events (view_content, add_to_cart, purchase)
+   - Test events in HubSpot analytics tools
 
 3. **Google Tag Manager** (1 hour)
    - Add GTM container to `frontend/index.html`
@@ -230,7 +226,7 @@
 
 **Deliverables End of Day 3:**
 - ✅ Google Analytics 4 tracking all events
-- ✅ Facebook Pixel tracking all events
+- ✅ HubSpot tracking all events
 - ✅ SimplyBook widget integrated
 - ✅ Booking history in dashboard
 - ✅ Improved UI/UX with loading states
@@ -335,7 +331,7 @@
      - Verify email templates
    - Configure analytics:
      - Verify GA4 tracking in production
-     - Verify Facebook Pixel in production
+     - Verify HubSpot tracking in production
 
 9. **Post-Deployment Testing** (1 hour)
    - Test all features in production:
@@ -479,8 +475,8 @@ cd frontend && npm run dev
 - [ ] Add Google Analytics 4 script
 - [ ] Create analytics utility (`frontend/src/utils/analytics.js`)
 - [ ] Add tracking to all events
-- [ ] Add Facebook Pixel script
-- [ ] Create Facebook Pixel utility (`frontend/src/utils/facebookPixel.js`)
+- [ ] Add HubSpot tracking script
+- [ ] Create HubSpot tracking utility (`frontend/src/utils/hubspot.js`)
 - [ ] Add GTM container
 - [ ] Create SimplyBook widget component
 - [ ] Test all integrations
@@ -556,7 +552,7 @@ cd frontend && npm run dev
 ### Dependencies
 - **Cloudinary account** - Needed Day 2
 - **Google Analytics ID** - Needed Day 3
-- **Facebook Pixel ID** - Needed Day 3
+- **HubSpot portal ID** - Needed Day 3
 - **SimplyBook credentials** - Needed Day 3
 
 ---
@@ -579,7 +575,7 @@ cd frontend && npm run dev
 
 ### Day 3 Checklist
 - [ ] Google Analytics 4 tracking
-- [ ] Facebook Pixel tracking
+- [ ] HubSpot tracking
 - [ ] SimplyBook widget integrated
 - [ ] Booking sync working
 - [ ] UI/UX improvements complete
@@ -600,7 +596,7 @@ By the end of Day 4, the application should have:
 ✅ **Complete E-commerce** - Users can browse, add to cart, checkout, and track orders  
 ✅ **User Dashboard** - Complete profile, orders, documents, bookings management  
 ✅ **Document Management** - Upload, preview, track status with Cloudinary  
-✅ **Marketing Integration** - GA4, Facebook Pixel, GTM all tracking events  
+✅ **Marketing Integration** - GA4, HubSpot tracking, GTM all tracking events  
 ✅ **Booking System** - SimplyBook widget integrated and synced  
 ✅ **Email Automation** - All email templates working  
 ✅ **Admin Features** - Order management, user authorization, document approval  

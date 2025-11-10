@@ -25,9 +25,9 @@
   - Create container
   - Get Container ID (GTM-XXXXXXX)
 
-- [ ] **Facebook Pixel**: https://business.facebook.com/
-  - Create pixel
-  - Get Pixel ID
+- [ ] **HubSpot**: https://www.hubspot.com/
+  - Create free account (or use existing portal)
+  - Retrieve Hub ID (portal ID)
 
 - [ ] **SimplyBook**: https://simplybook.me/
   - Get widget embed code
@@ -64,6 +64,9 @@ BREVO_API_KEY=your-brevo-api-key
 BREVO_SENDER_EMAIL=noreply@everwell.com
 BREVO_SENDER_NAME=EverWell
 
+# Leads
+LEAD_NOTIFICATION_EMAIL=contato@everwell.com
+
 # CORS
 FRONTEND_URL=http://localhost:5173
 ```
@@ -73,7 +76,7 @@ FRONTEND_URL=http://localhost:5173
 VITE_API_URL=http://localhost:5000/api
 VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 VITE_GTM_CONTAINER_ID=GTM-XXXXXXX
-VITE_FB_PIXEL_ID=your-pixel-id
+VITE_HUBSPOT_PORTAL_ID=your-hubspot-portal-id
 ```
 
 ---
@@ -194,7 +197,7 @@ frontend/
 
 ### Integrations
 - [ ] Google Analytics tracks page views
-- [ ] Facebook Pixel tracks events
+- [ ] HubSpot tracking captures events
 - [ ] SimplyBook widget loads
 - [ ] Emails send correctly
 

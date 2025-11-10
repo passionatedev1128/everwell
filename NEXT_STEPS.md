@@ -76,11 +76,11 @@
 - [ ] Track custom events (registration, product views, cart, checkout, purchase)
 - [ ] Test with GA4 DebugView
 
-#### 2. Facebook Pixel (45 mins)
-- [ ] Add Facebook Pixel script
-- [ ] Create `frontend/src/utils/facebookPixel.js`
-- [ ] Track standard events (ViewContent, AddToCart, InitiateCheckout, Purchase)
-- [ ] Test in Facebook Events Manager
+#### 2. HubSpot Tracking (45 mins)
+- [ ] Add HubSpot tracking script
+- [ ] Create `frontend/src/utils/hubspot.js`
+- [ ] Track behavioral events (view_content, add_to_cart, purchase, etc.)
+- [ ] Test events via HubSpot analytics tools
 
 #### 3. Google Tag Manager (45 mins)
 - [ ] Add GTM container
@@ -138,7 +138,7 @@
 
 4. **External Integrations** (Day 4)
    - Google Analytics 4
-   - Facebook Pixel
+   - HubSpot tracking
    - SimplyBook Widget
 
 5. **Comprehensive Testing**
@@ -164,7 +164,7 @@
 ### Medium Priority
 - [ ] Enhance order history page
 - [ ] Add Google Analytics 4
-- [ ] Add Facebook Pixel
+- [ ] Add HubSpot tracking
 - [ ] Integrate SimplyBook widget
 
 ### Low Priority

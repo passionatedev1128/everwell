@@ -1,13 +1,13 @@
 # Analytics Verification Guide
 
-This guide shows you how to verify that Google Analytics 4, Facebook Pixel, and Google Tag Manager are working correctly.
+This guide shows you how to verify that Google Analytics 4, HubSpot tracking, and Google Tag Manager are working correctly.
 
 ## Quick Verification Checklist
 
 - [ ] Check browser console for initialization messages
 - [ ] Verify dataLayer is populated
 - [ ] Test GA4 with DebugView
-- [ ] Test Facebook Pixel with Events Manager
+- [ ] Test HubSpot events in the console and HubSpot analytics
 - [ ] Test GTM with Preview Mode
 - [ ] Check Network tab for tracking requests
 
@@ -25,13 +25,13 @@ You should see these messages when the page loads:
 
 ```
 ✅ GA4: Initialized with measurement ID G-XXXXXXXXXX
-✅ Facebook Pixel: Initialized with Pixel ID 123456789012345
+✅ HubSpot: Initialized with portal ID 1234567
 ✅ GTM: DataLayer initialized for container GTM-XXXXXXX
 ```
 
 **If you see warnings:**
 - `GA4: VITE_GA4_MEASUREMENT_ID not set` → Add to `.env.local`
-- `Facebook Pixel: VITE_FACEBOOK_PIXEL_ID not set` → Add to `.env.local`
+- `HubSpot: VITE_HUBSPOT_PORTAL_ID not set` → Add to `.env.local`
 - `GTM: VITE_GTM_CONTAINER_ID not set` → Add to `.env.local`
 
 ### Step 3: Check Event Tracking
@@ -39,7 +39,7 @@ You should see these messages when the page loads:
 Navigate through your app and you should see:
 ```
 ✅ GA4: Event tracked { eventName: 'page_view', ... }
-✅ Facebook Pixel: Event tracked { eventName: 'PageView', ... }
+✅ HubSpot: Event tracked { eventName: 'view_content', ... }
 ✅ GTM: Event pushed to dataLayer { event: 'page_view', ... }
 ```
 
@@ -81,10 +81,10 @@ window.dataLayer.filter(item => item.event === 'purchase')
 - You should see requests to: `https://www.google-analytics.com/g/collect`
 - Click on a request → **Payload** tab to see event data
 
-**For Facebook Pixel:**
-- Filter by: `facebook` or `fbevents`
-- You should see requests to: `https://www.facebook.com/tr`
-- Click on a request → **Payload** tab to see event data
+**For HubSpot:**
+- Filter by: `hs-scripts`, `hs-analytics`, or `track.hubspot.com`
+- You should see requests to: `https://js.hs-scripts.com/<portalId>.js` and `https://track.hubspot.com/__ptq.gif`
+- Click on a request → **Payload** tab to see event data when available
 
 **For GTM:**
 - Filter by: `googletagmanager`
@@ -136,13 +136,13 @@ window.dataLayer
 
 ---
 
-## 5. Facebook Pixel Verification
+## 5. HubSpot Verification
 
-### Method 1: Facebook Events Manager (Real-time)
+### Method 1: HubSpot Events Manager (Real-time)
 
 1. **Go to Events Manager:**
-   - [Facebook Events Manager](https://business.facebook.com/events_manager2)
-   - Select your pixel
+   - [HubSpot Events Manager](https://app.hubspot.com/events/manager)
+   - Select your portal
 
 2. **Use Test Events:**
    - Click **Test Events** tab
@@ -151,29 +151,29 @@ window.dataLayer
    - Navigate through your app
    - Events should appear in real-time
 
-### Method 2: Facebook Pixel Helper (Chrome Extension)
+### Method 2: HubSpot Pixel Helper (Chrome Extension)
 
 1. **Install Extension:**
-   - [Facebook Pixel Helper](https://chrome.google.com/webstore/detail/facebook-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc)
+   - [HubSpot Pixel Helper](https://chrome.google.com/webstore/detail/hubspot-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc)
 
 2. **Test:**
    - Navigate to your website
    - Click the extension icon
    - You should see:
-     - ✅ Pixel ID detected
+     - ✅ HubSpot Portal ID detected
      - ✅ Events fired (PageView, ViewContent, etc.)
 
 ### Method 3: Browser Console
 
 ```javascript
-// Check if fbq is loaded
-window.fbq
+// Check if hs is loaded
+window.hs
 
 // Manually trigger an event
-fbq('track', 'PageView')
+hs('track', 'PageView')
 
 // Check for errors
-window.fbq.queue
+window.hs.queue
 ```
 
 ---
@@ -272,7 +272,7 @@ window.dataLayer.push({
 2. Verify environment variables are set:
    ```env
    VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
-   VITE_FACEBOOK_PIXEL_ID=123456789012345
+   VITE_HUBSPOT_PORTAL_ID=1234567
    VITE_GTM_CONTAINER_ID=GTM-XXXXXXX
    ```
 3. Restart development server:
@@ -281,7 +281,7 @@ window.dataLayer.push({
    npm run dev
    ```
 
-### Issue: Events not showing in GA4/Facebook/GTM
+### Issue: Events not showing in GA4/HubSpot/GTM
 
 **Solutions:**
 1. **Wait a few minutes** - Some platforms have delays
@@ -322,12 +322,12 @@ if (window.gtag) {
   console.log('❌ GA4 not loaded');
 }
 
-// Test Facebook Pixel
-if (window.fbq) {
-  console.log('✅ Facebook Pixel is loaded');
-  window.fbq('track', 'PageView');
+// Test HubSpot
+if (window.hs) {
+  console.log('✅ HubSpot is loaded');
+  window.hs('track', 'PageView');
 } else {
-  console.log('❌ Facebook Pixel not loaded');
+  console.log('❌ HubSpot not loaded');
 }
 
 // Test GTM
@@ -349,7 +349,7 @@ if (window.dataLayer) {
 1. **Test in Production Environment:**
    - Deploy to staging/production
    - Test all events
-   - Verify in GA4, Facebook, GTM
+   - Verify in GA4, HubSpot, GTM
 
 2. **Check Environment Variables:**
    - Verify production environment variables are set
@@ -361,7 +361,7 @@ if (window.dataLayer) {
 
 4. **Monitor for 24-48 hours:**
    - Check GA4 reports
-   - Check Facebook Events Manager
+   - Check HubSpot Events Manager
    - Monitor for errors
 
 ---
@@ -372,7 +372,7 @@ if (window.dataLayer) {
 1. ✅ Check browser console for initialization
 2. ✅ Navigate through app and check console logs
 3. ✅ Use GA4 DebugView for real-time GA4 events
-4. ✅ Use Facebook Test Events for real-time Facebook events
+4. ✅ Use HubSpot Test Events for real-time HubSpot events
 5. ✅ Use GTM Preview Mode for real-time GTM events
 6. ✅ Check Network tab for tracking requests
 7. ✅ Verify dataLayer is populated
