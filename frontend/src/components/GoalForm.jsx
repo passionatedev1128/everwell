@@ -54,8 +54,30 @@ const GoalForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.objective.trim()) {
-      toast.error('Preencha nome, email e objetivo principal.');
+    // Custom validation with elegant messages
+    const missingFields = [];
+    if (!formData.name.trim()) missingFields.push('Nome completo');
+    if (!formData.email.trim()) missingFields.push('Email');
+    if (!formData.objective.trim()) missingFields.push('Objetivo principal');
+
+    if (missingFields.length > 0) {
+      // Show custom validation message on first missing field
+      const firstMissing = missingFields[0].toLowerCase();
+      const fieldElement = document.querySelector(`[name="${firstMissing === 'nome completo' ? 'name' : firstMissing === 'email' ? 'email' : 'objective'}"]`);
+      if (fieldElement) {
+        fieldElement.setCustomValidity(`Por favor, preencha o campo ${missingFields[0]}.`);
+        fieldElement.reportValidity();
+        setTimeout(() => fieldElement.setCustomValidity(''), 3000);
+      }
+      
+      toast.error('Por favor, preencha todos os campos obrigatórios para continuar.', {
+        style: {
+          background: '#ffffff',
+          borderRadius: '18px',
+          border: '1px solid #f5d2d2',
+          color: '#b20032',
+        },
+      });
       return;
     }
 
@@ -63,16 +85,37 @@ const GoalForm = () => {
     try {
       const response = await api.post('/leads/goals', formData);
       if (response.data?.success) {
-        toast.success('Recebemos seus objetivos! Entraremos em contato em breve.');
+        toast.success('Recebemos seu manifesto de performance. Nossa equipe irá desenhar o próximo passo com você.', {
+          style: {
+            background: '#f6fffa',
+            borderRadius: '18px',
+            border: '1px solid #b7eb8f',
+            color: '#1a3d3a',
+          },
+        });
         gaTrackLead('goal_form');
         hsTrackLead('goal_form');
         setFormData(initialState);
       } else {
-        toast.error(response.data?.message || 'Não foi possível enviar o formulário.');
+        toast.error(response.data?.message || 'Não foi possível enviar suas informações. Tente novamente em instantes.', {
+          style: {
+            background: '#ffffff',
+            borderRadius: '18px',
+            border: '1px solid #f5d2d2',
+            color: '#b20032',
+          },
+        });
       }
     } catch (error) {
       console.error('Erro ao enviar formulário de objetivos:', error);
-      toast.error('Não foi possível enviar o formulário. Tente novamente em instantes.');
+      toast.error('Não conseguimos conectar com nossa equipe agora. Atualize a página e tente novamente.', {
+        style: {
+          background: '#ffffff',
+          borderRadius: '18px',
+          border: '1px solid #f5d2d2',
+          color: '#b20032',
+        },
+      });
     } finally {
       setLoading(false);
     }

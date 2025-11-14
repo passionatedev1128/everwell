@@ -14,7 +14,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm();
 
   // Check for stored error messages on mount (from redirects)
   useEffect(() => {
@@ -80,11 +80,12 @@ const Login = () => {
         position: 'top-right',
       });
       
-      // Clear form fields
+      // Keep email, only clear password
       if (isLogin) {
-        // For login: clear email and password only
+        // For login: keep email, clear password only
+        const currentEmail = getValues('email');
         reset({
-          email: '',
+          email: currentEmail || '',
           password: '',
         });
       } else {

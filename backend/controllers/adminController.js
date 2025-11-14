@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Order from '../models/Order.js';
 import AuditLog from '../models/AuditLog.js';
 import { sendEmail } from '../config/email.js';
 import { 
@@ -146,6 +147,67 @@ export const getAuditLogs = async (req, res, next) => {
       success: true,
       count: logs.length,
       logs
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado.'
+      });
+    }
+
+    // Prevent deleting yourself
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Você não pode deletar sua própria conta.'
+      });
+    }
+
+    // Count user's orders before deletion
+    const orderCount = await Order.countDocuments({ userId: user._id });
+
+    // Delete all orders associated with this user
+    await Order.deleteMany({ userId: user._id });
+
+    // Create audit log before deletion
+    await AuditLog.create({
+      action: 'user_deleted',
+      userId: user._id,
+      adminId: req.user._id,
+      details: {
+        deletedUserName: user.name,
+        deletedUserEmail: user.email,
+        ordersDeleted: orderCount
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    // Delete the user
+    await User.findByIdAndDelete(id);
+
+    // Note: User's session will be invalidated on next request since the user no longer exists
+    // The frontend should handle this by checking user existence on API calls
+
+    res.json({
+      success: true,
+      message: `Usuário ${user.name} deletado com sucesso. ${orderCount} pedido(s) associado(s) também foram removidos.`,
+      deletedUser: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      },
+      ordersDeleted: orderCount
     });
   } catch (error) {
     next(error);

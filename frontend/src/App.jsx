@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
+import FloatingCartButton from './components/FloatingCartButton';
 import { CartProvider } from './context/CartContext';
 import { trackPageView } from './utils/analytics';
 import { trackPageView as hubspotTrackPageView } from './utils/hubspot';
@@ -41,6 +43,8 @@ function PageViewTracker() {
 }
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     // Check token expiration on mount
     const token = localStorage.getItem('token');
@@ -55,13 +59,33 @@ function App() {
         console.error('Token validation error:', error);
       }
     }
+    
+    // Show loading animation
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5faf7]">
+        <div className="text-center">
+          <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-mediumTeal font-medium">Carregando EverWell...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <CartProvider>
-      <Router>
+    <Router>
+      <CartProvider>
+        <ScrollToTop />
         <PageViewTracker />
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-[#f5faf7]">
           <Header />
           <main className="flex-grow">
             <Routes>
@@ -70,10 +94,10 @@ function App() {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/login" element={<Login />} />
-                  <Route path="/verify-email/:token" element={<VerifyEmail />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/auth/callback" element={<OAuthCallback />} />
-                  <Route path="/agendar" element={<Booking />} />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/auth/callback" element={<OAuthCallback />} />
+              <Route path="/agendar" element={<Booking />} />
               <Route
                 path="/produtos"
                 element={
@@ -133,9 +157,10 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <FloatingCartButton />
         </div>
-      </Router>
-    </CartProvider>
+      </CartProvider>
+    </Router>
   );
 }
 

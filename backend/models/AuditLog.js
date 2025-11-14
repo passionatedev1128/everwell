@@ -7,6 +7,7 @@ const AuditLogSchema = new mongoose.Schema({
     enum: [
       'user_authorized', 
       'user_deauthorized', 
+      'user_deleted',
       'product_viewed', 
       'admin_login',
       'order_created',

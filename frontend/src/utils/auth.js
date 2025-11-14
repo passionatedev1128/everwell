@@ -45,3 +45,37 @@ export const isAdmin = () => {
   return user?.role === 'admin';
 };
 
+// Session timeout (30 minutes of inactivity)
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+let sessionTimeoutId = null;
+
+export const resetSessionTimeout = () => {
+  // Clear existing timeout
+  if (sessionTimeoutId) {
+    clearTimeout(sessionTimeoutId);
+  }
+
+  // Set new timeout
+  sessionTimeoutId = setTimeout(() => {
+    // Session expired - clear token and user
+    removeToken();
+    // Redirect to login if on protected page
+    if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+      window.location.href = '/login';
+    }
+  }, SESSION_TIMEOUT);
+};
+
+// Initialize session timeout on user activity
+if (typeof window !== 'undefined') {
+  // Reset timeout on any user activity
+  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+    document.addEventListener(event, resetSessionTimeout, { passive: true });
+  });
+
+  // Reset timeout on page load if authenticated
+  if (isAuthenticated()) {
+    resetSessionTimeout();
+  }
+}
+

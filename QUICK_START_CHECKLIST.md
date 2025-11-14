@@ -64,8 +64,9 @@ BREVO_API_KEY=your-brevo-api-key
 BREVO_SENDER_EMAIL=noreply@everwell.com
 BREVO_SENDER_NAME=EverWell
 
-# Leads
+# Leads / CRM
 LEAD_NOTIFICATION_EMAIL=contato@everwell.com
+HUBSPOT_API_KEY=your-hubspot-api-key
 
 # CORS
 FRONTEND_URL=http://localhost:5173

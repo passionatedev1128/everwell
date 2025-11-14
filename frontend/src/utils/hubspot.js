@@ -133,10 +133,18 @@ export const trackSearch = (searchTerm) => {
   });
 };
 
-export const trackLead = (documentType) => {
-  trackEvent('document_upload', {
-    document_type: documentType,
-  });
+export const trackLead = (leadSource) => {
+  // Handle different lead sources (goal_form, document_upload, etc.)
+  if (leadSource === 'goal_form') {
+    trackEvent('goal_form', {
+      source: 'homepage_form',
+    });
+  } else {
+    // For document uploads
+    trackEvent('document_upload', {
+      document_type: leadSource,
+    });
+  }
 };
 
 export const trackContact = (orderId) => {

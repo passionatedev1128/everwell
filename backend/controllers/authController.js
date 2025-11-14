@@ -30,13 +30,13 @@ export const register = async (req, res, next) => {
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create user
+    // Create user - auto-authorize new registrations
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       passwordHash,
       phone,
-      isAuthorized: false,
+      isAuthorized: true, // Auto-authorize new registrations
       emailVerified: false,
       emailVerificationToken,
       emailVerificationTokenExpires
@@ -56,8 +56,14 @@ export const register = async (req, res, next) => {
       subject: verificationTemplate.subject,
       html: verificationTemplate.html,
       text: verificationTemplate.text
+    }).then(result => {
+      if (result.success) {
+        console.log(`✅ Verification email sent to ${user.email}`);
+      } else {
+        console.error(`❌ Failed to send verification email to ${user.email}:`, result.message || result.error);
+      }
     }).catch(err => {
-      console.error('Failed to send verification email:', err);
+      console.error('❌ Error sending verification email:', err);
     });
 
     // Also send welcome email
@@ -67,8 +73,14 @@ export const register = async (req, res, next) => {
       subject: welcomeTemplate.subject,
       html: welcomeTemplate.html,
       text: welcomeTemplate.text
+    }).then(result => {
+      if (result.success) {
+        console.log(`✅ Welcome email sent to ${user.email}`);
+      } else {
+        console.error(`❌ Failed to send welcome email to ${user.email}:`, result.message || result.error);
+      }
     }).catch(err => {
-      console.error('Failed to send welcome email:', err);
+      console.error('❌ Error sending welcome email:', err);
     });
 
     res.status(201).json({
@@ -218,8 +230,14 @@ export const resendVerification = async (req, res, next) => {
       subject: verificationTemplate.subject,
       html: verificationTemplate.html,
       text: verificationTemplate.text
+    }).then(result => {
+      if (result.success) {
+        console.log(`✅ Resent verification email to ${user.email}`);
+      } else {
+        console.error(`❌ Failed to resend verification email to ${user.email}:`, result.message || result.error);
+      }
     }).catch(err => {
-      console.error('Failed to send verification email:', err);
+      console.error('❌ Error resending verification email:', err);
     });
 
     res.json({
@@ -263,8 +281,14 @@ export const forgotPassword = async (req, res, next) => {
       subject: resetTemplate.subject,
       html: resetTemplate.html,
       text: resetTemplate.text
+    }).then(result => {
+      if (result.success) {
+        console.log(`✅ Password reset email sent to ${user.email}`);
+      } else {
+        console.error(`❌ Failed to send password reset email to ${user.email}:`, result.message || result.error);
+      }
     }).catch(err => {
-      console.error('Failed to send password reset email:', err);
+      console.error('❌ Error sending password reset email:', err);
     });
 
     res.json({

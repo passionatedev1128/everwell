@@ -37,6 +37,17 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
       
+      // Check if user was deleted (404 on /auth/me endpoint)
+      if (error.response?.status === 404 && error.config?.url?.includes('/auth/me')) {
+        // User no longer exists - clear session
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+      
       // For other 401/403 errors, redirect to login
       localStorage.removeItem('token');
       localStorage.removeItem('user');

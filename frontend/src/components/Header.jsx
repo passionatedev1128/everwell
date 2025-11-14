@@ -1,10 +1,12 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { isAuthenticated, getUser, removeToken } from '../utils/auth';
 import { useCart } from '../context/CartContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const authenticated = isAuthenticated();
@@ -19,10 +21,23 @@ const Header = () => {
     { label: 'Blog', path: '/blog' }
   ];
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleLogout = () => {
     removeToken();
     navigate('/');
     setIsMenuOpen(false);
+    setIsAccountMenuOpen(false);
   };
 
   const isActive = (path) => {
@@ -33,138 +48,154 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-primary/10 backdrop-blur-xl" />
-        <div className="absolute inset-0 border-b border-white/40 shadow-[0_8px_30px_-20px_rgba(15,41,61,0.6)]" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <Link to="/" className="flex items-center gap-3">
-              <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/15 text-primary font-heading text-xl shadow-[0_12px_40px_-25px_rgba(79,179,168,0.9)]">
-                EW
-              </span>
-              <div className="flex flex-col">
-                <span className="font-heading text-xl font-semibold text-darkTeal tracking-tight">EverWell</span>
-                <span className="text-xs uppercase tracking-[0.4em] text-darkTeal/60">CBD Experts</span>
-              </div>
-            </Link>
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b-2 border-primary/30 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-white font-semibold text-lg">
+              EW
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold text-darkTeal tracking-tight">EverWell</span>
+              <span className="text-xs text-mediumTeal">CBD Experts</span>
+            </div>
+          </Link>
 
-            <nav className="hidden lg:flex items-center gap-2">
-              {navLinks.map((link) => (
+          <nav className="hidden lg:flex items-center gap-1 mx-8">
+            {navLinks.map((link) => {
+              // Check if user is authenticated for product link
+              const isProductLink = link.path === '/produtos';
+              const shouldShowActive = isProductLink 
+                ? (authenticated && isActive(link.path))
+                : isActive(link.path);
+              
+              return (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`relative px-5 py-2 rounded-full text-sm font-semibold tracking-wide transition-all duration-300 ${
-                    isActive(link.path)
-                      ? 'text-white bg-primary shadow-[0_18px_40px_-20px_rgba(79,179,168,0.9)]'
-                      : 'text-darkTeal/70 hover:text-darkTeal hover:bg-white/70'
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    shouldShowActive
+                      ? 'text-white bg-primary shadow-sm'
+                      : 'text-darkTeal/70 hover:text-darkTeal hover:bg-primary/10'
                   }`}
                 >
                   {link.label}
                 </Link>
-              ))}
+              );
+            })}
+          </nav>
 
-              {authenticated && user?.role === 'admin' && (
-                <Link
-                  to="/admin"
-                  className={`relative px-5 py-2 rounded-full text-sm font-semibold tracking-wide transition-all duration-300 ${
-                    isActive('/admin')
-                      ? 'text-white bg-primary shadow-[0_18px_40px_-20px_rgba(79,179,168,0.9)]'
-                      : 'text-darkTeal/70 hover:text-darkTeal hover:bg-white/70'
-                  }`}
+          <div className="hidden lg:flex items-center gap-3">
+            <Link to="/agendar" className="btn-primary">
+              Agendar consulta
+            </Link>
+            {authenticated ? (
+              <div className="relative" ref={accountMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsAccountMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-colors"
                 >
-                  Admin
-                </Link>
-              )}
-
-              {authenticated && (
-                <Link
-                  to="/dashboard"
-                  className={`relative px-5 py-2 rounded-full text-sm font-semibold tracking-wide transition-all duration-300 ${
-                    isActive('/dashboard')
-                      ? 'text-white bg-primary shadow-[0_18px_40px_-20px_rgba(79,179,168,0.9)]'
-                      : 'text-darkTeal/70 hover:text-darkTeal hover:bg-white/70'
-                  }`}
-                >
-                  Dashboard
-                </Link>
-              )}
-
-              {authenticated && user?.isAuthorized && (
-                <Link
-                  to="/carrinho"
-                  className="relative px-4 py-2 rounded-full text-darkTeal/70 hover:text-darkTeal hover:bg-white/70 transition-all duration-300"
-                >
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span>Carrinho</span>
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
-                        {cartCount > 9 ? '9+' : cartCount}
-                      </span>
-                    )}
+                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                    {user?.name?.charAt(0)?.toUpperCase() || 'E'}
                   </div>
-                </Link>
-              )}
-            </nav>
-
-            <div className="hidden lg:flex items-center gap-4">
-              {authenticated ? (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 bg-white/60 backdrop-blur px-4 py-2 rounded-full border border-white/50">
-                    <div className="w-9 h-9 rounded-full bg-primary/15 text-primary flex items-center justify-center font-heading text-sm">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'E'}
-                    </div>
-                    <div className="text-xs uppercase tracking-wide text-darkTeal/70">
+                  <div className="hidden xl:flex flex-col items-start text-left">
+                    <span className="text-sm font-medium text-darkTeal leading-tight">
                       {user?.name}
+                    </span>
+                    <span className="text-xs text-mediumTeal">
+                      Minha conta
+                    </span>
+                  </div>
+                  <svg
+                    className={`w-4 h-4 text-mediumTeal transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {isAccountMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm animate-scale-in">
+                    <div className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent">
+                      <p className="text-sm font-semibold text-darkTeal">{user?.name}</p>
+                    </div>
+                    <div className="py-1">
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-darkTeal hover:bg-primary/10 transition-colors rounded-md mx-1"
+                        onClick={() => setIsAccountMenuOpen(false)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Dashboard
+                      </Link>
+                      {user?.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-darkTeal hover:bg-primary/10 transition-colors rounded-md mx-1"
+                          onClick={() => setIsAccountMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Painel administrativo
+                        </Link>
+                      )}
+                    </div>
+                    <div className="border-t border-primary/10 pt-1">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors rounded-md mx-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sair
+                      </button>
                     </div>
                   </div>
-                  <button onClick={handleLogout} className="btn-secondary">
-                    Sair
-                  </button>
-                </div>
-              ) : (
-                <Link to="/login" className="btn-secondary">
-                  Entrar
-                </Link>
-              )}
-
-              <Link to="/agendar" className="btn-primary">
-                Agendar consulta
-              </Link>
-            </div>
-
-            <button
-              className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-white/70 border border-white/50 shadow-sm"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <svg className="h-6 w-6 text-darkTeal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
-              </svg>
-            </button>
+              </div>
+            ) : (
+              <Link to="/login" className="btn-secondary">
+                Entrar
+              </Link>
+            )}
           </div>
+
+          <button
+            className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-md text-darkTeal hover:bg-primary/10"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
 
       {isMenuOpen && (
-        <div className="lg:hidden backdrop-blur-xl bg-white/80 border-b border-white/40 shadow-[0_18px_60px_-30px_rgba(15,41,61,0.6)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
-            <nav className="flex flex-col gap-3">
+        <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-primary/20 shadow-lg">
+          <div className="px-4 py-4 space-y-1">
+            <nav className="flex flex-col gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`px-4 py-3 rounded-xl text-sm font-semibold tracking-wide ${
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
                     isActive(link.path)
-                      ? 'bg-primary text-white shadow-lg'
-                      : 'bg-white/60 text-darkTeal/80'
+                      ? 'bg-primary text-white'
+                      : 'text-darkTeal/70 hover:bg-primary/10'
                   }`}
                 >
                   {link.label}
@@ -199,11 +230,11 @@ const Header = () => {
                 <Link
                   to="/carrinho"
                   onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-sm font-semibold tracking-wide bg-white/60 text-darkTeal/80 flex items-center gap-3"
+                  className="px-4 py-2 rounded-md text-sm font-medium text-darkTeal/70 hover:bg-primary/10 flex items-center gap-2"
                 >
                   <span>Carrinho</span>
                   {cartCount > 0 && (
-                    <span className="bg-primary text-white text-[11px] font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                    <span className="bg-primary text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount > 9 ? '9+' : cartCount}
                     </span>
                   )}
@@ -211,16 +242,16 @@ const Header = () => {
               )}
             </nav>
 
-            <div className="pt-2 border-t border-white/50 flex flex-col gap-3">
+            <div className="pt-4 border-t border-primary/10 flex flex-col gap-2">
               {authenticated ? (
                 <>
-                  <div className="flex items-center gap-3 bg-white/70 backdrop-blur px-4 py-3 rounded-2xl">
-                    <div className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center font-heading">
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
                       {user?.name?.charAt(0)?.toUpperCase() || 'E'}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-darkTeal">{user?.name}</p>
-                      <p className="text-xs text-darkTeal/60 uppercase tracking-wide">Conta EverWell</p>
+                      <p className="text-sm font-medium text-darkTeal">{user?.name}</p>
+                      <p className="text-xs text-mediumTeal">Conta EverWell</p>
                     </div>
                   </div>
                   <button onClick={handleLogout} className="btn-secondary w-full text-center">

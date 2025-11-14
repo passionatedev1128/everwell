@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
 import FAQAccordion from '../components/FAQAccordion';
 import GoalForm from '../components/GoalForm';
+import Carousel from '../components/Carousel';
+import { initScrollAnimations } from '../utils/scrollAnimations';
 
 const heroVideo = 'https://cdn.coverr.co/videos/coverr-balance-your-body-1689250530998?download=1';
 
@@ -118,39 +121,67 @@ const heroStats = [
 ];
 
 const Home = () => {
+  const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const backgroundSectionRef = useRef(null);
+
+  useEffect(() => {
+    initScrollAnimations();
+
+    // Background image on scroll
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setBackgroundVisible(true);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (backgroundSectionRef.current) {
+      observer.observe(backgroundSectionRef.current);
+    }
+
+    return () => {
+      if (backgroundSectionRef.current) {
+        observer.unobserve(backgroundSectionRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="bg-transparent">
       {/* Hero with video background */}
-      <section className="relative min-h-[640px] overflow-hidden">
+      <section className="relative min-h-[600px] overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
         <video
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
           src={heroVideo}
           autoPlay
           muted
           loop
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0f1f2b]/80 via-[#0f2f2b]/75 to-primary/60" />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-28 text-center text-white">
-          <p className="section-heading text-white/70">EverWell Performance Lab</p>
-          <h1 className="hero-title text-white">Focus. Performance. Recovery.</h1>
-          <p className="hero-subtitle">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center text-white">
+          <p className="text-sm font-medium text-gray-300 uppercase tracking-wide mb-4">EverWell Performance Lab</p>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">Focus. Performance. Recovery.</h1>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
             Protocolos personalizados com cannabis medicinal e inovação científica para alcançar a sua melhor versão.
           </p>
-          <div className="hero-cta">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link to="/agendar" className="btn-primary">
               Agendar consulta
             </Link>
-            <Link to="/produtos" className="btn-secondary">
+            <Link to="/produtos" className="btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20">
               Catálogo exclusivo
             </Link>
           </div>
-          <div className="mt-12 flex justify-center">
-            <div className="glass-panel px-8 py-5 flex flex-col md:flex-row gap-6 md:gap-12 text-left md:text-center">
+          <div className="flex justify-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-8 py-6 flex flex-col md:flex-row gap-8 md:gap-12" style = {{ backgroundColor: "rgb(79 179 168 / var(--tw-bg-opacity, 1))" }}>
               {heroStats.map((item) => (
                 <div key={item.label} className="flex flex-col">
-                  <span className="text-3xl md:text-4xl font-heading font-semibold text-white">{item.value}</span>
-                  <span className="text-sm uppercase tracking-[0.35em] text-white/70">{item.label}</span>
+                  <span className="text-3xl md:text-4xl font-bold text-white mb-1">{item.value}</span>
+                  <span className="text-xs uppercase tracking-wider text-gray-300">{item.label}</span>
                 </div>
               ))}
             </div>
@@ -159,13 +190,13 @@ const Home = () => {
       </section>
 
       {/* Trust Badges */}
-      <section className="-mt-20 relative z-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto glass-panel p-8 md:p-10">
+      <section className="-mt-16 relative z-20 px-4 sm:px-6 lg:px-8 scroll-animate">
+        <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-xl rounded-lg shadow-lg border border-primary/20 p-8 md:p-10">
           <div className="grid md:grid-cols-4 gap-6">
             {trustBadges.map((badge) => (
-              <div key={badge.title} className="space-y-2">
-                <p className="text-sm uppercase tracking-[0.3em] text-primary/80">{badge.title}</p>
-                <p className="text-darkTeal/80 text-sm leading-relaxed">{badge.subtitle}</p>
+              <div key={badge.title} className="space-y-2 scroll-animate" style={{ animationDelay: `${trustBadges.indexOf(badge) * 0.1}s` }}>
+                <p className="text-sm font-semibold text-darkTeal uppercase tracking-wide" style={{ color: "rgb(79 179 168 / var(--tw-bg-opacity, 1))" }}>{badge.title}</p>
+                <p className="text-mediumTeal text-sm leading-relaxed">{badge.subtitle}</p>
               </div>
             ))}
           </div>
@@ -199,8 +230,21 @@ const Home = () => {
       </section>
 
       {/* Purchase Process */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 relative overflow-hidden">
+        {/* Background Image on Scroll */}
+        <div
+          ref={backgroundSectionRef}
+          className={`absolute inset-0 transition-opacity duration-1000 ${
+            backgroundVisible ? 'opacity-20' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: 'url(https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=2000&q=80)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+          }}
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <p className="section-heading">Onboarding premium</p>
             <h2 className="section-title">Uma experiência desenhada para alcançar resultados reais</h2>
@@ -208,27 +252,52 @@ const Home = () => {
               Da primeira consulta à entrega, cada etapa é orientada por especialistas e acompanhada com total transparência.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {processSteps.map((step) => (
-              <div key={step.number} className="card space-y-4">
-                <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
-                <p className="text-4xl font-heading text-darkTeal">{step.number}</p>
-                <h3 className="text-2xl font-semibold text-darkTeal">{step.title}</h3>
-                <p className="muted-text">{step.copy}</p>
-                {step.link && (
-                  <a
-                    href={step.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide"
-                  >
-                    {step.link.label}
-                    <span aria-hidden>↗</span>
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
+          {processSteps.length > 3 ? (
+            <Carousel
+              items={processSteps.map((step) => (
+                <div key={step.number} className="card space-y-4 mx-2">
+                  <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
+                  <p className="text-4xl font-heading text-darkTeal">{step.number}</p>
+                  <h3 className="text-2xl font-semibold text-darkTeal">{step.title}</h3>
+                  <p className="muted-text">{step.copy}</p>
+                  {step.link && (
+                    <a
+                      href={step.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide"
+                    >
+                      {step.link.label}
+                      <span aria-hidden>↗</span>
+                    </a>
+                  )}
+                </div>
+              ))}
+              itemsPerView={3}
+            />
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {processSteps.map((step) => (
+                <div key={step.number} className="card space-y-4">
+                  <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
+                  <p className="text-4xl font-heading text-darkTeal">{step.number}</p>
+                  <h3 className="text-2xl font-semibold text-darkTeal">{step.title}</h3>
+                  <p className="muted-text">{step.copy}</p>
+                  {step.link && (
+                    <a
+                      href={step.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide"
+                    >
+                      {step.link.label}
+                      <span aria-hidden>↗</span>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -240,23 +309,40 @@ const Home = () => {
               <p className="section-heading">Coleção exclusiva</p>
               <h2 className="section-title">Produtos desenhados para performance, foco e recuperação</h2>
             </div>
-            <Link to="/produtos" className="btn-secondary">
+            <Link to="/produtos" className="btn-secondary px-8 py-3 text-sm font-semibold tracking-wide">
               Ver catálogo completo
             </Link>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {productHighlights.map((product) => (
-              <div key={product.name} className="product-card space-y-4">
-                <img src={product.image} alt={product.name} className="product-card-image" />
-                <h3 className="text-xl font-semibold text-darkTeal">{product.name}</h3>
-                <p className="text-mediumTeal">{product.description}</p>
-                <Link to="/produtos" className="text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
-                  Detalhes
-                  <span aria-hidden>→</span>
-                </Link>
-              </div>
-            ))}
-          </div>
+          {productHighlights.length > 3 ? (
+            <Carousel
+              items={productHighlights.map((product) => (
+                <div key={product.name} className="product-card space-y-4 mx-2">
+                  <img src={product.image} alt={product.name} className="product-card-image" />
+                  <h3 className="text-xl font-semibold text-darkTeal">{product.name}</h3>
+                  <p className="text-mediumTeal">{product.description}</p>
+                  <Link to="/produtos" className="text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                    Detalhes
+                    <span aria-hidden>→</span>
+                  </Link>
+                </div>
+              ))}
+              itemsPerView={3}
+            />
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {productHighlights.map((product) => (
+                <div key={product.name} className="product-card space-y-4">
+                  <img src={product.image} alt={product.name} className="product-card-image" />
+                  <h3 className="text-xl font-semibold text-darkTeal">{product.name}</h3>
+                  <p className="text-mediumTeal">{product.description}</p>
+                  <Link to="/produtos" className="text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                    Detalhes
+                    <span aria-hidden>→</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -272,7 +358,7 @@ const Home = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial) => (
-              <div key={testimonial.name} className="card text-left flex flex-col gap-6">
+              <div key={testimonial.name} className="card text-left flex flex-col gap-6 scroll-animate">
                 <div className="flex items-center gap-4">
                   <img
                     src={testimonial.avatar}
@@ -283,6 +369,13 @@ const Home = () => {
                     <p className="font-semibold text-darkTeal">{testimonial.name}</p>
                     <p className="text-xs uppercase tracking-[0.35em] text-primary/70">{testimonial.title}</p>
                   </div>
+                </div>
+                <div className="flex items-center gap-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
                 </div>
                 <p className="text-darkTeal/80 italic leading-relaxed">“{testimonial.quote}”</p>
               </div>
@@ -324,7 +417,7 @@ const Home = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-4 md:text-right">
-                <Link to="/agendar" className="btn-primary">
+                <Link to="/agendar" className="btn-primary w-full md:w-auto text-center">
                   Agendar consulta
                 </Link>
                 <Link to="/duvidas" className="btn-secondary inline-flex items-center gap-2 self-start md:self-end">

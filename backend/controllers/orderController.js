@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import { getFileUrl } from '../config/upload.js';
 import { sendEmail } from '../config/email.js';
 import { orderStatusUpdateEmailTemplate } from '../utils/emailTemplates.js';
+import { sendOrderToHubSpot } from '../integrations/hubspot.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -60,6 +61,18 @@ export const createOrder = async (req, res, next) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent')
     });
+
+    // Fire-and-forget HubSpot integration
+    try {
+      const user = await User.findById(userId).select('name email phone');
+      if (user) {
+        sendOrderToHubSpot(order, user).catch((err) => {
+          console.error('❌ HubSpot integration error:', err?.message || err);
+        });
+      }
+    } catch (hubspotError) {
+      console.error('❌ HubSpot user lookup error:', hubspotError?.message || hubspotError);
+    }
 
     res.status(201).json({
       success: true,

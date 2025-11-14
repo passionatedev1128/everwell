@@ -54,25 +54,25 @@ const FAQAccordion = () => {
   return (
     <div className="space-y-4">
       {faqs.map((faq, index) => (
-        <div key={index} className="glass-panel overflow-hidden">
+        <div key={index} className="glass-panel overflow-hidden transition-all duration-300">
           <button
             onClick={() => toggleFAQ(index)}
-            className="w-full px-6 md:px-8 py-5 flex items-center justify-between gap-6 text-left"
+            className="w-full px-6 md:px-8 py-5 flex items-center justify-between gap-6 text-left hover:bg-primary/5 transition-colors"
           >
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-1">Pergunta</p>
               <span className="font-semibold text-lg text-darkTeal leading-snug">{faq.question}</span>
             </div>
             <span
-              className={`flex items-center justify-center w-10 h-10 rounded-full border border-primary/30 text-primary transition-transform duration-300 ${
-                openIndex === index ? 'rotate-45 bg-primary/15' : ''
+              className={`flex items-center justify-center w-10 h-10 rounded-full border border-primary/30 text-primary transition-all duration-300 ${
+                openIndex === index ? 'bg-primary/15 rotate-90 scale-110' : 'hover:bg-primary/10 hover:scale-105'
               }`}
             >
-              {openIndex === index ? '−' : '+'}
+              {openIndex === index ? '×' : '+'}
             </span>
           </button>
           {openIndex === index && (
-            <div className="px-6 md:px-8 pb-6 text-darkTeal/80 leading-relaxed border-t border-white/40 bg-white/60">
+            <div className="px-6 md:px-8 pb-6 text-darkTeal/80 leading-relaxed border-t border-white/40 bg-white/60 animate-fade-in">
               {faq.answer}
             </div>
           )}

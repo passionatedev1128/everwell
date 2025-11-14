@@ -14,42 +14,42 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-semibold text-darkTeal;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    @apply font-semibold text-darkTeal;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
   }
   
   h1 {
-    @apply text-5xl;
+    @apply text-4xl md:text-5xl;
   }
   
   h2 {
-    @apply text-4xl;
+    @apply text-3xl md:text-4xl;
   }
   
   h3 {
-    @apply text-3xl;
+    @apply text-2xl md:text-3xl;
   }
   
   h4 {
-    @apply text-2xl;
+    @apply text-xl md:text-2xl;
   }
   
   h5 {
-    @apply text-xl;
+    @apply text-lg md:text-xl;
   }
   
   h6 {
-    @apply text-lg;
+    @apply text-base md:text-lg;
   }
   
   p {
     @apply text-mediumTeal mb-4;
-    line-height: 1.7;
+    line-height: 1.6;
   }
   
   a {
-    @apply text-primary transition-colors duration-300;
+    @apply text-primary transition-colors duration-200;
   }
   
   a:hover {
@@ -58,37 +58,35 @@
 }
 
 @layer components {
-  /* Buttons */
+  /* Buttons - Metronic Style */
   .btn-primary {
-    @apply bg-primary text-white px-8 py-3.5 rounded-full font-heading font-semibold text-base;
-    @apply hover:bg-primary-dark hover:shadow-xl transition-all duration-300;
-    @apply tracking-wide uppercase text-sm;
-    box-shadow: 0 16px 30px -18px rgba(79, 179, 168, 0.65);
-  }
-  
-  .btn-primary:hover {
-    box-shadow: 0 22px 45px -20px rgba(79, 179, 168, 0.9);
+    @apply bg-primary text-white px-6 py-2.5 rounded-md font-medium text-sm;
+    @apply hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
-    @apply bg-white/60 backdrop-blur border border-primary/30 text-primary px-7 py-3 rounded-full;
-    @apply font-heading font-semibold text-sm uppercase tracking-wide;
-    @apply hover:bg-primary hover:text-white hover:shadow-lg transition-all duration-300;
+    @apply bg-white text-gray-700 border border-gray-300 px-6 py-2.5 rounded-md;
+    @apply font-medium text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   .btn-outline {
-    @apply bg-white text-darkTeal border border-gray-200/60 px-6 py-3 rounded-full;
-    @apply font-semibold hover:border-primary hover:text-primary transition-all duration-300;
+    @apply bg-transparent text-gray-700 border border-gray-300 px-6 py-2.5 rounded-md;
+    @apply font-medium text-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply transition-all duration-200;
   }
   
   .btn-success {
-    @apply bg-success text-white px-6 py-3 rounded-full font-semibold uppercase text-sm tracking-wide;
-    @apply hover:opacity-90 transition-opacity duration-300;
+    @apply bg-green-600 text-white px-6 py-2.5 rounded-md font-medium text-sm;
+    @apply hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   .btn-warning {
-    @apply bg-warning text-white px-6 py-3 rounded-full font-semibold uppercase text-sm tracking-wide;
-    @apply hover:opacity-90 transition-opacity duration-300;
+    @apply bg-amber-500 text-white px-6 py-2.5 rounded-md font-medium text-sm;
+    @apply hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   /* Elevated Cards */
@@ -111,6 +109,7 @@
   .card:hover {
     transform: translateY(-6px);
     box-shadow: 0 32px 80px -35px rgba(15, 41, 61, 0.75);
+    cursor: pointer;
   }
   
   .card-header {
@@ -322,8 +321,79 @@ div[data-react-hot-toast] {
   animation: scale-in 0.2s ease-out;
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.scroll-animate {
+  opacity: 0;
+}
+
 button, a, input, select, textarea {
   transition: all 0.2s ease-in-out;
+}
+
+/* Elegant datepicker and combobox styling */
+input[type="date"],
+input[type="datetime-local"],
+select {
+  @apply rounded-lg border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal;
+  @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  @apply transition-all duration-200;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25em 1.25em;
+  padding-right: 2.5rem;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(150deg);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+select:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Button hover text visibility fix */
+button:hover {
+  position: relative;
+  z-index: 1;
+}
+
+button:hover span,
+button:hover svg {
+  position: relative;
+  z-index: 2;
 }
 
 .btn-loading {
@@ -377,5 +447,37 @@ button, a, input, select, textarea {
     min-height: 44px;
     min-width: 44px;
   }
+}
+
+/* Elegant scrollbar styling - thinner with no buttons */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(79, 179, 168, 0.45) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(79,179,168,0.65) 0%, rgba(26,61,58,0.75) 100%);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(79,179,168,0.85) 0%, rgba(26,61,58,0.9) 100%);
+}
+
+/* Remove scrollbar buttons */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
