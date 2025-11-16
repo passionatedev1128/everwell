@@ -91,8 +91,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-bgSecondary">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-4xl font-bold text-darkTeal mb-8 font-heading">Dashboard</h1>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-darkTeal mb-6 sm:mb-8 font-heading">Dashboard</h1>
         
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
@@ -100,50 +100,62 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <nav className="space-y-2">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-4">
+              <nav className="space-y-1.5 sm:space-y-2">
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  className={`w-full text-left px-4 py-2 rounded-md transition-all duration-300 relative overflow-hidden ${
                     activeTab === 'overview'
-                      ? 'bg-primary text-white'
-                      : 'text-darkTeal hover:bg-bgSecondary'
+                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                      : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
                 >
-                  Visão Geral
+                  <span className="relative z-10">Visão Geral</span>
+                  {activeTab === 'overview' && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  className={`w-full text-left px-4 py-2 rounded-md transition-all duration-300 relative overflow-hidden ${
                     activeTab === 'profile'
-                      ? 'bg-primary text-white'
-                      : 'text-darkTeal hover:bg-bgSecondary'
+                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                      : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
                 >
-                  Perfil
+                  <span className="relative z-10">Perfil</span>
+                  {activeTab === 'profile' && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  className={`w-full text-left px-4 py-2 rounded-md transition-all duration-300 relative overflow-hidden ${
                     activeTab === 'orders'
-                      ? 'bg-primary text-white'
-                      : 'text-darkTeal hover:bg-bgSecondary'
+                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                      : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
                 >
-                  Pedidos
+                  <span className="relative z-10">Pedidos</span>
+                  {activeTab === 'orders' && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('documents')}
-                  className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  className={`w-full text-left px-4 py-2 rounded-md transition-all duration-300 relative overflow-hidden ${
                     activeTab === 'documents'
-                      ? 'bg-primary text-white'
-                      : 'text-darkTeal hover:bg-bgSecondary'
+                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                      : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
                 >
-                  Documentos
+                  <span className="relative z-10">Documentos</span>
+                  {activeTab === 'documents' && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                  )}
                 </button>
               </nav>
             </div>
@@ -157,7 +169,7 @@ const Dashboard = () => {
                   <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Visão Geral</h2>
                   
                   {/* Stats Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div className="bg-bgSecondary rounded-lg p-4 border-l-4 border-primary">
                       <h3 className="text-sm font-medium text-mediumTeal mb-1">Total de Pedidos</h3>
                       <p className="text-3xl font-bold text-darkTeal">{orders.length}</p>

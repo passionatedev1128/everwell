@@ -1,4 +1,4 @@
-// Scroll animation utility
+// Enhanced scroll animation utility
 export const initScrollAnimations = () => {
   const observerOptions = {
     threshold: 0.1,
@@ -15,8 +15,22 @@ export const initScrollAnimations = () => {
   }, observerOptions);
 
   // Observe all elements with scroll-animate class
-  document.querySelectorAll('.scroll-animate').forEach((el) => {
+  const animateElements = document.querySelectorAll('.scroll-animate');
+  animateElements.forEach((el) => {
+    observer.observe(el);
+  });
+
+  // Also observe elements with data-scroll-animate attribute
+  const dataAnimateElements = document.querySelectorAll('[data-scroll-animate]');
+  dataAnimateElements.forEach((el) => {
+    el.classList.add('scroll-animate');
     observer.observe(el);
   });
 };
 
+// Re-initialize on route changes
+export const reinitScrollAnimations = () => {
+  setTimeout(() => {
+    initScrollAnimations();
+  }, 100);
+};

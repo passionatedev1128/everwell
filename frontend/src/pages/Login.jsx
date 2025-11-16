@@ -6,7 +6,7 @@ import api from '../utils/api';
 import { setToken, setUser } from '../utils/auth';
 import OAuthButtons from '../components/OAuthButtons';
 import { trackLogin, trackSignUp } from '../utils/analytics';
-import { trackCompleteRegistration } from '../utils/hubspot';
+import { trackCompleteRegistration, identifyContact } from '../utils/hubspot';
 import { trackSignUp as gtmTrackSignUp, trackLogin as gtmTrackLogin } from '../utils/gtm';
 
 const Login = () => {
@@ -51,6 +51,8 @@ const Login = () => {
       if (response.data.success) {
         setToken(response.data.token);
         setUser(response.data.user);
+        // Identify contact in HubSpot
+        identifyContact(response.data.user);
         
         // Track analytics events
         if (!isLogin) {

@@ -1,6 +1,31 @@
-const AdminTable = ({ users, onToggleAuthorization, onDeleteUser }) => {
+const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, onSort }) => {
   const authorizedCount = users.filter(u => u.isAuthorized).length;
   const pendingCount = users.filter(u => !u.isAuthorized).length;
+
+  const handleSort = (field) => {
+    if (onSort) {
+      onSort(field);
+    }
+  };
+
+  const getSortIcon = (field) => {
+    if (!sortConfig || sortConfig.field !== field) {
+      return (
+        <svg className="w-4 h-4 text-mediumTeal/40 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    }
+    return sortConfig.direction === 'asc' ? (
+      <svg className="w-4 h-4 text-primary ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+      </svg>
+    ) : (
+      <svg className="w-4 h-4 text-primary ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -24,20 +49,55 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser }) => {
         <table className="min-w-full divide-y divide-primary/20">
           <thead className="bg-primary/5">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider">
-                Nome
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                onClick={() => handleSort('name')}
+              >
+                <div className="flex items-center">
+                  Nome
+                  {getSortIcon('name')}
+                </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider">
-                Email
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                onClick={() => handleSort('email')}
+              >
+                <div className="flex items-center">
+                  Email
+                  {getSortIcon('email')}
+                </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider">
-                Tipo
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                onClick={() => handleSort('role')}
+              >
+                <div className="flex items-center">
+                  Tipo
+                  {getSortIcon('role')}
+                </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider">
-                Status
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                onClick={() => handleSort('status')}
+              >
+                <div className="flex items-center">
+                  Status
+                  {getSortIcon('status')}
+                </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider">
-                Data de Cadastro
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                onClick={() => handleSort('createdAt')}
+              >
+                <div className="flex items-center">
+                  Data de Cadastro
+                  {getSortIcon('createdAt')}
+                </div>
               </th>
               <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-mediumTeal uppercase tracking-wider">
                 Autorização
@@ -148,4 +208,3 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser }) => {
 };
 
 export default AdminTable;
-

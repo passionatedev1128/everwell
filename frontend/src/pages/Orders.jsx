@@ -5,6 +5,7 @@ import { getOrders, getOrderById } from '../utils/api';
 import { OrderCardSkeleton } from '../components/SkeletonLoader';
 import { EmptyOrders, EmptySearch } from '../components/EmptyState';
 import PaymentProofUpload from '../components/PaymentProofUpload';
+import DatePicker from '../components/DatePicker';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -271,22 +272,22 @@ const Orders = () => {
                 <label className="block text-sm font-medium text-darkTeal mb-2">
                   Data Inicial
                 </label>
-                <input
-                  type="date"
+                <DatePicker
                   value={dateFilter.from}
                   onChange={(e) => setDateFilter({ ...dateFilter, from: e.target.value })}
-                  className="w-full input-field"
+                  placeholder="Data Inicial"
+                  className="w-full"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-darkTeal mb-2">
                   Data Final
                 </label>
-                <input
-                  type="date"
+                <DatePicker
                   value={dateFilter.to}
                   onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                  className="w-full input-field"
+                  placeholder="Data Final"
+                  className="w-full"
                 />
               </div>
             </div>

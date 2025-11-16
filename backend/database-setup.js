@@ -237,6 +237,11 @@ db.auditlogs.createIndex({ createdAt: -1 });
 db.auditlogs.createIndex({ userId: 1 });
 db.auditlogs.createIndex({ action: 1 });
 
+db.bookings.createIndex({ userId: 1 });
+db.bookings.createIndex({ appointmentDate: 1 });
+db.bookings.createIndex({ status: 1 });
+db.bookings.createIndex({ userId: 1, appointmentDate: -1 });
+
 // ============================================
 // 7. EXAMPLE QUERIES FOR USER MANAGEMENT
 // ============================================
@@ -284,12 +289,26 @@ print("\n=== Database Setup Complete ===\n");
 print("Products: " + db.products.countDocuments());
 print("FAQs: " + db.faqs.countDocuments());
 print("Blogs: " + db.blogs.countDocuments());
+print("Bookings: " + db.bookings.countDocuments());
+print("\nCollections created:");
+print("  - users");
+print("  - products");
+print("  - orders");
+print("  - blogs");
+print("  - faqs");
+print("  - auditlogs");
+print("  - bookings");
 print("\nUser Schema includes:");
 print("  - General Info: name, email, phone, address (street, city, state, zipCode, country)");
 print("  - Documents: medicalPrescription, importAuthorization, proofOfResidence");
 print("  - Each document has: url, uploadedAt, status (pending/approved/rejected)");
+print("\nBooking Schema includes:");
+print("  - userId, simplyBookId, serviceName, appointmentDate, appointmentTime");
+print("  - status: scheduled, confirmed, completed, cancelled, no-show");
+print("  - serviceType: consultation, follow-up, evaluation, other");
 print("\nNext steps:");
 print("  1. Register users via API: POST /api/auth/register");
 print("  2. Update user info and documents via API or MongoDB");
 print("  3. Create admin: Update role to 'admin' after registration");
+print("  4. Bookings will be created via SimplyBook integration or API");
 

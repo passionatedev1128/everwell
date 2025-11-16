@@ -153,6 +153,24 @@ export const trackContact = (orderId) => {
   });
 };
 
+export const identifyContact = (user = {}) => {
+  const queue = ensureQueue();
+  if (!queue) return;
+  const { email, _id, id, role, isAuthorized, name } = user || {};
+  if (!email) return;
+  try {
+    queue.push(['identify', {
+      email,
+      userId: _id || id,
+      role: role || 'user',
+      isAuthorized: !!isAuthorized,
+      name,
+    }]);
+  } catch (e) {
+    // no-op
+  }
+};
+
 export const trackViewCategory = (products, categoryName = 'Products') => {
   trackEvent('view_category', {
     category: categoryName,
@@ -177,4 +195,5 @@ export default {
   trackLead,
   trackContact,
   trackViewCategory,
+  identifyContact,
 };

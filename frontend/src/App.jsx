@@ -35,7 +35,7 @@ function PageViewTracker() {
   useEffect(() => {
     // Track page view on route change
     trackPageView(location.pathname + location.search, document.title);
-    hubspotTrackPageView();
+    hubspotTrackPageView(location.pathname + location.search, document.title);
     gtmTrackPageView(location.pathname + location.search, document.title);
   }, [location]);
 
@@ -68,13 +68,18 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5faf7]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f5faf7] via-white to-primary/5">
         <div className="text-center">
-          <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="absolute inset-0 border-4 border-primary/10 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" style={{ animationDuration: '0.8s' }}></div>
+            <div className="absolute inset-2 border-2 border-primary/20 rounded-full animate-pulse"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary rounded-lg opacity-80 animate-pulse"></div>
+            </div>
           </div>
-          <p className="text-mediumTeal font-medium">Carregando EverWell...</p>
+          <p className="text-primary font-semibold text-lg mb-2 animate-pulse">EverWell</p>
+          <p className="text-mediumTeal font-medium">Carregando...</p>
         </div>
       </div>
     );
@@ -87,7 +92,7 @@ function App() {
         <PageViewTracker />
         <div className="min-h-screen flex flex-col bg-[#f5faf7]">
           <Header />
-          <main className="flex-grow">
+          <main className="flex-grow pt-14 sm:pt-16">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/duvidas" element={<Doubts />} />

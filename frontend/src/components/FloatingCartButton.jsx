@@ -22,9 +22,15 @@ const FloatingCartButton = () => {
     <button
       type="button"
       onClick={handleClick}
-      className="fixed bottom-6 right-6 z-40 flex items-center gap-3 px-5 py-3 rounded-full shadow-[0_18px_45px_-25px_rgba(15,41,61,0.7)] bg-primary text-white font-semibold uppercase tracking-wide hover:shadow-[0_22px_60px_-25px_rgba(15,41,61,0.85)] hover:scale-110 hover:bg-primary-dark transition-all duration-300 transform"
+      className="floating-cart-button fixed bottom-6 right-6 z-40 flex items-center gap-3 px-5 py-3 rounded-full shadow-[0_18px_45px_-25px_rgba(15,41,61,0.7)] bg-primary text-white font-semibold uppercase tracking-wide hover:shadow-[0_24px_60px_-20px_rgba(79,179,168,0.6)] hover:bg-primary-dark active:bg-primary-dark/90"
+      style={{
+        transition: 'box-shadow 0.2s ease-out, background-color 0.2s ease-out',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden'
+      }}
     >
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 transition-transform duration-200 hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -41,5 +47,3 @@ const FloatingCartButton = () => {
 };
 
 export default FloatingCartButton;
-
-

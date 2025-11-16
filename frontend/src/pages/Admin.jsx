@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import { getAllOrdersAdmin, updateOrderStatus, getOrderById } from '../utils/api';
 import AdminTable from '../components/AdminTable';
+import DatePicker from '../components/DatePicker';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('users');
@@ -20,7 +21,9 @@ const Admin = () => {
   const [dateFilter, setDateFilter] = useState({ from: '', to: '' });
   const [userFilter, setUserFilter] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
+  const [userSortConfig, setUserSortConfig] = useState({ field: null, direction: 'asc' });
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
+  const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
 
   const totalUsers = users.length;
@@ -39,11 +42,16 @@ const Admin = () => {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'users') {
-      fetchUsers();
-    } else if (activeTab === 'orders') {
-      fetchOrders();
-    }
+    setTabTransition(true);
+    const timer = setTimeout(() => {
+      setTabTransition(false);
+      if (activeTab === 'users') {
+        fetchUsers();
+      } else if (activeTab === 'orders') {
+        fetchOrders();
+      }
+    }, 150);
+    return () => clearTimeout(timer);
   }, [activeTab]);
 
   useEffect(() => {
@@ -185,6 +193,60 @@ const Admin = () => {
 
   const handleDeleteUser = async (userId, userName) => {
     setDeleteModal({ open: true, user: { id: userId, name: userName } });
+  };
+
+  const handleUserSort = (field) => {
+    setUserSortConfig((prevConfig) => {
+      if (prevConfig.field === field) {
+        return {
+          field,
+          direction: prevConfig.direction === 'asc' ? 'desc' : 'asc'
+        };
+      }
+      return {
+        field,
+        direction: 'asc'
+      };
+    });
+  };
+
+  const getSortedUsers = () => {
+    if (!userSortConfig.field) return users;
+
+    const sorted = [...users].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (userSortConfig.field) {
+        case 'name':
+          aValue = a.name?.toLowerCase() || '';
+          bValue = b.name?.toLowerCase() || '';
+          break;
+        case 'email':
+          aValue = a.email?.toLowerCase() || '';
+          bValue = b.email?.toLowerCase() || '';
+          break;
+        case 'role':
+          aValue = a.role || '';
+          bValue = b.role || '';
+          break;
+        case 'status':
+          aValue = a.isAuthorized ? 1 : 0;
+          bValue = b.isAuthorized ? 1 : 0;
+          break;
+        case 'createdAt':
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return userSortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return userSortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
   };
 
   const confirmDeleteUser = async () => {
@@ -429,31 +491,41 @@ const Admin = () => {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-1 inline-flex">
+        <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-1 inline-flex relative">
           <button
             onClick={() => setActiveTab('users')}
-            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 ${
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
               activeTab === 'users'
-                ? 'bg-primary text-white shadow-sm transform scale-105'
+                ? 'bg-primary text-white shadow-md transform scale-105'
                 : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
             }`}
           >
-            Usuários
+            <span className="relative z-10">Usuários</span>
+            {activeTab === 'users' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 ${
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
               activeTab === 'orders'
-                ? 'bg-primary text-white shadow-sm transform scale-105'
+                ? 'bg-primary text-white shadow-md transform scale-105'
                 : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
             }`}
           >
-            Pedidos
+            <span className="relative z-10">Pedidos</span>
+            {activeTab === 'orders' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
           </button>
         </div>
 
         {activeTab === 'users' && (
-          <div className="bg-white rounded-lg shadow-sm border border-primary/20">
+          <div 
+            className={`bg-white rounded-lg shadow-sm border border-primary/20 transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
             <div className="px-6 py-4 border-b border-primary/20">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
@@ -484,19 +556,26 @@ const Admin = () => {
                 />
               </div>
               <AdminTable
-                users={users.filter(user => {
+                users={getSortedUsers().filter(user => {
                   if (!userSearchQuery.trim()) return true;
                   const query = userSearchQuery.toLowerCase();
                   return user.name.toLowerCase().includes(query) || user.email.toLowerCase().includes(query);
                 })}
                 onToggleAuthorization={handleToggleAuthorization}
                 onDeleteUser={handleDeleteUser}
+                sortConfig={userSortConfig}
+                onSort={handleUserSort}
               />
             </div>
           </div>
         )}
 
         {activeTab === 'orders' && (
+          <div 
+            className={`transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-sm border border-primary/20">
               <div className="px-6 py-4 border-b border-primary/20">
@@ -537,22 +616,22 @@ const Admin = () => {
                     <label className="block text-sm font-medium text-darkTeal mb-1">
                       Data inicial
                     </label>
-                    <input
-                      type="date"
+                    <DatePicker
                       value={dateFilter.from}
                       onChange={(e) => setDateFilter({ ...dateFilter, from: e.target.value })}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="Data inicial"
+                      className="w-full"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-darkTeal mb-1">
                       Data final
                     </label>
-                    <input
-                      type="date"
+                    <DatePicker
                       value={dateFilter.to}
                       onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="Data final"
+                      className="w-full"
                     />
                   </div>
                   <div>
@@ -741,6 +820,7 @@ const Admin = () => {
                 })}
               </div>
             )}
+          </div>
           </div>
         )}
 

@@ -54,26 +54,49 @@ const FAQAccordion = () => {
   return (
     <div className="space-y-4">
       {faqs.map((faq, index) => (
-        <div key={index} className="glass-panel overflow-hidden transition-all duration-300">
+        <div 
+          key={index} 
+          className="glass-panel overflow-hidden transition-all duration-500 ease-out"
+          style={{
+            transform: openIndex === index ? 'scale(1.02)' : 'scale(1)',
+            boxShadow: openIndex === index 
+              ? '0 20px 60px -30px rgba(79, 179, 168, 0.4)' 
+              : '0 4px 20px -10px rgba(15, 41, 61, 0.3)'
+          }}
+        >
           <button
             onClick={() => toggleFAQ(index)}
-            className="w-full px-6 md:px-8 py-5 flex items-center justify-between gap-6 text-left hover:bg-primary/5 transition-colors"
+            className="w-full px-6 md:px-8 py-5 flex items-center justify-between gap-6 text-left hover:bg-primary/5 transition-all duration-300 group transform hover:scale-[1.01]"
           >
-            <div>
+            <div className="flex-1">
               <p className="text-xs uppercase tracking-[0.35em] text-primary/70 mb-1">Pergunta</p>
-              <span className="font-semibold text-lg text-darkTeal leading-snug">{faq.question}</span>
+              <span className="font-semibold text-lg text-darkTeal leading-snug group-hover:text-primary transition-colors duration-300">
+                {faq.question}
+              </span>
             </div>
             <span
-              className={`flex items-center justify-center w-10 h-10 rounded-full border border-primary/30 text-primary transition-all duration-300 ${
-                openIndex === index ? 'bg-primary/15 rotate-90 scale-110' : 'hover:bg-primary/10 hover:scale-105'
+              className={`flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 text-primary transition-all duration-500 flex-shrink-0 ${
+                openIndex === index 
+                  ? 'bg-primary text-white border-primary rotate-90 scale-110 shadow-lg' 
+                  : 'hover:bg-primary/10 hover:scale-110 hover:border-primary/50 group-hover:shadow-md'
               }`}
             >
-              {openIndex === index ? '×' : '+'}
+              <span className={`text-2xl font-light transition-all duration-500 ${openIndex === index ? 'rotate-90' : ''}`}>
+                {openIndex === index ? '×' : '+'}
+              </span>
             </span>
           </button>
           {openIndex === index && (
-            <div className="px-6 md:px-8 pb-6 text-darkTeal/80 leading-relaxed border-t border-white/40 bg-white/60 animate-fade-in">
-              {faq.answer}
+            <div 
+              className="px-6 md:px-8 pb-6 text-darkTeal/80 leading-relaxed border-t border-primary/20 bg-gradient-to-br from-white/80 to-primary/5 animate-fade-in-up"
+              style={{
+                animation: 'slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                transformOrigin: 'top'
+              }}
+            >
+              <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                {faq.answer}
+              </div>
             </div>
           )}
         </div>
@@ -83,4 +106,3 @@ const FAQAccordion = () => {
 };
 
 export default FAQAccordion;
-

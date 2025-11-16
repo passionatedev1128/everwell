@@ -7,17 +7,22 @@ export const initGA4 = (measurementId) => {
     return;
   }
 
-  // Check if gtag is already loaded
-  if (window.gtag) {
-    console.log('GA4: Already initialized');
+  // Prevent multiple initializations
+  if (window.__GA4_INITIALIZED && window.__GA4_MEASUREMENT_ID === measurementId) {
+    console.log('GA4: Already initialized, skipping');
     return;
   }
 
-  // Load GA4 script
-  const script1 = document.createElement('script');
-  script1.async = true;
-  script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-  document.head.appendChild(script1);
+  // Ensure GA4 script for this measurement ID is present
+  const existingScript = document.querySelector(
+    `script[src*="gtag/js?id=${measurementId}"]`
+  );
+  if (!existingScript) {
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    document.head.appendChild(script1);
+  }
 
   // Initialize dataLayer and gtag
   window.dataLayer = window.dataLayer || [];
@@ -27,16 +32,33 @@ export const initGA4 = (measurementId) => {
   window.gtag = gtag;
 
   gtag('js', new Date());
-  gtag('config', measurementId, {
+  
+  // Enable debug mode only in development
+  const isDevelopment = import.meta.env.MODE === 'development';
+  const config = {
     page_path: window.location.pathname,
-  });
+    // Prevent automatic page view tracking (we'll track manually)
+    send_page_view: false,
+    // Prevent any redirects or page reloads
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+  };
+  
+  if (isDevelopment) {
+    config.debug_mode = true; // Enable DebugView in GA4 for development
+  }
+  
+  gtag('config', measurementId, config);
 
   window.__GA4_MEASUREMENT_ID = measurementId;
+  window.__GA4_INITIALIZED = true;
 
   console.log('GA4: Initialized with measurement ID', measurementId);
 };
 
 // Track page view
+let lastTrackedPath = null;
+
 export const trackPageView = (path, title) => {
   if (!window.gtag) {
     console.warn('GA4: gtag not initialized');
@@ -49,12 +71,23 @@ export const trackPageView = (path, title) => {
     return;
   }
 
+  const currentPath = path || window.location.pathname;
+  
+  // Prevent duplicate tracking for the same path
+  if (lastTrackedPath === currentPath) {
+    return;
+  }
+  lastTrackedPath = currentPath;
+
+  // Use 'config' with page_path update (standard GA4 SPA approach)
+  // Only update page_path and page_title, don't re-initialize
   window.gtag('config', measurementId, {
-    page_path: path || window.location.pathname,
+    page_path: currentPath,
     page_title: title || document.title,
+    page_location: window.location.href,
   });
 
-  console.log('GA4: Page view tracked', { path, title });
+  console.log('GA4: Page view tracked', { path: currentPath, title, measurementId });
 };
 
 // Track custom event
