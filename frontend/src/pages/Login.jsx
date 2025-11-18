@@ -56,9 +56,11 @@ const Login = () => {
         
         // Track analytics events
         if (!isLogin) {
-          // Track sign up
+          // GA4: User acquisition analytics
           trackSignUp('email');
+          // HubSpot: Workflow trigger for welcome emails and lead qualification
           trackCompleteRegistration('email');
+          // GTM: For tag management
           gtmTrackSignUp('email');
           if (response.data.user && !response.data.user.emailVerified) {
             toast.success('Conta criada! Verifique seu email para ativar sua conta.');

@@ -25,9 +25,16 @@ const ProductDetail = () => {
         
         // Track product view
         if (productData) {
+          // GA4: Detailed product analytics (view_item)
           trackProductView(productData);
-          trackViewContent(productData);
+          // GTM: For tag management
           gtmTrackProductView(productData);
+          // HubSpot: Simplified engagement tracking (for contact activity only)
+          // Only track if user is authenticated (for CRM purposes)
+          const isAuthenticated = localStorage.getItem('token');
+          if (isAuthenticated) {
+            trackViewContent(productData);
+          }
         }
       } catch (err) {
         setError(err.response?.data?.message || 'Produto não encontrado.');

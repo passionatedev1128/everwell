@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { trackAddToCart, trackRemoveFromCart } from '../utils/analytics';
-import { trackAddToCart as hsTrackAddToCart } from '../utils/hubspot';
+// HubSpot: Removed add_to_cart - GA4 handles e-commerce analytics
 import { trackAddToCart as gtmTrackAddToCart, trackRemoveFromCart as gtmTrackRemoveFromCart } from '../utils/gtm';
 
 const CartContext = createContext();
@@ -44,9 +44,11 @@ export const CartProvider = ({ children }) => {
             : item
         );
         // Track add to cart (increment quantity)
+        // GA4: Detailed e-commerce analytics
         trackAddToCart({ ...product, productId: product._id }, 1);
-        hsTrackAddToCart({ ...product, productId: product._id }, 1);
+        // GTM: For tag management
         gtmTrackAddToCart({ ...product, productId: product._id }, 1);
+        // HubSpot: Not needed - GA4 handles e-commerce analytics
         return updatedItems;
       }
       
@@ -60,9 +62,11 @@ export const CartProvider = ({ children }) => {
       };
       
       // Track add to cart (new item)
+      // GA4: Detailed e-commerce analytics
       trackAddToCart({ ...product, productId: product._id }, 1);
-      hsTrackAddToCart({ ...product, productId: product._id }, 1);
+      // GTM: For tag management
       gtmTrackAddToCart({ ...product, productId: product._id }, 1);
+      // HubSpot: Not needed - GA4 handles e-commerce analytics
       
       return [...prevItems, newItem];
     });

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
-import api from '../utils/api';
+import { uploadDocument } from '../utils/api';
 import { trackDocumentUpload } from '../utils/analytics';
 import { trackLead } from '../utils/hubspot';
 import { trackDocumentUpload as gtmTrackDocumentUpload } from '../utils/gtm';
@@ -45,9 +45,13 @@ const DocumentUpload = ({ user, onUploadSuccess }) => {
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
     if (!allowedTypes.includes(file.type)) {
-      const errorMsg = 'Tipo de arquivo não permitido. Use PDF, JPG, PNG ou WEBP.';
+      const errorMsg = 'Tipo de arquivo não permitido. Envie apenas documentos PDF ou Word (.doc, .docx).';
       setErrors({
         ...errors,
         [documentType]: errorMsg
@@ -72,12 +76,29 @@ const DocumentUpload = ({ user, onUploadSuccess }) => {
     setSuccess({ ...success, [documentType]: '' });
 
     try {
-      const response = await api.uploadDocument(documentType, file);
+      const response = await uploadDocument(documentType, file);
       if (response.success) {
-        // Track document upload
-        trackDocumentUpload(documentType);
-        trackLead(documentType);
-        gtmTrackDocumentUpload(documentType);
+        // Track document upload (wrap in try-catch to prevent tracking errors from breaking upload)
+        try {
+          trackDocumentUpload(documentType);
+        } catch (trackingError) {
+          console.warn('GA4 tracking error:', trackingError);
+          // Don't break upload flow if tracking fails
+        }
+        
+        try {
+          trackLead(documentType);
+        } catch (trackingError) {
+          console.warn('HubSpot tracking error:', trackingError);
+          // Don't break upload flow if tracking fails
+        }
+        
+        try {
+          gtmTrackDocumentUpload(documentType);
+        } catch (trackingError) {
+          console.warn('GTM tracking error:', trackingError);
+          // Don't break upload flow if tracking fails
+        }
         
         const successMsg = 'Documento enviado com sucesso! Aguarde a análise.';
         setSuccess({
@@ -90,7 +111,40 @@ const DocumentUpload = ({ user, onUploadSuccess }) => {
         }
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Erro ao enviar documento. Tente novamente.';
+      // Log full error for debugging
+      console.error('Document upload error:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
+      // Get specific error message
+      let errorMsg = 'Erro ao enviar documento. Tente novamente.';
+      
+      if (error.response) {
+        // Server responded with error
+        errorMsg = error.response.data?.message || errorMsg;
+        
+        // Add specific messages for common errors
+        if (error.response.status === 401) {
+          errorMsg = 'Sessão expirada. Por favor, faça login novamente.';
+        } else if (error.response.status === 403) {
+          errorMsg = 'Acesso negado. Verifique suas permissões.';
+        } else if (error.response.status === 404) {
+          errorMsg = 'Rota não encontrada. Verifique a configuração do servidor.';
+        } else if (error.response.status === 413) {
+          errorMsg = 'Arquivo muito grande. Tamanho máximo: 10MB.';
+        } else if (error.response.status === 500) {
+          errorMsg = 'Erro no servidor. Tente novamente mais tarde.';
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMsg = 'Não foi possível conectar ao servidor. Verifique se o servidor está rodando.';
+        console.error('Network error - server may not be running');
+      } else {
+        // Something else happened
+        errorMsg = error.message || errorMsg;
+      }
+      
       setErrors({
         ...errors,
         [documentType]: errorMsg
@@ -184,7 +238,7 @@ const DocumentUpload = ({ user, onUploadSuccess }) => {
                     <p className="text-darkTeal font-medium mb-1">
                       {currentDoc ? 'Substituir Documento' : 'Enviar Documento'}
                     </p>
-                    <p className="text-sm text-mediumTeal">PDF, JPG, PNG ou WEBP (máx. 10MB)</p>
+                    <p className="text-sm text-mediumTeal">Apenas PDF ou Word (.doc/.docx) - máx. 10MB</p>
                   </>
                 )}
               </label>

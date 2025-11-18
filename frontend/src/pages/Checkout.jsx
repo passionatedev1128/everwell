@@ -27,7 +27,9 @@ const Checkout = () => {
   // Track begin checkout when component mounts
   useEffect(() => {
     if (cartItems.length > 0) {
+      // GA4: Detailed checkout funnel analytics
       trackBeginCheckout(cartItems, total);
+      // HubSpot: Simplified event for cart abandonment workflow trigger
       trackInitiateCheckout(cartItems, total);
     }
   }, []); // Only on mount
@@ -56,7 +58,9 @@ const Checkout = () => {
       if (response.success) {
         // Track purchase
         const order = response.order || orderData;
+        // GA4: Detailed purchase analytics and revenue tracking
         trackPurchase(order);
+        // HubSpot: CRM event for deal creation and customer lifecycle
         hsTrackPurchase(order);
         
         clearCart();

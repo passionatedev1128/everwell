@@ -19,19 +19,17 @@ const paymentsDir = path.join(uploadsDir, 'payments');
 
 // File filter for documents
 const fileFilter = (req, file, cb) => {
-  // Allowed file types
+  // Allowed file types (documents only)
   const allowedMimes = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-    'application/pdf'
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ];
 
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Tipo de arquivo não permitido. Use PDF, JPG, PNG ou WEBP.'), false);
+    cb(new Error('Tipo de arquivo não permitido. Envie apenas documentos PDF ou Word (.doc, .docx).'), false);
   }
 };
 

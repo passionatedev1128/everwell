@@ -5,7 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/SkeletonLoader';
 import { EmptyProducts } from '../components/EmptyState';
 import { trackViewItemList } from '../utils/analytics';
-import { trackViewCategory } from '../utils/hubspot';
+// HubSpot: Removed view_category - GA4 handles category analytics
 import { trackViewItemList as gtmTrackViewItemList } from '../utils/gtm';
 
 const Products = () => {
@@ -22,9 +22,11 @@ const Products = () => {
         
         // Track product list view
         if (productsData.length > 0) {
+          // GA4: Detailed category analytics (view_item_list)
           trackViewItemList(productsData, 'Products');
-          trackViewCategory(productsData, 'Products');
+          // GTM: For tag management
           gtmTrackViewItemList(productsData, 'Products');
+          // HubSpot: Not needed - GA4 handles category analytics
         }
       } catch (err) {
         setError(err.response?.data?.message || 'Erro ao carregar produtos.');
