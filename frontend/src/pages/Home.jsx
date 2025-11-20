@@ -4,7 +4,8 @@ import FAQAccordion from '../components/FAQAccordion';
 import GoalForm from '../components/GoalForm';
 import Carousel from '../components/Carousel';
 import { initScrollAnimations } from '../utils/scrollAnimations';
-import { trackEvent } from '../utils/hubspot';
+import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
+import { trackEvent as trackGtmEvent } from '../utils/gtm';
 
 const heroVideo = 'https://cdn.coverr.co/videos/coverr-balance-your-body-1689250530998?download=1';
 
@@ -170,10 +171,24 @@ const Home = () => {
             Protocolos personalizados com cannabis medicinal e inovação científica para alcançar a sua melhor versão.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 px-4">
-            <Link to="/agendar" className="btn-primary w-full sm:w-auto text-center" onClick={() => trackEvent('cta_click', { cta: 'agendar_consulta', location: 'hero' })}>
+            <Link
+              to="/agendar"
+              className="btn-primary w-full sm:w-auto text-center"
+              onClick={() => {
+                trackAnalyticsEvent('cta_click', { cta: 'agendar_consulta', location: 'hero' });
+                trackGtmEvent('cta_click', { cta: 'agendar_consulta', location: 'hero' });
+              }}
+            >
               Agendar consulta
             </Link>
-            <Link to="/produtos" className="btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20 w-full sm:w-auto text-center" onClick={() => trackEvent('cta_click', { cta: 'ver_catalogo', location: 'hero' })}>
+            <Link
+              to="/produtos"
+              className="btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20 w-full sm:w-auto text-center"
+              onClick={() => {
+                trackAnalyticsEvent('cta_click', { cta: 'ver_catalogo', location: 'hero' });
+                trackGtmEvent('cta_click', { cta: 'ver_catalogo', location: 'hero' });
+              }}
+            >
               Catálogo exclusivo
             </Link>
           </div>

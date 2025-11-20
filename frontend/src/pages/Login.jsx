@@ -6,7 +6,7 @@ import api from '../utils/api';
 import { setToken, setUser } from '../utils/auth';
 import OAuthButtons from '../components/OAuthButtons';
 import { trackLogin, trackSignUp } from '../utils/analytics';
-import { trackCompleteRegistration, identifyContact } from '../utils/hubspot';
+import { identifyContact } from '../utils/hubspot';
 import { trackSignUp as gtmTrackSignUp, trackLogin as gtmTrackLogin } from '../utils/gtm';
 
 const Login = () => {
@@ -58,8 +58,6 @@ const Login = () => {
         if (!isLogin) {
           // GA4: User acquisition analytics
           trackSignUp('email');
-          // HubSpot: Workflow trigger for welcome emails and lead qualification
-          trackCompleteRegistration('email');
           // GTM: For tag management
           gtmTrackSignUp('email');
           if (response.data.user && !response.data.user.emailVerified) {

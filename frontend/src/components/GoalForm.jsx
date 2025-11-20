@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import { trackLead as gaTrackLead } from '../utils/analytics';
-import { trackLead as hsTrackLead } from '../utils/hubspot';
 
 const initialState = {
   name: '',
@@ -94,7 +93,6 @@ const GoalForm = () => {
           },
         });
         gaTrackLead('goal_form');
-        hsTrackLead('goal_form');
         setFormData(initialState);
       } else {
         toast.error(response.data?.message || 'Não foi possível enviar suas informações. Tente novamente em instantes.', {

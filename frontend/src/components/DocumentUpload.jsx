@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import { uploadDocument } from '../utils/api';
 import { trackDocumentUpload } from '../utils/analytics';
-import { trackLead } from '../utils/hubspot';
 import { trackDocumentUpload as gtmTrackDocumentUpload } from '../utils/gtm';
 
 const DocumentUpload = ({ user, onUploadSuccess }) => {
@@ -83,13 +82,6 @@ const DocumentUpload = ({ user, onUploadSuccess }) => {
           trackDocumentUpload(documentType);
         } catch (trackingError) {
           console.warn('GA4 tracking error:', trackingError);
-          // Don't break upload flow if tracking fails
-        }
-        
-        try {
-          trackLead(documentType);
-        } catch (trackingError) {
-          console.warn('HubSpot tracking error:', trackingError);
           // Don't break upload flow if tracking fails
         }
         

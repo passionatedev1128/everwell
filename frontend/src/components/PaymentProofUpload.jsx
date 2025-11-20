@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { uploadPaymentProofFile } from '../utils/api';
 import { trackPaymentProofUpload } from '../utils/analytics';
-import { trackContact } from '../utils/hubspot';
 import { trackPaymentProofUpload as gtmTrackPaymentProofUpload } from '../utils/gtm';
 
 const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) => {
@@ -159,7 +158,6 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
       if (response.success) {
         // Track payment proof upload
         trackPaymentProofUpload(orderId);
-        trackContact(orderId);
         gtmTrackPaymentProofUpload(orderId);
         
         toast.success('Comprovante de pagamento enviado com sucesso!');

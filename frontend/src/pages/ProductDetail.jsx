@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackProductView } from '../utils/analytics';
-import { trackViewContent } from '../utils/hubspot';
 import { trackProductView as gtmTrackProductView } from '../utils/gtm';
 
 const ProductDetail = () => {
@@ -29,12 +28,6 @@ const ProductDetail = () => {
           trackProductView(productData);
           // GTM: For tag management
           gtmTrackProductView(productData);
-          // HubSpot: Simplified engagement tracking (for contact activity only)
-          // Only track if user is authenticated (for CRM purposes)
-          const isAuthenticated = localStorage.getItem('token');
-          if (isAuthenticated) {
-            trackViewContent(productData);
-          }
         }
       } catch (err) {
         setError(err.response?.data?.message || 'Produto não encontrado.');
