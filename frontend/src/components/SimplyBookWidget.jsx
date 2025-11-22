@@ -101,9 +101,14 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
 
       if (window.SimplybookWidget) {
         try {
+          // Validate companyId format
+          if (!companyId || companyId.includes('.') || companyId.includes('/')) {
+            throw new Error('Invalid SimplyBook Company ID format');
+          }
+
           const widget = new window.SimplybookWidget({
             widget_type: 'iframe',
-            url: `https://${companyId}.simplybook.me/v2/`,
+            url: `https://${companyId}.simplybook.me`,
             theme: 'minimal',
             theme_settings: {
               timeline_show_end_time: '1',
@@ -153,6 +158,16 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
       setStatus('error');
       setErrorMessage('Não foi possível carregar o sistema de agendamento. Verifique sua conexão com a internet.');
     };
+
+    // Suppress 404 errors from SimplyBook iframe (they're expected if company ID is not configured)
+    window.addEventListener('error', (event) => {
+      if (event.target && event.target.tagName === 'IFRAME' && 
+          event.target.src && event.target.src.includes('simplybook.me')) {
+        // Suppress console errors for SimplyBook iframe 404s
+        event.preventDefault();
+        return false;
+      }
+    }, true);
 
     document.body.appendChild(script);
 
