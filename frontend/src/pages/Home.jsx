@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import FAQAccordion from '../components/FAQAccordion';
 import GoalForm from '../components/GoalForm';
+import JotForm from '../components/JotForm';
 import Carousel from '../components/Carousel';
 import { initScrollAnimations } from '../utils/scrollAnimations';
 import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
@@ -124,7 +125,17 @@ const heroStats = [
 
 const Home = () => {
   const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const [showJotForm, setShowJotForm] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const backgroundSectionRef = useRef(null);
+
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowJotForm(false);
+      setIsClosing(false);
+    }, 300); // Match animation duration
+  };
 
   useEffect(() => {
     initScrollAnimations();
@@ -229,29 +240,84 @@ const Home = () => {
 
       {/* Define Goals */}
       <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary/5 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
-          <div className="space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
             <p className="section-heading">Estratégia personalizada</p>
             <h2 className="section-title">Defina seus objetivos com especialistas EverWell</h2>
             <p className="muted-text">
               Compartilhe histórico, metas e desafios. Nossa equipe analisa seus dados, define a dosagem ideal e acompanha a evolução com métricas claras.
             </p>
-            <div className="grid gap-4">
-              {['Ajustes contínuos guiados por dados', 'Suporte médico premium', 'Protocolos exclusivos de performance'].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-darkTeal/85">
-                  <span className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center">•</span>
-                  <span className="font-medium">{item}</span>
-                </div>
-              ))}
-            </div>
-            <Link to="/agendar" className="btn-primary inline-flex items-center gap-3">
-              Iniciar jornada
-              <span aria-hidden>→</span>
-            </Link>
           </div>
-          <GoalForm />
+          <div className="text-center">
+            <button
+              onClick={() => setShowJotForm(true)}
+              className="btn-primary inline-flex items-center gap-3"
+            >
+              Preencher Formulário
+              <span aria-hidden>→</span>
+            </button>
+          </div>
         </div>
       </section>
+
+      {/* JotForm Modal */}
+      {showJotForm && (
+        <div 
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 transition-opacity duration-300 ${
+            isClosing ? 'opacity-0' : 'opacity-100'
+          }`}
+          onClick={handleCloseModal}
+        >
+          <div 
+            className={`relative bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden isolate transition-all duration-300 ${
+              isClosing 
+                ? 'opacity-0 scale-95 translate-y-4' 
+                : 'opacity-100 scale-100 translate-y-0'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+            style={{ contain: 'layout style paint' }}
+          >
+            {/* Close Button - Isolated Layer */}
+            <div className="absolute top-4 right-4 z-[100] pointer-events-none">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseModal();
+                }}
+                className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-200 pointer-events-auto"
+                aria-label="Fechar formulário"
+                style={{ 
+                  isolation: 'isolate',
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden'
+                }}
+              >
+                <svg 
+                  className="w-6 h-6 text-gray-600" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Form Container - Isolated from button */}
+            <div 
+              className="p-4 sm:p-6 md:p-8 overflow-y-auto max-h-[90vh] hide-scrollbar"
+              style={{ 
+                isolation: 'isolate',
+                transform: 'translateZ(0)',
+              }}
+            >
+              <JotForm formId="252618050339051" height="800px" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Purchase Process */}
       <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden">

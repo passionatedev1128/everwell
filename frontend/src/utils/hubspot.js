@@ -57,6 +57,8 @@ export const trackPageView = (path, title) => {
   } catch (error) {
     console.warn('HubSpot: Failed to track page view', error);
   }
+};
+
 export const identifyContact = (user = {}) => {
   const queue = ensureQueue();
   if (!queue) return;
