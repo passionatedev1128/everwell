@@ -8,8 +8,6 @@ import { initScrollAnimations } from '../utils/scrollAnimations';
 import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
 import { trackEvent as trackGtmEvent } from '../utils/gtm';
 
-const heroVideo = 'https://cdn.coverr.co/videos/coverr-balance-your-body-1689250530998?download=1';
-
 const trustBadges = [
   {
     title: 'Suporte Médico Premium',
@@ -165,53 +163,83 @@ const Home = () => {
 
   return (
     <div className="bg-transparent">
-      {/* Hero with video background */}
-      <section className="relative min-h-[500px] sm:min-h-[600px] overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        <video
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
-          src={heroVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
+      {/* Hero with diagonal split and gym background */}
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Gym background image */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{
+            backgroundImage: 'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=80)',
+          }}
         />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-24 text-center text-white">
-          <p className="text-xs sm:text-sm font-medium text-gray-300 uppercase tracking-wide mb-3 sm:mb-4">EverWell Performance Lab</p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">Focus. Performance. Recovery.</h1>
-          <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-            Protocolos personalizados com cannabis medicinal e inovação científica para alcançar a sua melhor versão.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 px-4">
-            <Link
-              to="/agendar"
-              className="btn-primary w-full sm:w-auto text-center"
-              onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'agendar_consulta', location: 'hero' });
-                trackGtmEvent('cta_click', { cta: 'agendar_consulta', location: 'hero' });
-              }}
-            >
-              Agendar consulta
-            </Link>
+        
+        {/* Frosted glass overlay on left and central parts */}
+        <div 
+          className="absolute inset-0 w-full h-full"
+          style={{
+            background: 'linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.1) 70%, transparent 100%)',
+            backdropFilter: 'blur(3px)',
+            WebkitBackdropFilter: 'blur(3px)',
+          }}
+        />
+        
+        {/* Content */}
+        <div className="relative z-10 min-h-screen flex flex-col">
+          {/* Top section with everwell banner */}
+          <div className="pt-20 sm:pt-24 md:pt-32 px-4 sm:px-6 lg:px-8">
+            {/* everwell brand name on lime green banner (top-left) */}
+            <div className="inline-block mb-4 relative z-20">
+              <div className="bg-lime-green px-6 py-3 sm:px-8 sm:py-4 shadow-lg">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-white lowercase tracking-tight">
+                  everwell
+                </h1>
+              </div>
+            </div>
+            
+            {/* A NEW STANDARD IN CBD RECOVERY */}
+            <p className="text-xs sm:text-sm font-sans font-medium text-white uppercase tracking-widest mb-8 sm:mb-12 relative z-20">
+              A NEW STANDARD IN CBD RECOVERY
+            </p>
+            
+            {/* Stacked headline: focus, performance, recovery */}
+            <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 relative z-20">
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none">
+                focus
+              </h2>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none">
+                performance
+              </h2>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none">
+                recovery
+              </h2>
+            </div>
+            
+            {/* every day. in lime green */}
+            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal text-lime-green lowercase italic mb-12 sm:mb-16 relative z-20">
+              every day.
+            </p>
+          </div>
+          
+          {/* Bottom section with OUR PRODUCTS button and logo */}
+          <div className="mt-auto pb-8 sm:pb-12 md:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-end justify-between gap-6 relative z-20">
+            {/* White "w" logo */}
+            <div className="hidden sm:block">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
+                <span className="text-white text-5xl sm:text-6xl md:text-7xl font-sans font-light">w</span>
+              </div>
+            </div>
+            
+            {/* OUR PRODUCTS button */}
             <Link
               to="/produtos"
-              className="btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20 w-full sm:w-auto text-center"
+              className="inline-block border-2 border-lime-green bg-transparent px-6 sm:px-8 py-3 sm:py-4 text-white uppercase font-sans font-medium text-sm sm:text-base tracking-wider hover:bg-lime-green hover:text-white transition-all duration-300"
               onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'ver_catalogo', location: 'hero' });
-                trackGtmEvent('cta_click', { cta: 'ver_catalogo', location: 'hero' });
+                trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
+                trackGtmEvent('cta_click', { cta: 'our_products', location: 'hero' });
               }}
             >
-              Catálogo exclusivo
+              OUR PRODUCTS
             </Link>
-          </div>
-          <div className="flex justify-center px-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 sm:px-6 md:px-8 py-4 sm:py-6 flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-12 w-full sm:w-auto" style = {{ backgroundColor: "rgb(79 179 168 / var(--tw-bg-opacity, 1))" }}>
-              {heroStats.map((item) => (
-                <div key={item.label} className="flex flex-col">
-                  <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">{item.value}</span>
-                  <span className="text-xs sm:text-xs uppercase tracking-wider text-gray-300 leading-tight">{item.label}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>

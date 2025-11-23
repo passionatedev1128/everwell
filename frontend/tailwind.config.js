@@ -17,6 +17,8 @@ export default {
         // Alternative Greens
         'medical-green': '#52b788',    // Brighter medical green
         'sage-green': '#95c5a0',       // Lighter sage green
+        'lime-green': '#32cd32',       // Vibrant lime green
+        'lime-green-dark': '#28a828',  // Darker lime green
         
         // Background Colors - Bright & Clean
         bgPrimary: '#ffffff',
