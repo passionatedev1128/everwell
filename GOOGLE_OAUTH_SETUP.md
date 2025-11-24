@@ -22,7 +22,7 @@ This guide will help you set up Google OAuth authentication for the EverWell app
 ### 1.2 Enable Google+ API
 
 1. In the Google Cloud Console, go to **APIs & Services** > **Library**
-2. Search for "Google+ API" or "People API"
+2. Search for " " or "People API"
 3. Click on it and click **Enable**
 
 ### 1.3 Configure OAuth Consent Screen

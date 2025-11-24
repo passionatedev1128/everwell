@@ -112,10 +112,13 @@ const Dashboard = () => {
                       ? 'bg-primary text-white shadow-md transform scale-[1.02]'
                       : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
+                  style={{
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
                   <span className="relative z-10">Visão Geral</span>
                   {activeTab === 'overview' && (
-                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
                   )}
                 </button>
                 <button
@@ -125,10 +128,13 @@ const Dashboard = () => {
                       ? 'bg-primary text-white shadow-md transform scale-[1.02]'
                       : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
+                  style={{
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
                   <span className="relative z-10">Perfil</span>
                   {activeTab === 'profile' && (
-                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
                   )}
                 </button>
                 <button
@@ -138,10 +144,13 @@ const Dashboard = () => {
                       ? 'bg-primary text-white shadow-md transform scale-[1.02]'
                       : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
+                  style={{
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
                   <span className="relative z-10">Pedidos</span>
                   {activeTab === 'orders' && (
-                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
                   )}
                 </button>
                 <button
@@ -151,10 +160,13 @@ const Dashboard = () => {
                       ? 'bg-primary text-white shadow-md transform scale-[1.02]'
                       : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
                   }`}
+                  style={{
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
                   <span className="relative z-10">Documentos</span>
                   {activeTab === 'documents' && (
-                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
                   )}
                 </button>
               </nav>
@@ -263,6 +275,46 @@ const Dashboard = () => {
                   <p className="text-mediumTeal mb-6">
                     Envie os documentos necessários para autorização de compra. Todos os documentos serão analisados pela nossa equipe.
                   </p>
+                  
+                  {/* Show all uploaded documents */}
+                  <div className="mb-6 space-y-4">
+                    <h3 className="text-xl font-semibold text-darkTeal mb-4">Documentos Enviados</h3>
+                    {['medicalPrescription', 'importAuthorization', 'proofOfResidence'].map((docType) => {
+                      const doc = user?.documents?.[docType];
+                      const docLabels = {
+                        medicalPrescription: 'Receita Médica',
+                        importAuthorization: 'Autorização de Importação (Anvisa)',
+                        proofOfResidence: 'Comprovante de Residência'
+                      };
+                      
+                      if (!doc?.url) return null;
+                      
+                      return (
+                        <div key={docType} className="bg-bgSecondary rounded-lg p-4 border border-primary/20">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="text-lg font-semibold text-darkTeal">{docLabels[docType]}</h4>
+                            <span className={`badge ${getStatusBadge(doc.status)}`}>
+                              {doc.status === 'pending' ? 'Pendente' : doc.status === 'approved' ? 'Aprovado' : doc.status === 'rejected' ? 'Rejeitado' : 'Desconhecido'}
+                            </span>
+                          </div>
+                          <a
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:text-primary-dark text-sm inline-flex items-center gap-2"
+                          >
+                            Ver documento →
+                          </a>
+                          {doc.uploadedAt && (
+                            <p className="text-xs text-lightTeal mt-2">
+                              Enviado em: {new Date(doc.uploadedAt).toLocaleDateString('pt-BR')}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
                   <DocumentUpload user={user} onUploadSuccess={fetchUserData} />
                 </div>
               )}

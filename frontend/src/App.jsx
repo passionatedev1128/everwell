@@ -4,7 +4,9 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import FloatingCartButton from './components/FloatingCartButton';
+import LoadingBar from './components/LoadingBar';
 import { CartProvider } from './context/CartContext';
 import { trackPageView } from './utils/analytics';
 import { trackPageView as hubspotTrackPageView } from './utils/hubspot';
@@ -24,6 +26,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import VerifyEmail from './pages/VerifyEmail';
+import CompleteRegistration from './pages/CompleteRegistration';
 import ResetPassword from './pages/ResetPassword';
 import OAuthCallback from './pages/OAuthCallback';
 import Booking from './pages/Booking';
@@ -88,11 +91,12 @@ function App() {
   return (
     <Router>
       <CartProvider>
+        <LoadingBar />
         <ScrollToTop />
         <PageViewTracker />
         <div className="min-h-screen flex flex-col bg-[#f5faf7]">
           <Header />
-          <main className="flex-grow pt-14 sm:pt-16">
+          <main className="flex-grow pt-16 sm:pt-20">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/duvidas" element={<Doubts />} />
@@ -100,6 +104,7 @@ function App() {
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/login" element={<Login />} />
               <Route path="/verify-email/:token" element={<VerifyEmail />} />
+              <Route path="/complete-registration/:token" element={<CompleteRegistration />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/auth/callback" element={<OAuthCallback />} />
               <Route path="/agendar" element={<Booking />} />
@@ -163,6 +168,7 @@ function App() {
           </main>
           <Footer />
           <FloatingCartButton />
+          <ScrollToTopButton />
         </div>
       </CartProvider>
     </Router>

@@ -2,10 +2,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { isAuthenticated, getUser, removeToken } from '../utils/auth';
 import { useCart } from '../context/CartContext';
+import FeedbackModal from './FeedbackModal';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const accountMenuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,13 +46,28 @@ const Header = () => {
     if (path === '/') {
       return location.pathname === '/';
     }
-    return location.pathname.startsWith(path);
+    
+    // Check if current path matches
+    if (location.pathname.startsWith(path)) {
+      return true;
+    }
+    
+    // Special handling for protected routes when not authenticated
+    // If user is on login page and was redirected from a protected route, show it as active
+    if (location.pathname === '/login' && !authenticated) {
+      const state = location.state;
+      if (state && (state.from === path || state.redirect === path)) {
+        return true;
+      }
+    }
+    
+    return false;
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b-2 border-primary shadow-lg">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/10 backdrop-blur-xl border-b-2 border-primary/30 shadow-lg">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary text-white font-semibold text-base sm:text-lg">
               EW
@@ -65,18 +82,17 @@ const Header = () => {
             {navLinks.map((link) => {
               // Check if user is authenticated for product link
               const isProductLink = link.path === '/produtos';
-              const shouldShowActive = isProductLink 
-                ? (authenticated && isActive(link.path))
-                : isActive(link.path);
+              const shouldShowActive = isActive(link.path);
               
               return (
                 <Link
                   key={link.path}
                   to={link.path}
+                  state={link.path === '/produtos' && !authenticated ? { from: link.path } : undefined}
                   className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 relative ${
                     shouldShowActive
-                      ? 'text-primary border-b-2 border-primary pb-2'
-                      : 'text-darkTeal/70 hover:text-darkTeal hover:bg-primary/10'
+                      ? 'text-white border-b-2 border-white pb-2'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   {link.label}
@@ -86,6 +102,18 @@ const Header = () => {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
+            {authenticated && (
+              <button
+                onClick={() => setIsFeedbackModalOpen(true)}
+                className="px-3 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors flex items-center gap-2"
+                title="Deixe seu feedback"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                Feedback
+              </button>
+            )}
             <Link to="/agendar" className="btn-primary">
               Agendar consulta
             </Link>
@@ -94,9 +122,9 @@ const Header = () => {
                 <button
                   type="button"
                   onClick={() => setIsAccountMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-all duration-300 group"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30">
                     {user?.name?.charAt(0)?.toUpperCase() || 'E'}
                   </div>
                   <div className="hidden xl:flex flex-col items-start text-left">
@@ -119,6 +147,7 @@ const Header = () => {
 
                 {isAccountMenuOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm animate-scale-in">
+                    <div className="absolute top-0 right-4 -mt-2 w-4 h-4 bg-white border-l border-t border-primary/20 transform rotate-45"></div>
                     <div className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent">
                       <p className="text-sm font-semibold text-darkTeal">{user?.name}</p>
                     </div>
@@ -150,13 +179,13 @@ const Header = () => {
                     <div className="border-t border-primary/10 pt-1">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 rounded-md mx-1 group hover:shadow-sm"
-                        style={{ width: 'auto', minWidth: 'fit-content' }}
+                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 rounded-md mx-1 group relative overflow-hidden"
                       >
-                        <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span className="absolute inset-0 bg-gradient-to-r from-red-50 to-red-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
+                        <svg className="w-4 h-4 transition-all duration-300 group-hover:translate-x-2 group-hover:rotate-12 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        <span className="relative z-10">Sair</span>
+                        <span className="relative z-10 font-semibold">Sair</span>
                       </button>
                     </div>
                   </div>
@@ -193,6 +222,7 @@ const Header = () => {
                 <Link
                   key={link.path}
                   to={link.path}
+                  state={link.path === '/produtos' && !authenticated ? { from: link.path } : undefined}
                   onClick={() => setIsMenuOpen(false)}
                   className={`px-3 sm:px-4 py-2.5 sm:py-3 rounded-md text-sm font-medium transition-colors ${
                     isActive(link.path)
@@ -285,6 +315,8 @@ const Header = () => {
           </div>
         </div>
       )}
+
+      <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
     </header>
   );
 };

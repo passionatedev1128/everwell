@@ -18,8 +18,8 @@ const UserSchema = new mongoose.Schema({
   passwordHash: {
     type: String,
     required: function() {
-      // Password not required for OAuth users
-      return !this.googleId;
+      // Password not required for OAuth users or pending registrations
+      return !this.googleId && !this.registrationPending;
     },
     minlength: [6, 'Senha deve ter no mínimo 6 caracteres']
   },
@@ -36,6 +36,18 @@ const UserSchema = new mongoose.Schema({
   phone: {
     type: String,
     trim: true
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other', 'prefer_not_to_say'],
+    trim: true
+  },
+  dateOfBirth: {
+    type: Date
+  },
+  photo: {
+    type: String,
+    default: null
   },
   address: {
     street: String,
@@ -64,6 +76,10 @@ const UserSchema = new mongoose.Schema({
   emailVerificationTokenExpires: {
     type: Date,
     default: null
+  },
+  registrationPending: {
+    type: Boolean,
+    default: false
   },
   resetPasswordToken: {
     type: String,

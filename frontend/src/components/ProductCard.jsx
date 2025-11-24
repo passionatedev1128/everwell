@@ -22,6 +22,12 @@ const ProductCard = ({ product }) => {
       )}
       <div className="p-6">
         <h3 className="text-lg font-semibold text-darkTeal mb-2">{product.name}</h3>
+        {product.subtitle && (
+          <p className="text-sm font-medium text-primary mb-2">{product.subtitle}</p>
+        )}
+        <p className="text-2xl font-bold text-primary mb-2">
+          R$ {product.price ? product.price.toFixed(2) : '0.00'}
+        </p>
         <p className="text-sm text-mediumTeal mb-4 line-clamp-3">{product.description}</p>
         {product.restrictions && (
           <p className="text-xs text-lightTeal mb-4 italic">{product.restrictions}</p>

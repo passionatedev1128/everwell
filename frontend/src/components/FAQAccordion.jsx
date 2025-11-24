@@ -75,7 +75,7 @@ const FAQAccordion = () => {
               </span>
             </div>
             <span
-              className={`flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 text-primary transition-all duration-500 flex-shrink-0 ${
+              className={`flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 text-primary transition-all duration-500 flex-shrink-0 mt-2 ${
                 openIndex === index 
                   ? 'bg-primary text-white border-primary rotate-90 scale-110 shadow-lg' 
                   : 'hover:bg-primary/10 hover:scale-110 hover:border-primary/50 group-hover:shadow-md'
@@ -98,6 +98,17 @@ const FAQAccordion = () => {
                 {faq.answer}
               </div>
             </div>
+          )}
+          {openIndex !== index && openIndex !== null && (
+            <div 
+              className="px-6 md:px-8 pb-0 text-darkTeal/80 leading-relaxed border-t border-primary/20 bg-gradient-to-br from-white/80 to-primary/5"
+              style={{
+                animation: 'slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transformOrigin: 'top',
+                maxHeight: 0,
+                overflow: 'hidden'
+              }}
+            />
           )}
         </div>
       ))}

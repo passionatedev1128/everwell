@@ -6,6 +6,39 @@ import {
 } from '../utils/emailTemplates.js';
 import { getFileUrl } from '../config/upload.js';
 
+export const uploadUserPhoto = async (req, res, next) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nenhuma foto foi enviada.'
+      });
+    }
+
+    // Get file URL
+    const fileUrl = getFileUrl(file.filename, 'user');
+
+    // If user is authenticated, update their photo
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.photo = fileUrl;
+        await user.save();
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Foto enviada com sucesso.',
+      photoUrl: fileUrl
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateProfile = async (req, res, next) => {
   try {
     const { name, phone, address } = req.body;

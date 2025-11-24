@@ -17,6 +17,15 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Descrição é obrigatória']
   },
+  subtitle: {
+    type: String,
+    default: ''
+  },
+  price: {
+    type: Number,
+    required: [true, 'Preço é obrigatório'],
+    min: 0
+  },
   images: [{
     type: String,
     required: true
@@ -33,6 +42,11 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     enum: ['gummy', 'oleo', 'creme'],
     required: true
+  },
+  productUrl: {
+    type: String,
+    default: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F',
+    trim: true
   }
 }, {
   timestamps: true

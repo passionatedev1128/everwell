@@ -164,37 +164,33 @@ const Home = () => {
   return (
     <div className="bg-transparent">
       {/* Hero with diagonal split and gym background */}
-      <section className="relative min-h-screen overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden -mt-16 sm:-mt-20">
         {/* Gym background image */}
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          className="absolute top-0 left-0 right-0 w-full h-full bg-cover bg-center"
           style={{
             backgroundImage: 'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=80)',
+            marginTop: 0,
+            paddingTop: 0,
           }}
         />
         
         {/* Frosted glass overlay on left and central parts */}
         <div 
-          className="absolute inset-0 w-full h-full"
+          className="absolute top-0 left-0 right-0 w-full h-full"
           style={{
             background: 'linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.1) 70%, transparent 100%)',
             backdropFilter: 'blur(3px)',
             WebkitBackdropFilter: 'blur(3px)',
+            marginTop: 0,
+            paddingTop: 0,
           }}
         />
         
         {/* Content */}
-        <div className="relative z-10 min-h-screen flex flex-col">
+        <div className="relative z-10 min-h-screen flex flex-col pt-16 sm:pt-20">
           {/* Top section with everwell banner */}
-          <div className="pt-20 sm:pt-24 md:pt-32 px-4 sm:px-6 lg:px-8">
-            {/* everwell brand name on lime green banner (top-left) */}
-            <div className="inline-block mb-4 relative z-20">
-              <div className="bg-lime-green px-6 py-3 sm:px-8 sm:py-4 shadow-lg">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-white lowercase tracking-tight">
-                  everwell
-                </h1>
-              </div>
-            </div>
+          <div className="pt-4 sm:pt-8 md:pt-12 px-4 sm:px-6 lg:px-8">
             
             {/* A NEW STANDARD IN CBD RECOVERY */}
             <p className="text-xs sm:text-sm font-sans font-medium text-white uppercase tracking-widest mb-8 sm:mb-12 relative z-20">
@@ -203,31 +199,25 @@ const Home = () => {
             
             {/* Stacked headline: focus, performance, recovery */}
             <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 relative z-20">
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none">
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
                 focus
               </h2>
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none">
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
                 performance
               </h2>
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none">
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
                 recovery
               </h2>
             </div>
             
             {/* every day. in lime green */}
-            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal text-lime-green lowercase italic mb-12 sm:mb-16 relative z-20">
+            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal text-lime-green lowercase italic mb-12 sm:mb-16 relative z-20" style = {{color: "#BBE02A", fontFamily: "monospace"}}>
               every day.
             </p>
           </div>
           
           {/* Bottom section with OUR PRODUCTS button and logo */}
-          <div className="mt-auto pb-8 sm:pb-12 md:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-end justify-between gap-6 relative z-20">
-            {/* White "w" logo */}
-            <div className="hidden sm:block">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
-                <span className="text-white text-5xl sm:text-6xl md:text-7xl font-sans font-light">w</span>
-              </div>
-            </div>
+          <div className="mt-auto pb-8 sm:pb-12 md:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-end justify-between gap-6 relative z-20" style = {{ display: "flex", flexDirection: "column" }}>
             
             {/* OUR PRODUCTS button */}
             <Link
@@ -297,16 +287,19 @@ const Home = () => {
           onClick={handleCloseModal}
         >
           <div 
-            className={`relative bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden isolate transition-all duration-300 ${
+            className={`relative bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden isolate transition-all duration-500 ${
               isClosing 
                 ? 'opacity-0 scale-95 translate-y-4' 
                 : 'opacity-100 scale-100 translate-y-0'
             }`}
             onClick={(e) => e.stopPropagation()}
-            style={{ contain: 'layout style paint' }}
+            style={{ 
+              contain: 'layout style paint',
+              animation: isClosing ? 'none' : 'modalOpen 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
           >
             {/* Close Button - Isolated Layer */}
-            <div className="absolute top-4 right-4 z-[100] pointer-events-none">
+            <div className="absolute top-6 right-6 z-[100] pointer-events-none">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -373,17 +366,17 @@ const Home = () => {
           {processSteps.length > 3 ? (
             <Carousel
               items={processSteps.map((step) => (
-                <div key={step.number} className="card space-y-4 mx-2">
+                <div key={step.number} className="card space-y-4 mx-2 h-full flex flex-col">
                   <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
                   <p className="text-4xl font-heading text-darkTeal">{step.number}</p>
                   <h3 className="text-2xl font-semibold text-darkTeal">{step.title}</h3>
-                  <p className="muted-text">{step.copy}</p>
+                  <p className="muted-text flex-grow">{step.copy}</p>
                   {step.link && (
                     <a
                       href={step.link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide"
+                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
                     >
                       {step.link.label}
                       <span aria-hidden>↗</span>
@@ -396,17 +389,21 @@ const Home = () => {
           ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {processSteps.map((step) => (
-              <div key={step.number} className="card space-y-3 sm:space-y-4">
+              <div 
+                key={step.number} 
+                className="card space-y-3 sm:space-y-4 h-full flex flex-col cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                onClick={() => step.link && window.open(step.link.href, '_blank', 'noopener,noreferrer')}
+              >
                 <span className="text-xs sm:text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
                 <p className="text-3xl sm:text-4xl font-heading text-darkTeal">{step.number}</p>
                 <h3 className="text-xl sm:text-2xl font-semibold text-darkTeal">{step.title}</h3>
-                <p className="muted-text text-sm sm:text-base">{step.copy}</p>
+                <p className="muted-text text-sm sm:text-base flex-grow">{step.copy}</p>
                   {step.link && (
                     <a
                       href={step.link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                    className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide"
+                    className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
                     >
                       {step.link.label}
                       <span aria-hidden>↗</span>
@@ -435,7 +432,15 @@ const Home = () => {
             <Carousel
               items={productHighlights.map((product) => (
                 <div key={product.name} className="product-card space-y-3 sm:space-y-4 mx-2">
-                  <img src={product.image} alt={product.name} className="product-card-image" />
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="product-card-image"
+                    onError={(e) => {
+                      // Fallback to a placeholder if image fails to load
+                      e.target.src = 'https://via.placeholder.com/400x300?text=Produto+EverWell';
+                    }}
+                  />
                   <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
                   <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
                   <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
@@ -450,7 +455,15 @@ const Home = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {productHighlights.map((product) => (
                 <div key={product.name} className="product-card space-y-3 sm:space-y-4">
-                  <img src={product.image} alt={product.name} className="product-card-image" />
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="product-card-image"
+                    onError={(e) => {
+                      // Fallback to a placeholder if image fails to load
+                      e.target.src = 'https://via.placeholder.com/400x300?text=Produto+EverWell';
+                    }}
+                  />
                   <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
                   <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
                   <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
@@ -476,7 +489,7 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {testimonials.map((testimonial) => (
-              <div key={testimonial.name} className="card text-left flex flex-col gap-6 scroll-animate">
+              <div key={testimonial.name} className="card text-left flex flex-col gap-6 scroll-animate transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
                 <div className="flex items-center gap-4">
                   <img
                     src={testimonial.avatar}

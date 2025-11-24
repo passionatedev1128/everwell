@@ -149,6 +149,11 @@ export const verifyEmail = async (token) => {
   return response.data;
 };
 
+export const completeRegistration = async (token, userData) => {
+  const response = await api.post(`/auth/complete-registration/${token}`, userData);
+  return response.data;
+};
+
 export const resendVerification = async () => {
   const response = await api.post('/auth/resend-verification');
   return response.data;
@@ -161,6 +166,60 @@ export const forgotPassword = async (email) => {
 
 export const resetPassword = async (token, password) => {
   const response = await api.post(`/auth/reset-password/${token}`, { password });
+  return response.data;
+};
+
+// Admin Product API functions
+export const getAllProductsAdmin = async () => {
+  const response = await api.get('/admin/products');
+  return response.data;
+};
+
+export const createProduct = async (productData) => {
+  const response = await api.post('/admin/products', productData);
+  return response.data;
+};
+
+export const updateProduct = async (productId, productData) => {
+  const response = await api.patch(`/admin/products/${productId}`, productData);
+  return response.data;
+};
+
+export const deleteProduct = async (productId) => {
+  const response = await api.delete(`/admin/products/${productId}`);
+  return response.data;
+};
+
+export const uploadProductImages = async (files) => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('images', file);
+  });
+  
+  const response = await api.post('/admin/products/upload-images', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+// Feedback API functions
+export const createFeedback = async (feedbackData) => {
+  const response = await api.post('/feedback', feedbackData);
+  return response.data;
+};
+
+// User photo upload
+export const uploadUserPhoto = async (file) => {
+  const formData = new FormData();
+  formData.append('photo', file);
+  
+  const response = await api.post('/users/photo', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

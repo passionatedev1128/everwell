@@ -9,9 +9,18 @@ import {
   passwordResetTemplate 
 } from '../utils/emailTemplates.js';
 
+// Step 1: Initial registration - only email and name
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email } = req.body;
+
+    // Validate required fields
+    if (!name || !email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nome e email são obrigatórios.'
+      });
+    }
 
     // Check if user exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -22,35 +31,25 @@ export const register = async (req, res, next) => {
       });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-
     // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create user - auto-authorize new registrations
-    const user = await User.create({
+    // Create pending user (no password yet)
+    const userData = {
       name,
       email: email.toLowerCase(),
-      passwordHash,
-      phone,
-      isAuthorized: true, // Auto-authorize new registrations
+      isAuthorized: false,
       emailVerified: false,
       emailVerificationToken,
-      emailVerificationTokenExpires
-    });
+      emailVerificationTokenExpires,
+      registrationPending: true // Flag to indicate registration is incomplete
+    };
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    );
+    const user = await User.create(userData);
 
     // Send verification email (async, don't wait for it)
-    const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken);
+    const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, true);
     sendEmail({
       to: user.email,
       subject: verificationTemplate.subject,
@@ -66,7 +65,71 @@ export const register = async (req, res, next) => {
       console.error('❌ Error sending verification email:', err);
     });
 
-    // Also send welcome email
+    res.status(201).json({
+      success: true,
+      message: 'Link de verificação enviado para seu email. Clique no link para completar seu cadastro.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Step 2: Complete registration after email verification
+export const completeRegistration = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { password, phone, gender, dateOfBirth, address, photo } = req.body;
+
+    // Find user with this token
+    const user = await User.findOne({
+      emailVerificationToken: token,
+      emailVerificationTokenExpires: { $gt: Date.now() },
+      registrationPending: true
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token de verificação inválido ou expirado.'
+      });
+    }
+
+    // Validate password
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Senha é obrigatória e deve ter no mínimo 6 caracteres.'
+      });
+    }
+
+    // Hash password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Update user with password and other info
+    user.passwordHash = passwordHash;
+    user.emailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationTokenExpires = null;
+    user.registrationPending = false;
+
+    // Add optional fields if provided
+    if (phone) user.phone = phone;
+    if (gender) user.gender = gender;
+    if (dateOfBirth) user.dateOfBirth = new Date(dateOfBirth);
+    if (photo) user.photo = photo;
+    if (address) user.address = address;
+
+    await user.save();
+
+    // Generate JWT
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
+
+    // Send welcome email
     const welcomeTemplate = welcomeEmailTemplate(user.name);
     sendEmail({
       to: user.email,
@@ -83,10 +146,10 @@ export const register = async (req, res, next) => {
       console.error('❌ Error sending welcome email:', err);
     });
 
-    res.status(201).json({
+    res.json({
       success: true,
-      message: 'Registro realizado com sucesso. Verifique seu email para ativar sua conta.',
-      token,
+      message: 'Cadastro completado com sucesso!',
+      token: jwtToken,
       user: {
         id: user._id,
         name: user.name,
@@ -159,7 +222,7 @@ export const getMe = async (req, res, next) => {
   }
 };
 
-// @desc    Verify email
+// @desc    Verify email (for existing users who just need to verify)
 // @route   GET /api/auth/verify-email/:token
 // @access  Public
 export const verifyEmail = async (req, res, next) => {
@@ -179,7 +242,16 @@ export const verifyEmail = async (req, res, next) => {
       });
     }
 
-    // Verify email
+    // If registration is pending, don't verify yet - user needs to complete registration
+    if (user.registrationPending) {
+      return res.json({
+        success: true,
+        message: 'Token válido. Complete seu cadastro.',
+        pending: true
+      });
+    }
+
+    // Verify email for existing users
     user.emailVerified = true;
     user.emailVerificationToken = null;
     user.emailVerificationTokenExpires = null;
@@ -187,7 +259,8 @@ export const verifyEmail = async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Email verificado com sucesso!'
+      message: 'Email verificado com sucesso!',
+      pending: false
     });
   } catch (error) {
     next(error);

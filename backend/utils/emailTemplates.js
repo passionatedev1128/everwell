@@ -451,11 +451,25 @@ export const orderStatusUpdateEmailTemplate = (userName, orderId, oldStatus, new
   };
 };
 
-export const emailVerificationTemplate = (userName, token) => {
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email/${token}`;
+export const emailVerificationTemplate = (userName, token, isPendingRegistration = false) => {
+  const verificationUrl = isPendingRegistration 
+    ? `${process.env.FRONTEND_URL || 'http://localhost:5173'}/complete-registration/${token}`
+    : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email/${token}`;
+  
+  const subject = isPendingRegistration 
+    ? 'Complete seu cadastro - EverWell'
+    : 'Verifique seu email - EverWell';
+  
+  const message = isPendingRegistration
+    ? 'Obrigado por se cadastrar na EverWell. Para completar seu cadastro, clique no link abaixo e preencha suas informações.'
+    : 'Obrigado por se cadastrar na EverWell. Para completar seu cadastro, por favor verifique seu endereço de email.';
+  
+  const buttonText = isPendingRegistration
+    ? 'Completar Cadastro'
+    : 'Verificar Email';
   
   return {
-    subject: 'Verifique seu email - EverWell',
+    subject,
     html: `
       <!DOCTYPE html>
       <html>
@@ -478,10 +492,10 @@ export const emailVerificationTemplate = (userName, token) => {
           </div>
           <div class="content">
             <h2>Olá, ${userName}!</h2>
-            <p>Obrigado por se cadastrar na EverWell. Para completar seu cadastro, por favor verifique seu endereço de email.</p>
-            <p>Clique no botão abaixo para verificar sua conta:</p>
+            <p>${message}</p>
+            <p>Clique no botão abaixo para ${isPendingRegistration ? 'completar seu cadastro' : 'verificar sua conta'}:</p>
             <div style="text-align: center;">
-              <a href="${verificationUrl}" class="button">Verificar Email</a>
+              <a href="${verificationUrl}" class="button">${buttonText}</a>
             </div>
             <p>Ou copie e cole o link abaixo no seu navegador:</p>
             <div class="link-box">
@@ -502,9 +516,9 @@ export const emailVerificationTemplate = (userName, token) => {
     text: `
       Olá, ${userName}!
       
-      Obrigado por se cadastrar na EverWell. Para completar seu cadastro, por favor verifique seu endereço de email.
+      ${message}
       
-      Clique no link abaixo para verificar sua conta:
+      Clique no link abaixo para ${isPendingRegistration ? 'completar seu cadastro' : 'verificar sua conta'}:
       ${verificationUrl}
       
       Este link expira em 24 horas.

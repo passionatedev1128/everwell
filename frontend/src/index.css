@@ -446,6 +446,30 @@ div[data-react-hot-toast] {
   }
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes modalOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
 }
@@ -466,6 +490,22 @@ div[data-react-hot-toast] {
 }
 
 /* Enhanced scroll animations with stagger */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -708,6 +748,8 @@ input[type="date"]::-moz-calendar-picker-indicator {
 .react-datepicker__current-month {
   @apply text-white font-semibold text-base mb-3;
   text-transform: capitalize;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
 
 .react-datepicker__day-names {
@@ -741,10 +783,12 @@ input[type="date"]::-moz-calendar-picker-indicator {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: #1a3d3a !important;
 }
 
 .react-datepicker__day:hover {
   @apply bg-primary/20 text-primary rounded-lg transform scale-110;
+  color: #4fb3a8 !important;
 }
 
 .react-datepicker__day--selected,
@@ -775,13 +819,44 @@ input[type="date"]::-moz-calendar-picker-indicator {
   @apply text-gray-300 opacity-40;
 }
 
-/* Hide navigation arrows - minimal design */
+/* Show navigation arrows */
 .react-datepicker__navigation {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__navigation:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.react-datepicker__navigation--previous {
+  left: 0.5rem;
+}
+
+.react-datepicker__navigation--next {
+  right: 0.5rem;
 }
 
 .react-datepicker__navigation-icon::before {
-  display: none;
+  border-color: white;
+  border-width: 2px 2px 0 0;
+  width: 8px;
+  height: 8px;
+  top: 6px;
+  left: 6px;
+}
+
+.react-datepicker__navigation-icon--next::before {
+  left: 8px;
 }
 
 /* Mobile responsive datepicker */

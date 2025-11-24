@@ -82,7 +82,13 @@ const ProductDetail = () => {
             </div>
           )}
 
-          <h1 className="text-4xl font-bold text-text-dark mb-4">{product.name}</h1>
+          <h1 className="text-4xl font-bold text-text-dark mb-2">{product.name}</h1>
+          {product.subtitle && (
+            <p className="text-xl font-medium text-primary mb-4">{product.subtitle}</p>
+          )}
+          {product.price && (
+            <p className="text-3xl font-bold text-primary mb-4">R$ {product.price.toFixed(2)}</p>
+          )}
 
           <div className="mb-6">
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
@@ -143,12 +149,14 @@ const ProductDetail = () => {
                 >
                   Entrar em Contato
                 </a>
-                <Link
-                  to="/agendar"
+                <a
+                  href={product.productUrl || "https://pro.quaddro.co/yourbestversion/servicos/vgwg3F"}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="btn-secondary"
                 >
                   Agendar Consulta
-                </Link>
+                </a>
               </div>
             </div>
           </div>

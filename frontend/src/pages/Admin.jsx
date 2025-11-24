@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
-import { getAllOrdersAdmin, updateOrderStatus, getOrderById } from '../utils/api';
+import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages } from '../utils/api';
 import AdminTable from '../components/AdminTable';
 import DatePicker from '../components/DatePicker';
 
@@ -12,12 +12,30 @@ const Admin = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productModal, setProductModal] = useState({ open: false, product: null, mode: 'create' });
+  const [deleteProductModal, setDeleteProductModal] = useState({ open: false, product: null });
+  const [productForm, setProductForm] = useState({
+    name: '',
+    description: '',
+    subtitle: '',
+    price: '',
+    images: [''],
+    restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
+    visible: true,
+    category: 'gummy',
+    productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+  });
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [loading, setLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [productSearchQuery, setProductSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState({ from: '', to: '' });
   const [userFilter, setUserFilter] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
@@ -49,6 +67,8 @@ const Admin = () => {
         fetchUsers();
       } else if (activeTab === 'orders') {
         fetchOrders();
+      } else if (activeTab === 'products') {
+        fetchProducts();
       }
     }, 150);
     return () => clearTimeout(timer);
@@ -82,6 +102,21 @@ const Admin = () => {
       toast.error('Erro ao carregar pedidos.');
     } finally {
       setOrdersLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      setProductsLoading(true);
+      const response = await getAllProductsAdmin();
+      if (response.success) {
+        setProducts(response.products || []);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erro ao carregar produtos.');
+      toast.error('Erro ao carregar produtos.');
+    } finally {
+      setProductsLoading(false);
     }
   };
 
@@ -363,6 +398,217 @@ const Admin = () => {
     });
   };
 
+  // Product CRUD handlers
+  const handleOpenProductModal = (product = null) => {
+    setUploadedFiles([]);
+    if (product) {
+      setProductForm({
+        name: product.name || '',
+        description: product.description || '',
+        subtitle: product.subtitle || '',
+        price: product.price?.toString() || '',
+        images: product.images && product.images.length > 0 ? [...product.images] : [''],
+        restrictions: product.restrictions || 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
+        visible: product.visible !== undefined ? product.visible : true,
+        category: product.category || 'gummy',
+        productUrl: product.productUrl || 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+      });
+      setProductModal({ open: true, product, mode: 'edit' });
+    } else {
+      setProductForm({
+        name: '',
+        description: '',
+        subtitle: '',
+        price: '',
+        images: [''],
+        restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
+        visible: true,
+        category: 'gummy',
+        productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+      });
+      setProductModal({ open: true, product: null, mode: 'create' });
+    }
+  };
+
+  const handleCloseProductModal = () => {
+    setProductModal({ open: false, product: null, mode: 'create' });
+    setProductForm({
+      name: '',
+      description: '',
+      subtitle: '',
+      price: '',
+      images: [''],
+      restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
+      visible: true,
+      category: 'gummy',
+      productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+    });
+    setUploadedFiles([]);
+  };
+
+  const handleAddImageField = () => {
+    setProductForm({
+      ...productForm,
+      images: [...productForm.images, '']
+    });
+  };
+
+  const handleRemoveImageField = (index) => {
+    const newImages = productForm.images.filter((_, i) => i !== index);
+    if (newImages.length === 0) {
+      newImages.push('');
+    }
+    setProductForm({
+      ...productForm,
+      images: newImages
+    });
+  };
+
+  const handleImageChange = (index, value) => {
+    const newImages = [...productForm.images];
+    newImages[index] = value;
+    setProductForm({
+      ...productForm,
+      images: newImages
+    });
+  };
+
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Validate files
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`Arquivo ${file.name}: Tipo não permitido. Use JPG, PNG ou WEBP.`);
+        return;
+      }
+      if (file.size > maxSize) {
+        toast.error(`Arquivo ${file.name}: Tamanho máximo é 5MB.`);
+        return;
+      }
+    }
+
+    try {
+      setUploadingImages(true);
+      const response = await uploadProductImages(files);
+      
+      if (response.success && response.images) {
+        // Add uploaded image URLs to the form
+        // Replace empty strings first, then add to the end
+        const newImages = [...productForm.images];
+        let imageIndex = 0;
+        
+        response.images.forEach((url) => {
+          // Find first empty string to replace
+          const emptyIndex = newImages.findIndex(img => !img || img.trim() === '');
+          if (emptyIndex !== -1) {
+            newImages[emptyIndex] = url;
+          } else {
+            // All slots are filled, add to the end
+            newImages.push(url);
+          }
+        });
+        
+        // Remove any remaining empty strings at the end (but keep at least one if all were empty)
+        const filteredImages = newImages.filter(img => img && img.trim() !== '');
+        const finalImages = filteredImages.length > 0 ? filteredImages : [''];
+        
+        setProductForm({
+          ...productForm,
+          images: finalImages
+        });
+        toast.success(`${response.images.length} imagem(ns) enviada(s) com sucesso!`);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao enviar imagens.');
+    } finally {
+      setUploadingImages(false);
+      // Reset file input
+      e.target.value = '';
+    }
+  };
+
+  const handleSubmitProduct = async (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    if (!productForm.name || !productForm.description || !productForm.price || !productForm.category) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    const validImages = productForm.images.filter(img => img.trim() !== '');
+    if (validImages.length === 0) {
+      toast.error('Adicione pelo menos uma imagem.');
+      return;
+    }
+
+    try {
+      const productData = {
+        name: productForm.name.trim(),
+        description: productForm.description.trim(),
+        subtitle: productForm.subtitle.trim(),
+        price: parseFloat(productForm.price),
+        images: validImages,
+        restrictions: productForm.restrictions.trim(),
+        visible: productForm.visible,
+        category: productForm.category,
+        productUrl: productForm.productUrl.trim()
+      };
+
+      if (productModal.mode === 'create') {
+        const response = await createProduct(productData);
+        if (response.success) {
+          toast.success('Produto criado com sucesso!');
+          handleCloseProductModal();
+          fetchProducts();
+        }
+      } else {
+        const response = await updateProduct(productModal.product._id, productData);
+        if (response.success) {
+          toast.success('Produto atualizado com sucesso!');
+          handleCloseProductModal();
+          fetchProducts();
+        }
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao salvar produto.');
+    }
+  };
+
+  const handleDeleteProduct = (product) => {
+    setDeleteProductModal({ open: true, product });
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!deleteProductModal.product) return;
+
+    try {
+      const response = await deleteProduct(deleteProductModal.product._id);
+      if (response.success) {
+        toast.success(`Produto ${deleteProductModal.product.name} deletado com sucesso!`);
+        setDeleteProductModal({ open: false, product: null });
+        fetchProducts();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao deletar produto.');
+    }
+  };
+
+  const getFilteredProducts = () => {
+    if (!productSearchQuery.trim()) return products;
+    const query = productSearchQuery.toLowerCase();
+    return products.filter(product => 
+      product.name.toLowerCase().includes(query) ||
+      product.description.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query)
+    );
+  };
+
   const statusFilterStyles = {
     pending: 'bg-amber-200 text-amber-800',
     paid: 'bg-sky-200 text-sky-800',
@@ -515,6 +761,19 @@ const Admin = () => {
           >
             <span className="relative z-10">Pedidos</span>
             {activeTab === 'orders' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('products')}
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
+              activeTab === 'products'
+                ? 'bg-primary text-white shadow-md transform scale-105'
+                : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
+            }`}
+          >
+            <span className="relative z-10">Produtos</span>
+            {activeTab === 'products' && (
               <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
             )}
           </button>
@@ -824,6 +1083,134 @@ const Admin = () => {
           </div>
         )}
 
+        {activeTab === 'products' && (
+          <div 
+            className={`bg-white rounded-lg shadow-sm border border-primary/20 transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
+            <div className="px-6 py-4 border-b border-primary/20">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-darkTeal">Gerenciar Produtos</h2>
+                  <p className="text-sm text-mediumTeal mt-1">Crie, edite e remova produtos do catálogo</p>
+                </div>
+                <button
+                  onClick={() => handleOpenProductModal()}
+                  className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Novo Produto
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Buscar produtos por nome, descrição ou categoria..."
+                  value={productSearchQuery}
+                  onChange={(e) => setProductSearchQuery(e.target.value)}
+                  className="w-full max-w-md rounded-md border border-primary/30 bg-white px-4 py-2 text-sm text-darkTeal placeholder:text-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              {productsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4" />
+                  <p className="text-mediumTeal text-sm font-medium">Carregando produtos...</p>
+                </div>
+              ) : getFilteredProducts().length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  <h3 className="text-sm font-medium text-darkTeal mb-1">
+                    {products.length === 0 ? 'Nenhum produto cadastrado' : 'Nenhum produto encontrado'}
+                  </h3>
+                  <p className="text-sm text-mediumTeal mb-4">
+                    {products.length === 0 ? 'Comece criando seu primeiro produto.' : 'Tente ajustar os termos de busca.'}
+                  </p>
+                  {products.length === 0 && (
+                    <button
+                      onClick={() => handleOpenProductModal()}
+                      className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      Criar Produto
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {getFilteredProducts().map((product) => (
+                    <div
+                      key={product._id}
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-darkTeal mb-1">{product.name}</h3>
+                          {product.subtitle && (
+                            <p className="text-sm text-mediumTeal mb-2">{product.subtitle}</p>
+                          )}
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${
+                              product.category === 'gummy' ? 'bg-purple-100 text-purple-700' :
+                              product.category === 'oleo' ? 'bg-amber-100 text-amber-700' :
+                              'bg-blue-100 text-blue-700'
+                            }`}>
+                              {product.category}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${
+                              product.visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              {product.visible ? 'Visível' : 'Oculto'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {product.images && product.images.length > 0 && (
+                        <div className="mb-3">
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="w-full h-32 object-cover rounded-md"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="mb-3">
+                        <p className="text-sm text-mediumTeal line-clamp-2">{product.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xl font-bold text-primary">R$ {product.price?.toFixed(2) || '0.00'}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleOpenProductModal(product)}
+                          className="flex-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary/90 transition-colors"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(product)}
+                          className="px-3 py-2 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+                        >
+                          Deletar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {selectedOrder && createPortal(
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -935,6 +1322,310 @@ const Admin = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Product Create/Edit Modal */}
+        {productModal.open && createPortal(
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={handleCloseProductModal}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
+                  <h2 className="text-xl font-semibold text-darkTeal">
+                    {productModal.mode === 'create' ? 'Criar Novo Produto' : 'Editar Produto'}
+                  </h2>
+                  <button
+                    onClick={handleCloseProductModal}
+                    className="text-mediumTeal hover:text-darkTeal transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmitProduct} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">
+                        Nome do Produto *
+                      </label>
+                      <input
+                        type="text"
+                        value={productForm.name}
+                        onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">
+                        Categoria *
+                      </label>
+                      <select
+                        value={productForm.category}
+                        onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        required
+                      >
+                        <option value="gummy">Gummy</option>
+                        <option value="oleo">Óleo</option>
+                        <option value="creme">Creme</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Subtítulo
+                    </label>
+                    <input
+                      type="text"
+                      value={productForm.subtitle}
+                      onChange={(e) => setProductForm({ ...productForm, subtitle: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="Ex: Sono Profundo, noites reparadoras"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Descrição *
+                    </label>
+                    <textarea
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                      rows={4}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">
+                        Preço (R$) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={productForm.price}
+                        onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">
+                        Visibilidade
+                      </label>
+                      <div className="flex items-center gap-4 mt-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={productForm.visible}
+                            onChange={(e) => setProductForm({ ...productForm, visible: e.target.checked })}
+                            className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                          />
+                          <span className="text-sm text-darkTeal">Produto visível</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Imagens *
+                    </label>
+                    <div className="mb-3">
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          {uploadingImages ? (
+                            <>
+                              <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary/20 border-t-primary mb-2"></div>
+                              <p className="text-sm text-mediumTeal">Enviando imagens...</p>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-8 h-8 mb-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p className="mb-2 text-sm text-darkTeal">
+                                <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+                              </p>
+                              <p className="text-xs text-mediumTeal">JPG, PNG ou WEBP (máx. 5MB cada)</p>
+                            </>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          multiple
+                          onChange={handleFileSelect}
+                          disabled={uploadingImages}
+                        />
+                      </label>
+                    </div>
+                    {productForm.images.map((image, index) => (
+                      <div key={index} className="flex gap-2 mb-2 items-center">
+                        {image && (
+                          <div className="w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0">
+                            <img
+                              src={image}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/128?text=Erro';
+                              }}
+                            />
+                          </div>
+                        )}
+                        <input
+                          type="url"
+                          value={image}
+                          onChange={(e) => handleImageChange(index, e.target.value)}
+                          placeholder="URL da imagem ou faça upload acima"
+                          className="flex-1 rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        />
+                        {image && (
+                          <div className="flex gap-1 flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImages = [...productForm.images];
+                                newImages[index] = '';
+                                setProductForm({ ...productForm, images: newImages });
+                              }}
+                              className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700 transition-colors"
+                              title="Atualizar imagem"
+                            >
+                              Atualizar
+                            </button>
+                            {productForm.images.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveImageField(index)}
+                                className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+                                title="Remover imagem"
+                              >
+                                Remover
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={handleAddImageField}
+                      className="mt-2 px-3 py-2 bg-primary/10 text-primary text-sm font-medium rounded-md hover:bg-primary/20 transition-colors"
+                    >
+                      + Adicionar Campo de URL
+                    </button>
+                    <p className="mt-2 text-xs text-mediumTeal">
+                      Você pode fazer upload de imagens ou inserir URLs. Faça upload de múltiplas imagens de uma vez.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      URL do Produto (Agendar Consulta)
+                    </label>
+                    <input
+                      type="url"
+                      value={productForm.productUrl}
+                      onChange={(e) => setProductForm({ ...productForm, productUrl: e.target.value })}
+                      placeholder="https://pro.quaddro.co/yourbestversion/servicos/vgwg3F"
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                    />
+                    <p className="mt-1 text-xs text-mediumTeal">URL que será aberta quando o usuário clicar em "Agendar Consulta"</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Restrições
+                    </label>
+                    <textarea
+                      value={productForm.restrictions}
+                      onChange={(e) => setProductForm({ ...productForm, restrictions: e.target.value })}
+                      rows={2}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                    <button
+                      type="button"
+                      onClick={handleCloseProductModal}
+                      className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      {productModal.mode === 'create' ? 'Criar Produto' : 'Salvar Alterações'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Delete Product Modal */}
+        {deleteProductModal.open && createPortal(
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setDeleteProductModal({ open: false, product: null })}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-darkTeal">Confirmar exclusão</h3>
+                  <p className="text-sm text-mediumTeal">Esta ação é irreversível</p>
+                </div>
+              </div>
+              <p className="text-mediumTeal mb-6">
+                Tem certeza que deseja deletar o produto <strong className="text-darkTeal">{deleteProductModal.product?.name}</strong>?
+                <br />
+                <br />
+                Esta ação não pode ser desfeita. Se o produto estiver associado a pedidos, a exclusão será bloqueada.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteProductModal({ open: false, product: null })}
+                  className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteProduct}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Deletar
+                </button>
               </div>
             </div>
           </div>,

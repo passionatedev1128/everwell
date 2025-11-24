@@ -1,7 +1,9 @@
 import User from '../models/User.js';
 import Order from '../models/Order.js';
+import Product from '../models/Product.js';
 import AuditLog from '../models/AuditLog.js';
 import { sendEmail } from '../config/email.js';
+import { getFileUrl } from '../config/upload.js';
 import { 
   authorizationEmailTemplate,
   documentApprovedEmailTemplate 
@@ -208,6 +210,275 @@ export const deleteUser = async (req, res, next) => {
         email: user.email
       },
       ordersDeleted: orderCount
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Product CRUD functions
+export const getAllProductsAdmin = async (req, res, next) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    
+    res.json({
+      success: true,
+      count: products.length,
+      products
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createProduct = async (req, res, next) => {
+  try {
+    const { name, description, subtitle, price, images, restrictions, visible, category } = req.body;
+
+    // Validate required fields
+    if (!name || !description || !price || !category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nome, descrição, preço e categoria são obrigatórios.'
+      });
+    }
+
+    // Validate category
+    const validCategories = ['gummy', 'oleo', 'creme'];
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Categoria inválida. Use: gummy, oleo ou creme.'
+      });
+    }
+
+    // Generate slug from name
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    // Check if slug already exists
+    const existingProduct = await Product.findOne({ slug });
+    if (existingProduct) {
+      return res.status(400).json({
+        success: false,
+        message: 'Já existe um produto com este nome. Use um nome diferente.'
+      });
+    }
+
+    // Validate images
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Pelo menos uma imagem é obrigatória.'
+      });
+    }
+
+    // Create product
+    const product = await Product.create({
+      name,
+      slug,
+      description,
+      subtitle: subtitle || '',
+      price: parseFloat(price),
+      images,
+      restrictions: restrictions || 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
+      visible: visible !== undefined ? visible : true,
+      category,
+      productUrl: req.body.productUrl || 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+    });
+
+    // Create audit log
+    await AuditLog.create({
+      action: 'product_created',
+      adminId: req.user._id,
+      details: {
+        productId: product._id,
+        productName: product.name,
+        productSlug: product.slug
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Produto criado com sucesso.',
+      product
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Já existe um produto com este slug.'
+      });
+    }
+    next(error);
+  }
+};
+
+export const updateProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, description, subtitle, price, images, restrictions, visible, category, productUrl } = req.body;
+
+    const product = await Product.findById(id);
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Produto não encontrado.'
+      });
+    }
+
+    // Update fields
+    if (name !== undefined) {
+      product.name = name;
+      // Regenerate slug if name changed
+      const newSlug = name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      
+      // Check if new slug conflicts with another product
+      const existingProduct = await Product.findOne({ slug: newSlug, _id: { $ne: id } });
+      if (existingProduct) {
+        return res.status(400).json({
+          success: false,
+          message: 'Já existe outro produto com este nome. Use um nome diferente.'
+        });
+      }
+      product.slug = newSlug;
+    }
+
+    if (description !== undefined) product.description = description;
+    if (subtitle !== undefined) product.subtitle = subtitle;
+    if (price !== undefined) product.price = parseFloat(price);
+    if (images !== undefined) {
+      if (!Array.isArray(images) || images.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Pelo menos uma imagem é obrigatória.'
+        });
+      }
+      product.images = images;
+    }
+    if (restrictions !== undefined) product.restrictions = restrictions;
+    if (visible !== undefined) product.visible = visible;
+    if (category !== undefined) {
+      const validCategories = ['gummy', 'oleo', 'creme'];
+      if (!validCategories.includes(category)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Categoria inválida. Use: gummy, oleo ou creme.'
+        });
+      }
+      product.category = category;
+    }
+    if (productUrl !== undefined) product.productUrl = productUrl;
+
+    await product.save();
+
+    // Create audit log
+    await AuditLog.create({
+      action: 'product_updated',
+      adminId: req.user._id,
+      details: {
+        productId: product._id,
+        productName: product.name
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    res.json({
+      success: true,
+      message: 'Produto atualizado com sucesso.',
+      product
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Já existe um produto com este slug.'
+      });
+    }
+    next(error);
+  }
+};
+
+export const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Produto não encontrado.'
+      });
+    }
+
+    // Check if product is used in any orders
+    const orderCount = await Order.countDocuments({
+      'products.productId': id
+    });
+
+    if (orderCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Não é possível deletar este produto. Ele está associado a ${orderCount} pedido(s). Considere ocultá-lo em vez de deletá-lo.`
+      });
+    }
+
+    // Create audit log before deletion
+    await AuditLog.create({
+      action: 'product_deleted',
+      adminId: req.user._id,
+      details: {
+        productId: product._id,
+        productName: product.name,
+        productSlug: product.slug
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    // Delete the product
+    await Product.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: `Produto ${product.name} deletado com sucesso.`
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadProductImages = async (req, res, next) => {
+  try {
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nenhuma imagem foi enviada.'
+      });
+    }
+
+    // Generate URLs for uploaded images
+    const imageUrls = files.map(file => getFileUrl(file.filename, 'product'));
+
+    res.json({
+      success: true,
+      message: `${files.length} imagem(ns) enviada(s) com sucesso.`,
+      images: imageUrls
     });
   } catch (error) {
     next(error);

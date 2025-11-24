@@ -12,10 +12,10 @@ const createTransporter = () => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD // Gmail requires App Password
       },
-      // Connection timeout settings (increased)
-      connectionTimeout: 30000, // 30 seconds
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
+      // Connection timeout settings (reduced to fail faster and not block startup)
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
       // Retry settings
       pool: true,
       maxConnections: 1,
@@ -74,15 +74,40 @@ const createTransporter = () => {
   return nodemailer.createTransport(config);
 };
 
-// Verify email configuration
+// Verify email configuration (runs in background, doesn't block startup)
 export const verifyEmailConfig = async () => {
   try {
+    // Check if email is configured before attempting verification
+    const hasPassword = process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD;
+    if (!process.env.EMAIL_USER || !hasPassword) {
+      console.warn('⚠️ Email not configured. Email features will be disabled.');
+      console.warn('   Set EMAIL_USER and EMAIL_APP_PASSWORD (or EMAIL_PASSWORD) in .env to enable email');
+      return false;
+    }
+
     const transporter = createTransporter();
-    await transporter.verify();
+    
+    // Set a shorter timeout for verification (5 seconds)
+    const verifyPromise = transporter.verify();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Verification timeout')), 5000) // 5 second timeout
+    );
+    
+    await Promise.race([verifyPromise, timeoutPromise]);
     console.log('✅ Email service configured successfully');
     return true;
   } catch (error) {
-    console.error('❌ Email configuration error:', error.message);
+    // Don't block server startup if email verification fails
+    if (error.message === 'Verification timeout') {
+      // Only show warning in development, and make it less alarming
+      if (process.env.NODE_ENV === 'development') {
+        console.log('ℹ️  Email connection test timed out (this is normal if firewall blocks SMTP).');
+        console.log('   Email sending will still be attempted when needed.');
+      }
+    } else {
+      console.warn('⚠️ Email configuration issue:', error.message);
+      console.warn('   Email features may not work. Check your EMAIL_USER and EMAIL_APP_PASSWORD settings.');
+    }
     return false;
   }
 };

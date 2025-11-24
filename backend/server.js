@@ -4,6 +4,16 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import session from 'express-session';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables FIRST before importing anything that uses them
+dotenv.config();
+
+// Now import modules that depend on environment variables
 import passport from './config/passport.js';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -18,14 +28,23 @@ import adminRoutes from './routes/admin.js';
 import userRoutes from './routes/users.js';
 import orderRoutes from './routes/orders.js';
 import leadRoutes from './routes/leads.js';
-
-dotenv.config();
+import feedbackRoutes from './routes/feedback.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "blob:", "http://localhost:5000", "https:"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -50,8 +69,19 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve uploaded files statically
-app.use('/uploads', express.static('uploads'));
+// Serve uploaded files statically with CORS headers
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(uploadsPath, {
+  setHeaders: (res, filePath) => {
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.set('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
+  }
+}));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -67,6 +97,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -74,12 +105,16 @@ app.use(errorHandler);
 // Connect to MongoDB and start server
 connectDB()
   .then(async () => {
-    // Verify email configuration (non-blocking)
-    await verifyEmailConfig();
-    
+    // Start server first
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+    
+    // Verify email configuration in background (non-blocking)
+    // Don't await - let it run after server starts
+    verifyEmailConfig().catch(() => {
+      // Silently handle errors - already logged in verifyEmailConfig
     });
   })
   .catch((error) => {

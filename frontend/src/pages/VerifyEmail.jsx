@@ -24,6 +24,12 @@ const VerifyEmail = () => {
       setLoading(true);
       const response = await verifyEmail(token);
       if (response.success) {
+        // If registration is pending, redirect to complete registration
+        if (response.pending) {
+          navigate(`/complete-registration/${token}`);
+          return;
+        }
+        // Otherwise, email is verified
         setSuccess(true);
         toast.success('Email verificado com sucesso!');
         setTimeout(() => {

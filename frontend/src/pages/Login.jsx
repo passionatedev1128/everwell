@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -8,13 +8,18 @@ import OAuthButtons from '../components/OAuthButtons';
 import { trackLogin, trackSignUp } from '../utils/analytics';
 import { identifyContact } from '../utils/hubspot';
 import { trackSignUp as gtmTrackSignUp, trackLogin as gtmTrackLogin } from '../utils/gtm';
+import { uploadUserPhoto } from '../utils/api';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, getValues, watch } = useForm();
 
   // Check for stored error messages on mount (from redirects)
   useEffect(() => {
@@ -41,36 +46,87 @@ const Login = () => {
     }
   }, [location, navigate]);
 
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+      return;
+    }
+
+    if (file.size > maxSize) {
+      toast.error('Arquivo muito grande. Tamanho máximo é 5MB.');
+      return;
+    }
+
+    setPhotoFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const onSubmit = async (data) => {
     setLoading(true);
 
     try {
-      const endpoint = isLogin ? '/auth/login' : '/auth/register';
-      const response = await api.post(endpoint, data);
-
-      if (response.data.success) {
-        setToken(response.data.token);
-        setUser(response.data.user);
-        // Identify contact in HubSpot
-        identifyContact(response.data.user);
-        
-        // Track analytics events
-        if (!isLogin) {
-          // GA4: User acquisition analytics
-          trackSignUp('email');
-          // GTM: For tag management
-          gtmTrackSignUp('email');
-          if (response.data.user && !response.data.user.emailVerified) {
-            toast.success('Conta criada! Verifique seu email para ativar sua conta.');
+      let photoUrl = null;
+      
+      // Upload photo if provided during registration
+      if (!isLogin && photoFile) {
+        try {
+          setUploadingPhoto(true);
+          const photoResponse = await uploadUserPhoto(photoFile);
+          if (photoResponse.success) {
+            photoUrl = photoResponse.photoUrl;
           }
-        } else {
-          // Track login
+        } catch (err) {
+          console.error('Error uploading photo:', err);
+          // Continue with registration even if photo upload fails
+        } finally {
+          setUploadingPhoto(false);
+        }
+      }
+
+      if (isLogin) {
+        // Login flow
+        const response = await api.post('/auth/login', data);
+        if (response.data.success) {
+          setToken(response.data.token);
+          setUser(response.data.user);
+          identifyContact(response.data.user);
           trackLogin('email');
           gtmTrackLogin('email');
           toast.success('Login realizado com sucesso!');
+          navigate('/');
         }
+      } else {
+        // Registration flow - Step 1: Only email and name
+        const response = await api.post('/auth/register', {
+          name: data.name,
+          email: data.email
+        });
         
-        navigate('/');
+        if (response.data.success) {
+          toast.success('Link de verificação enviado para seu email! Clique no link para completar seu cadastro.');
+          // Reset form
+          reset({
+            name: '',
+            email: ''
+          });
+          // Optionally switch to login mode
+          setTimeout(() => {
+            setIsLogin(true);
+          }, 2000);
+        }
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Erro ao processar solicitação. Tente novamente.';
@@ -91,11 +147,10 @@ const Login = () => {
           password: '',
         });
       } else {
-        // For registration: clear all fields (name, email, password)
+        // For registration: clear fields
         reset({
           name: '',
-          email: '',
-          password: '',
+          email: ''
         });
       }
     } finally {
@@ -105,8 +160,8 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-accent flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-lg p-8">
+      <div className={`w-full ${isLogin ? 'max-w-md' : 'max-w-4xl'}`}>
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <h2 className="text-3xl font-bold text-center text-text-dark mb-2">
             {isLogin ? 'Login' : 'Criar Conta'}
           </h2>
@@ -118,20 +173,22 @@ const Login = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome Completo
-                </label>
-                <input
-                  type="text"
-                  {...register('name', { required: 'Nome é obrigatório' })}
-                  className="input-field"
-                  placeholder="Seu nome completo"
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-                )}
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Completo *
+                  </label>
+                  <input
+                    type="text"
+                    {...register('name', { required: 'Nome é obrigatório' })}
+                    className="input-field"
+                    placeholder="Seu nome completo"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                  )}
+                </div>
+              </>
             )}
 
             <div>
@@ -155,26 +212,28 @@ const Login = () => {
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Senha
-              </label>
-              <input
-                type="password"
-                {...register('password', { 
-                  required: 'Senha é obrigatória',
-                  minLength: {
-                    value: 6,
-                    message: 'Senha deve ter no mínimo 6 caracteres'
-                  }
-                })}
-                className="input-field"
-                placeholder="••••••••"
-              />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-              )}
-            </div>
+            {isLogin && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  {...register('password', { 
+                    required: 'Senha é obrigatória',
+                    minLength: {
+                      value: 6,
+                      message: 'Senha deve ter no mínimo 6 caracteres'
+                    }
+                  })}
+                  className="input-field"
+                  placeholder="••••••••"
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                )}
+              </div>
+            )}
 
             {isLogin && (
               <div className="text-right">
@@ -189,7 +248,7 @@ const Login = () => {
               disabled={loading}
               className="w-full btn-primary disabled:opacity-50"
             >
-              {loading ? 'Processando...' : (isLogin ? 'FAZER LOGIN' : 'Criar Conta')}
+              {loading ? 'Processando...' : (isLogin ? 'FAZER LOGIN' : 'Enviar Link de Verificação')}
             </button>
           </form>
 

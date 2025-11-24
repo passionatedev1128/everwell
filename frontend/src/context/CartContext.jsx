@@ -33,21 +33,21 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('everwell_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, quantity = 1) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.productId === product._id);
       
       if (existingItem) {
         const updatedItems = prevItems.map((item) =>
           item.productId === product._id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
         // Track add to cart (increment quantity)
         // GA4: Detailed e-commerce analytics
-        trackAddToCart({ ...product, productId: product._id }, 1);
+        trackAddToCart({ ...product, productId: product._id }, quantity);
         // GTM: For tag management
-        gtmTrackAddToCart({ ...product, productId: product._id }, 1);
+        gtmTrackAddToCart({ ...product, productId: product._id }, quantity);
         // HubSpot: Not needed - GA4 handles e-commerce analytics
         return updatedItems;
       }
@@ -58,14 +58,14 @@ export const CartProvider = ({ children }) => {
         slug: product.slug,
         price: product.price || 0,
         image: product.images?.[0] || '',
-        quantity: 1,
+        quantity: quantity,
       };
       
       // Track add to cart (new item)
       // GA4: Detailed e-commerce analytics
-      trackAddToCart({ ...product, productId: product._id }, 1);
+      trackAddToCart({ ...product, productId: product._id }, quantity);
       // GTM: For tag management
-      gtmTrackAddToCart({ ...product, productId: product._id }, 1);
+      gtmTrackAddToCart({ ...product, productId: product._id }, quantity);
       // HubSpot: Not needed - GA4 handles e-commerce analytics
       
       return [...prevItems, newItem];
@@ -90,11 +90,30 @@ export const CartProvider = ({ children }) => {
       return;
     }
     
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
+    setCartItems((prevItems) => {
+      const item = prevItems.find((item) => item.productId === productId);
+      if (!item) return prevItems;
+      
+      const oldQuantity = item.quantity;
+      const newQuantity = quantity;
+      const quantityDiff = newQuantity - oldQuantity;
+      
+      // Track add_to_cart or remove_from_cart based on quantity change
+      if (quantityDiff > 0) {
+        // Quantity increased - track add_to_cart
+        trackAddToCart({ ...item, productId: item.productId }, quantityDiff);
+        gtmTrackAddToCart({ ...item, productId: item.productId }, quantityDiff);
+      } else if (quantityDiff < 0) {
+        // Quantity decreased - track remove_from_cart
+        const itemToRemove = { ...item, quantity: Math.abs(quantityDiff) };
+        trackRemoveFromCart(itemToRemove, Math.abs(quantityDiff));
+        gtmTrackRemoveFromCart(itemToRemove, Math.abs(quantityDiff));
+      }
+      
+      return prevItems.map((item) =>
         item.productId === productId ? { ...item, quantity } : item
-      )
-    );
+      );
+    });
   };
 
   const clearCart = () => {
