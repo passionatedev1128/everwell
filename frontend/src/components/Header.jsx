@@ -69,12 +69,8 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary text-white font-semibold text-base sm:text-lg">
-              EW
-            </div>
-            <div className="flex flex-col hidden sm:flex">
-              <span className="text-base sm:text-lg font-semibold text-darkTeal tracking-tight leading-tight">EverWell</span>
-              <span className="text-[10px] sm:text-xs text-mediumTeal leading-tight">CBD Experts</span>
+            <div className="flex items-center justify-center rounded-lg text-white font-semibold text-base sm:text-lg" style={{ width: "148px" }}>
+              <img src = "/logos/logo_everwell_colored.png" />
             </div>
           </Link>
 
@@ -91,8 +87,8 @@ const Header = () => {
                   state={link.path === '/produtos' && !authenticated ? { from: link.path } : undefined}
                   className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 relative ${
                     shouldShowActive
-                      ? 'text-white border-b-2 border-white pb-2'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                      ? 'text-[rgb(79,179,168)] border-b-2 border-[rgb(79,179,168)] pb-2'
+                      : 'text-[rgb(79,179,168)]/80 hover:text-[rgb(79,179,168)] hover:bg-[rgb(79,179,168)]/10'
                   }`}
                 >
                   {link.label}
@@ -105,7 +101,7 @@ const Header = () => {
             {authenticated && (
               <button
                 onClick={() => setIsFeedbackModalOpen(true)}
-                className="px-3 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors flex items-center gap-2"
+                className="px-3 py-2 text-sm font-medium text-[rgb(79,179,168)]/80 hover:text-[rgb(79,179,168)] transition-colors flex items-center gap-2"
                 title="Deixe seu feedback"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,18 +113,26 @@ const Header = () => {
             <Link to="/agendar" className="btn-primary">
               Agendar consulta
             </Link>
-            {authenticated ? (
+              {authenticated ? (
               <div className="relative" ref={accountMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsAccountMenuOpen((prev) => !prev)}
                   className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-all duration-300 group"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'E'}
-                  </div>
+                  {user?.photo ? (
+                    <img 
+                      src={user.photo} 
+                      alt={user?.name || 'User'} 
+                      className="w-8 h-8 rounded-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30">
+                      {user?.name?.charAt(0)?.toUpperCase() || 'E'}
+                    </div>
+                  )}
                   <div className="hidden xl:flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-darkTeal leading-tight">
+                    <span className="text-sm font-medium text-[rgb(79,179,168)] leading-tight">
                       {user?.name}
                     </span>
                     <span className="text-xs text-mediumTeal">
@@ -192,8 +196,10 @@ const Header = () => {
                 )}
               </div>
             ) : (
-              <Link to="/login" className="btn-secondary">
-                Entrar
+              <Link to="/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors">
+                <svg className="w-6 h-6 text-[rgb(79,179,168)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </Link>
             )}
           </div>
@@ -299,8 +305,10 @@ const Header = () => {
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="btn-secondary text-center w-full">
-                  Entrar
+                <Link to="/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors mx-auto">
+                  <svg className="w-6 h-6 text-[rgb(79,179,168)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                 </Link>
               )}
 

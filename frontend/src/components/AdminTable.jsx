@@ -1,4 +1,7 @@
+import { useNavigate } from 'react-router-dom';
+
 const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, onSort }) => {
+  const navigate = useNavigate();
   const authorizedCount = users.filter(u => u.isAuthorized).length;
   const pendingCount = users.filter(u => !u.isAuthorized).length;
 
@@ -109,7 +112,11 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
           </thead>
           <tbody className="bg-white divide-y divide-primary/20">
             {users.map((user) => (
-              <tr key={user._id} className="hover:bg-primary/5 transition-colors cursor-pointer">
+              <tr 
+                key={user._id} 
+                className="hover:bg-primary/5 transition-colors cursor-pointer"
+                onClick={() => navigate(`/admin/users/${user._id}`)}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-darkTeal">{user.name}</div>
                 </td>
@@ -147,7 +154,10 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <button
-                    onClick={() => onToggleAuthorization(user._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleAuthorization(user._id);
+                    }}
                     className={`inline-flex items-center justify-center px-4 py-2 text-xs font-medium rounded-md transition-all min-w-[100px] ${
                       user.isAuthorized
                         ? 'bg-red-50 text-red-700 hover:bg-red-100'
@@ -159,7 +169,10 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <button
-                    onClick={() => onDeleteUser(user._id, user.name)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteUser(user._id, user.name);
+                    }}
                     className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                     title="Deletar usuário"
                   >

@@ -48,26 +48,30 @@ export const register = async (req, res, next) => {
 
     const user = await User.create(userData);
 
-    // Send verification email (async, don't wait for it)
+    // Send verification email and wait for result (with timeout)
     const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, true);
-    sendEmail({
+    const emailResult = await sendEmail({
       to: user.email,
       subject: verificationTemplate.subject,
       html: verificationTemplate.html,
       text: verificationTemplate.text
-    }).then(result => {
-      if (result.success) {
-        console.log(`✅ Verification email sent to ${user.email}`);
-      } else {
-        console.error(`❌ Failed to send verification email to ${user.email}:`, result.message || result.error);
-      }
-    }).catch(err => {
-      console.error('❌ Error sending verification email:', err);
     });
 
+    if (!emailResult || !emailResult.success) {
+      // Don't delete the user - they can request a new verification link later
+      // Just return an error message
+      return res.status(500).json({
+        success: false,
+        message: emailResult?.message || 'The verification link can\'t be sent to your email.',
+        emailSent: false
+      });
+    }
+
+    console.log(`✅ Verification email sent to ${user.email}`);
     res.status(201).json({
       success: true,
       message: 'Link de verificação enviado para seu email. Clique no link para completar seu cadastro.',
+      emailSent: true
     });
   } catch (error) {
     next(error);
@@ -78,7 +82,7 @@ export const register = async (req, res, next) => {
 export const completeRegistration = async (req, res, next) => {
   try {
     const { token } = req.params;
-    const { password, phone, gender, dateOfBirth, address, photo } = req.body;
+    const { name, password, phone, gender, dateOfBirth, address, photo } = req.body;
 
     // Find user with this token
     const user = await User.findOne({
@@ -112,6 +116,12 @@ export const completeRegistration = async (req, res, next) => {
     user.emailVerificationToken = null;
     user.emailVerificationTokenExpires = null;
     user.registrationPending = false;
+    user.isAuthorized = true; // Auto-authorize after first registration
+
+    // Update name if provided (useful for users who signed in without registering first)
+    if (name && name.trim()) {
+      user.name = name.trim();
+    }
 
     // Add optional fields if provided
     if (phone) user.phone = phone;
@@ -171,9 +181,50 @@ export const login = async (req, res, next) => {
     // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Email ou senha inválidos.'
+      // User doesn't exist - create pending registration and send verification email
+      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Create pending user (no password yet, no name - will be collected during registration)
+      const userData = {
+        name: email.split('@')[0], // Temporary name from email
+        email: email.toLowerCase(),
+        isAuthorized: false,
+        emailVerified: false,
+        emailVerificationToken,
+        emailVerificationTokenExpires,
+        registrationPending: true // Flag to indicate registration is incomplete
+      };
+
+      const newUser = await User.create(userData);
+
+      // Send verification email and wait for result (with timeout)
+      const verificationTemplate = emailVerificationTemplate(newUser.name, emailVerificationToken, true);
+      const emailResult = await sendEmail({
+        to: newUser.email,
+        subject: verificationTemplate.subject,
+        html: verificationTemplate.html,
+        text: verificationTemplate.text
+      });
+
+      if (!emailResult || !emailResult.success) {
+        // Don't delete the user - they can try logging in again later
+        // Just return an error message
+        return res.status(500).json({
+          success: false,
+          message: emailResult?.message || 'The verification link can\'t be sent to your email.',
+          emailSent: false
+        });
+      }
+
+      console.log(`✅ Verification email sent to ${newUser.email}`);
+      // Return verification token so frontend can redirect
+      return res.status(200).json({
+        success: true,
+        message: 'Link de verificação enviado para seu email. Clique no link para completar seu cadastro.',
+        requiresVerification: true,
+        verificationToken: emailVerificationToken,
+        emailSent: true
       });
     }
 
@@ -184,6 +235,12 @@ export const login = async (req, res, next) => {
         success: false,
         message: 'Email ou senha inválidos.'
       });
+    }
+
+    // Auto-authorize user on first login if not already authorized
+    if (!user.isAuthorized) {
+      user.isAuthorized = true;
+      await user.save();
     }
 
     // Generate JWT

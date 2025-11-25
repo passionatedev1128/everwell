@@ -7,23 +7,29 @@ const createTransporter = () => {
   // Common SMTP configurations
   const configs = {
     gmail: {
-      service: 'gmail',
+      // Try explicit SMTP settings first (more reliable in some network environments)
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // Use STARTTLS
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD // Gmail requires App Password
       },
-      // Connection timeout settings (reduced to fail faster and not block startup)
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
+      // Connection timeout settings (increased for better reliability)
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 30000, // 30 seconds
+      socketTimeout: 30000, // 30 seconds
       // Retry settings
       pool: true,
       maxConnections: 1,
       maxMessages: 3,
       // Gmail specific settings
       tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false, // Set to false to avoid certificate issues in some environments
+        minVersion: 'TLSv1.2'
       },
+      // Additional connection options
+      requireTLS: true,
       // Debug (set to true for troubleshooting)
       debug: process.env.NODE_ENV === 'development',
       logger: process.env.NODE_ENV === 'development'
@@ -112,8 +118,8 @@ export const verifyEmailConfig = async () => {
   }
 };
 
-// Send email with retry mechanism
-export const sendEmail = async ({ to, subject, html, text, attachments }, retries = 2) => {
+// Send email with retry mechanism and timeout
+export const sendEmail = async ({ to, subject, html, text, attachments }, retries = 1) => {
   try {
     // Don't send emails if email is not configured
     const hasPassword = process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD;
@@ -123,8 +129,6 @@ export const sendEmail = async ({ to, subject, html, text, attachments }, retrie
       return { success: false, message: 'Email not configured' };
     }
 
-    const transporter = createTransporter();
-    
     const mailOptions = {
       from: `"EverWell" <${process.env.EMAIL_USER}>`,
       to: Array.isArray(to) ? to.join(', ') : to,
@@ -134,25 +138,68 @@ export const sendEmail = async ({ to, subject, html, text, attachments }, retrie
       ...(attachments && { attachments })
     };
 
-    // Retry logic for connection timeouts
+    // Retry logic with timeout wrapper
     let lastError;
+    const EMAIL_TIMEOUT = 45000; // 45 seconds max per attempt (allows for slow connections)
+    
     for (let attempt = 0; attempt <= retries; attempt++) {
+      let transporter;
       try {
-        const info = await transporter.sendMail(mailOptions);
+        // Create a fresh transporter for each attempt to avoid stale connections
+        transporter = createTransporter();
+        
+        // Wrap sendMail in a timeout promise
+        const sendPromise = transporter.sendMail(mailOptions);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email send timeout')), EMAIL_TIMEOUT)
+        );
+        
+        const info = await Promise.race([sendPromise, timeoutPromise]);
+        
+        // Close transporter on success
+        transporter.close();
+        
         console.log(`📧 Email sent to ${to}: ${info.messageId}`);
         return { success: true, messageId: info.messageId };
       } catch (error) {
         lastError = error;
-        // Only retry on connection/timeout errors
-        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET' || error.code === 'ESOCKET') {
-          if (attempt < retries) {
-            const delay = (attempt + 1) * 2000; // 2s, 4s delays
-            console.warn(`⚠️ Connection error (attempt ${attempt + 1}/${retries + 1}). Retrying in ${delay/1000}s...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            continue;
+        
+        // Close transporter on error
+        if (transporter) {
+          try {
+            transporter.close();
+          } catch (closeError) {
+            // Ignore close errors
           }
         }
-        throw error; // Re-throw if not a retryable error or out of retries
+        
+        // Check if it's a timeout or connection error
+        const isTimeoutError = error.message === 'Email send timeout' || 
+                               error.message?.includes('timeout') ||
+                               error.code === 'ETIMEDOUT' || 
+                               error.code === 'ECONNRESET' || 
+                               error.code === 'ESOCKET';
+        
+        if (isTimeoutError) {
+          if (attempt < retries) {
+            const delay = (attempt + 1) * 2000; // 2s, 4s delays (increased)
+            console.warn(`⚠️ Connection timeout (attempt ${attempt + 1}/${retries + 1}). Retrying in ${delay/1000}s...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          } else {
+            // Final attempt failed
+            console.error(`❌ Failed to send verification email to ${to}: Connection timeout`);
+            return { 
+              success: false, 
+              error: 'Connection timeout', 
+              code: 'ETIMEDOUT',
+              message: 'The verification link can\'t be sent to your email due to connection timeout. Please check your internet connection and firewall settings.'
+            };
+          }
+        }
+        
+        // For non-timeout errors, throw immediately
+        throw error;
       }
     }
     
@@ -161,7 +208,7 @@ export const sendEmail = async ({ to, subject, html, text, attachments }, retrie
     console.error('❌ Error sending email:', error.message);
     
     // Provide helpful error messages
-    if (error.code === 'ETIMEDOUT' || error.code === 'ESOCKET') {
+    if (error.code === 'ETIMEDOUT' || error.code === 'ESOCKET' || error.message === 'Email send timeout') {
       console.error('💡 Troubleshooting tips:');
       console.error('   1. Check your internet connection');
       console.error('   2. Check if your firewall/antivirus is blocking SMTP (ports 587, 465)');
@@ -175,7 +222,14 @@ export const sendEmail = async ({ to, subject, html, text, attachments }, retrie
       console.error('   3. Gmail account has 2-Step Verification enabled');
     }
     
-    return { success: false, error: error.message, code: error.code };
+    return { 
+      success: false, 
+      error: error.message, 
+      code: error.code,
+      message: error.message === 'Email send timeout' 
+        ? 'The verification link can\'t be sent to your email due to connection timeout.'
+        : 'The verification link can\'t be sent to your email.'
+    };
   }
 };
 

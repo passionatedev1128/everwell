@@ -11,7 +11,12 @@ const FAQAccordion = () => {
         const response = await api.get('/faqs');
         setFaqs(response.data.faqs || []);
       } catch (error) {
-        console.error('Error fetching FAQs:', error);
+        // Only log error if it's not a connection refused error (backend not running)
+        // Connection refused is expected when backend is not running, and we have fallback FAQs
+        if (error.code !== 'ERR_NETWORK' && error.code !== 'ERR_CONNECTION_REFUSED') {
+          console.error('Error fetching FAQs:', error);
+        }
+        // Use fallback FAQs when backend is unavailable
         setFaqs([
           {
             question: 'O que é Cannabis Medicinal ?',

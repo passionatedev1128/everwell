@@ -100,6 +100,19 @@ const Login = () => {
         // Login flow
         const response = await api.post('/auth/login', data);
         if (response.data.success) {
+          // Check if user needs verification (non-registered user)
+          if (response.data.requiresVerification && response.data.verificationToken) {
+            if (response.data.emailSent) {
+              toast.success('Link de verificação enviado para seu email! Redirecionando...');
+              // Redirect to verification/registration completion page
+              navigate(`/complete-registration/${response.data.verificationToken}`);
+            } else {
+              toast.error('The verification link can\'t be sent to your email.');
+            }
+            return;
+          }
+          
+          // Normal login flow
           setToken(response.data.token);
           setUser(response.data.user);
           identifyContact(response.data.user);
@@ -115,7 +128,7 @@ const Login = () => {
           email: data.email
         });
         
-        if (response.data.success) {
+        if (response.data.success && response.data.emailSent) {
           toast.success('Link de verificação enviado para seu email! Clique no link para completar seu cadastro.');
           // Reset form
           reset({
@@ -126,6 +139,8 @@ const Login = () => {
           setTimeout(() => {
             setIsLogin(true);
           }, 2000);
+        } else if (response.data.success === false || !response.data.emailSent) {
+          toast.error('The verification link can\'t be sent to your email.');
         }
       }
     } catch (err) {
@@ -160,7 +175,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-accent flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className={`w-full ${isLogin ? 'max-w-md' : 'max-w-4xl'}`}>
+      <div className={`w-full ${isLogin ? 'max-w-md' : 'max-w-md'}`}>
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <h2 className="text-3xl font-bold text-center text-text-dark mb-2">
             {isLogin ? 'Login' : 'Criar Conta'}

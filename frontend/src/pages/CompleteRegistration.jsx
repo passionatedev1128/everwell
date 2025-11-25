@@ -8,6 +8,7 @@ import { trackSignUp } from '../utils/analytics';
 import { identifyContact } from '../utils/hubspot';
 import { trackSignUp as gtmTrackSignUp } from '../utils/gtm';
 import { uploadUserPhoto } from '../utils/api';
+import DatePicker from '../components/DatePicker';
 
 const CompleteRegistration = () => {
   const { token } = useParams();
@@ -19,7 +20,7 @@ const CompleteRegistration = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInputRef = useRef(null);
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, watch, getValues } = useForm();
 
   useEffect(() => {
     if (token) {
@@ -95,6 +96,7 @@ const CompleteRegistration = () => {
       }
 
       const requestData = {
+        name: data.name,
         password: data.password,
         phone: data.phone || undefined,
         gender: data.gender || undefined,
@@ -201,6 +203,26 @@ const CompleteRegistration = () => {
             <div className="border-b border-gray-200 pb-4 mb-4">
               <h3 className="text-lg font-semibold text-darkTeal mb-4">Informações Pessoais</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Completo *
+                  </label>
+                  <input
+                    type="text"
+                    {...register('name', { 
+                      required: 'Nome é obrigatório',
+                      minLength: {
+                        value: 2,
+                        message: 'Nome deve ter no mínimo 2 caracteres'
+                      }
+                    })}
+                    className="input-field"
+                    placeholder="Seu nome completo"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Gênero
@@ -212,8 +234,6 @@ const CompleteRegistration = () => {
                     <option value="">Selecione</option>
                     <option value="male">Masculino</option>
                     <option value="female">Feminino</option>
-                    <option value="other">Outro</option>
-                    <option value="prefer_not_to_say">Prefiro não informar</option>
                   </select>
                 </div>
 
@@ -221,10 +241,22 @@ const CompleteRegistration = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Data de Nascimento
                   </label>
-                  <input
-                    type="date"
-                    {...register('dateOfBirth')}
-                    className="input-field"
+                  <DatePicker
+                    value={watch('dateOfBirth') || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Update form value
+                      const currentValues = getValues();
+                      reset({
+                        ...currentValues,
+                        dateOfBirth: value
+                      });
+                    }}
+                    placeholder="Selecione a data de nascimento"
+                    maxDate={new Date()}
+                    showYearDropdown
+                    showMonthDropdown
+                    dropdownMode="select"
                   />
                 </div>
 

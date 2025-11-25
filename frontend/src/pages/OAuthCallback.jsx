@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { setToken, setUser } from '../utils/auth';
 import { toast } from 'react-hot-toast';
@@ -11,9 +11,17 @@ const OAuthCallback = () => {
   const token = searchParams.get('token');
   const success = searchParams.get('success');
   const error = searchParams.get('error');
+  const emailError = searchParams.get('emailError');
+  const processedRef = useRef(false);
 
   useEffect(() => {
+    // Prevent duplicate execution (e.g., from React StrictMode)
+    if (processedRef.current) {
+      return;
+    }
+
     if (error) {
+      processedRef.current = true;
       toast.error('Falha na autenticação. Tente novamente.');
       navigate('/login');
       return;
@@ -22,6 +30,7 @@ const OAuthCallback = () => {
     if (success && token) {
       // Decode token to get user info
       try {
+        processedRef.current = true;
         const payload = JSON.parse(atob(token.split('.')[1]));
         
         // Set token and user
@@ -37,17 +46,24 @@ const OAuthCallback = () => {
         trackLogin('google');
         gtmTrackLogin('google');
 
-        toast.success('Login realizado com sucesso!');
+        // Show email error if verification email couldn't be sent
+        if (emailError === 'true') {
+          toast.error('The verification link can\'t be sent to your email.');
+        } else {
+          toast.success('Login realizado com sucesso!');
+        }
         navigate('/');
       } catch (err) {
         console.error('Error processing OAuth callback:', err);
+        processedRef.current = true;
         toast.error('Erro ao processar autenticação.');
         navigate('/login');
       }
     } else {
+      processedRef.current = true;
       navigate('/login');
     }
-  }, [token, success, error, navigate]);
+  }, [token, success, error, emailError, navigate]);
 
   return (
     <div className="min-h-screen bg-bgSecondary flex items-center justify-center">

@@ -39,6 +39,10 @@ export const registerGoogleStrategy = () => {
                 user.googleId = profile.id;
                 user.provider = 'google';
                 user.emailVerified = true; // Google emails are verified
+                // Auto-authorize on first Google login if not already authorized
+                if (!user.isAuthorized) {
+                  user.isAuthorized = true;
+                }
                 await user.save();
                 return done(null, user);
               }
@@ -50,7 +54,7 @@ export const registerGoogleStrategy = () => {
                 googleId: profile.id,
                 provider: 'google',
                 emailVerified: true, // Google emails are pre-verified
-                isAuthorized: false, // Still needs admin authorization
+                isAuthorized: true, // Auto-authorize after first sign up
               });
 
               return done(null, user);

@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User.js';
 import { sendEmail } from '../config/email.js';
-import { welcomeEmailTemplate } from '../utils/emailTemplates.js';
+import { welcomeEmailTemplate, emailVerificationTemplate } from '../utils/emailTemplates.js';
 
 // @desc    Google OAuth callback
 // @route   GET /api/auth/google/callback
@@ -21,23 +22,44 @@ export const googleCallback = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
-    // Send welcome email for new users (async, don't wait)
+    // Send verification email for new users
+    let emailSent = true;
     if (user.provider === 'google' && user.createdAt && (Date.now() - new Date(user.createdAt).getTime()) < 60000) {
-      // User was just created (within last minute)
-      const welcomeTemplate = welcomeEmailTemplate(user.name);
-      sendEmail({
-        to: user.email,
-        subject: welcomeTemplate.subject,
-        html: welcomeTemplate.html,
-        text: welcomeTemplate.text
-      }).catch(err => {
-        console.error('Failed to send welcome email:', err);
-      });
+      // User was just created (within last minute) - send verification email
+      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      
+      user.emailVerificationToken = emailVerificationToken;
+      user.emailVerificationTokenExpires = emailVerificationTokenExpires;
+      await user.save();
+
+      const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, false);
+      try {
+        const emailResult = await sendEmail({
+          to: user.email,
+          subject: verificationTemplate.subject,
+          html: verificationTemplate.html,
+          text: verificationTemplate.text
+        });
+        emailSent = emailResult && emailResult.success;
+        if (emailSent) {
+          console.log(`✅ Verification email sent to ${user.email}`);
+        } else {
+          console.error(`❌ Failed to send verification email to ${user.email}:`, emailResult?.message || emailResult?.error);
+        }
+      } catch (err) {
+        console.error('❌ Error sending verification email:', err);
+        emailSent = false;
+      }
     }
 
-    // Redirect to frontend with token
+    // Redirect to frontend with token and email status
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
+    if (!emailSent) {
+      res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true&emailError=true`);
+    } else {
+      res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
+    }
   } catch (error) {
     next(error);
   }

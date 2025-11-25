@@ -88,6 +88,19 @@ const Dashboard = () => {
   const totalDocuments = user?.documents ? Object.keys(user.documents).filter(
     key => user.documents[key]?.url
   ).length : 0;
+  
+  // Calculate purchase statistics
+  const totalProducts = orders.reduce((sum, order) => 
+    sum + (order.products?.reduce((qty, item) => qty + item.quantity, 0) || 0), 0
+  );
+  const totalSpent = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+  const productCounts = {};
+  orders.forEach(order => {
+    order.products?.forEach(item => {
+      const productName = item.name || 'Produto desconhecido';
+      productCounts[productName] = (productCounts[productName] || 0) + item.quantity;
+    });
+  });
 
   return (
     <div className="min-h-screen bg-bgSecondary">
@@ -180,21 +193,85 @@ const Dashboard = () => {
                 <div>
                   <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Visão Geral</h2>
                   
+                  {/* User Information */}
+                  <div className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                    <h3 className="text-lg font-semibold text-darkTeal mb-4">Suas Informações</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-mediumTeal">Nome</p>
+                        <p className="text-darkTeal font-medium">{user?.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-mediumTeal">Email</p>
+                        <p className="text-darkTeal font-medium">{user?.email}</p>
+                      </div>
+                      {user?.phone && (
+                        <div>
+                          <p className="text-sm text-mediumTeal">Telefone</p>
+                          <p className="text-darkTeal font-medium">{user.phone}</p>
+                        </div>
+                      )}
+                      {user?.gender && (
+                        <div>
+                          <p className="text-sm text-mediumTeal">Gênero</p>
+                          <p className="text-darkTeal font-medium">
+                            {user.gender === 'male' ? 'Masculino' : user.gender === 'female' ? 'Feminino' : user.gender}
+                          </p>
+                        </div>
+                      )}
+                      {user?.dateOfBirth && (
+                        <div>
+                          <p className="text-sm text-mediumTeal">Data de Nascimento</p>
+                          <p className="text-darkTeal font-medium">
+                            {new Date(user.dateOfBirth).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm text-mediumTeal">Data de Cadastro</p>
+                        <p className="text-darkTeal font-medium">
+                          {new Date(user?.createdAt).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Stats Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div className="bg-bgSecondary rounded-lg p-4 border-l-4 border-primary">
                       <h3 className="text-sm font-medium text-mediumTeal mb-1">Total de Pedidos</h3>
                       <p className="text-3xl font-bold text-darkTeal">{orders.length}</p>
                     </div>
                     <div className="bg-bgSecondary rounded-lg p-4 border-l-4 border-primary">
-                      <h3 className="text-sm font-medium text-mediumTeal mb-1">Pedidos Pendentes</h3>
-                      <p className="text-3xl font-bold text-darkTeal">{pendingOrders}</p>
+                      <h3 className="text-sm font-medium text-mediumTeal mb-1">Produtos Comprados</h3>
+                      <p className="text-3xl font-bold text-darkTeal">{totalProducts}</p>
                     </div>
                     <div className="bg-bgSecondary rounded-lg p-4 border-l-4 border-primary">
-                      <h3 className="text-sm font-medium text-mediumTeal mb-1">Documentos Enviados</h3>
+                      <h3 className="text-sm font-medium text-mediumTeal mb-1">Total Gasto</h3>
+                      <p className="text-3xl font-bold text-primary">R$ {totalSpent.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-bgSecondary rounded-lg p-4 border-l-4 border-primary">
+                      <h3 className="text-sm font-medium text-mediumTeal mb-1">Documentos</h3>
                       <p className="text-3xl font-bold text-darkTeal">{totalDocuments}/3</p>
                     </div>
                   </div>
+
+                  {/* Products Purchased */}
+                  {Object.keys(productCounts).length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-xl font-semibold text-darkTeal mb-4">Produtos Comprados</h3>
+                      <div className="bg-bgSecondary rounded-lg p-4">
+                        <div className="space-y-2">
+                          {Object.entries(productCounts).map(([productName, quantity]) => (
+                            <div key={productName} className="flex justify-between items-center p-2 bg-white rounded-md">
+                              <span className="text-darkTeal font-medium">{productName}</span>
+                              <span className="text-primary font-semibold">Quantidade: {quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Recent Orders */}
                   <div className="mb-6">

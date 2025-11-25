@@ -169,7 +169,7 @@ const Home = () => {
         <div 
           className="absolute top-0 left-0 right-0 w-full h-full bg-cover bg-center"
           style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=80)',
+            backgroundImage: 'url(/images/landing_image.jpg)',
             marginTop: 0,
             paddingTop: 0,
           }}
@@ -199,13 +199,13 @@ const Home = () => {
             
             {/* Stacked headline: focus, performance, recovery */}
             <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 relative z-20">
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
                 focus
               </h2>
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
                 performance
               </h2>
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
                 recovery
               </h2>
             </div>
@@ -349,7 +349,7 @@ const Home = () => {
             backgroundVisible ? 'opacity-20' : 'opacity-0'
           }`}
           style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=2000&q=80)',
+            backgroundImage: 'url(/images/middle_image.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
@@ -438,7 +438,7 @@ const Home = () => {
                     className="product-card-image"
                     onError={(e) => {
                       // Fallback to a placeholder if image fails to load
-                      e.target.src = 'https://via.placeholder.com/400x300?text=Produto+EverWell';
+                      e.target.src = '';
                     }}
                   />
                   <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
@@ -461,7 +461,7 @@ const Home = () => {
                     className="product-card-image"
                     onError={(e) => {
                       // Fallback to a placeholder if image fails to load
-                      e.target.src = 'https://via.placeholder.com/400x300?text=Produto+EverWell';
+                      e.target.src = '';
                     }}
                   />
                   <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>

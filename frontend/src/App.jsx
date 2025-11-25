@@ -20,6 +20,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
+import UserDetail from './pages/UserDetail';
 import ProductDetail from './pages/ProductDetail';
 import Dashboard from './pages/Dashboard';
 import Cart from './pages/Cart';
@@ -161,6 +162,14 @@ function App() {
                 element={
                   <ProtectedRoute requireAuth requireAdmin>
                     <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users/:userId"
+                element={
+                  <ProtectedRoute requireAuth requireAdmin>
+                    <UserDetail />
                   </ProtectedRoute>
                 }
               />

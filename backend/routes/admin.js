@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUsers, toggleUserAuthorization, updateDocumentStatus, getAuditLogs, deleteUser, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages } from '../controllers/adminController.js';
+import { getAllUsers, getUserById, toggleUserAuthorization, updateDocumentStatus, getAuditLogs, deleteUser, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages } from '../controllers/adminController.js';
 import { getAllOrders, updateOrderStatus } from '../controllers/orderController.js';
 import { protect, requireAdmin } from '../middleware/auth.js';
 import { uploadProductImage } from '../config/upload.js';
@@ -11,6 +11,7 @@ router.use(protect);
 router.use(requireAdmin);
 
 router.get('/users', getAllUsers);
+router.get('/users/:userId', getUserById);
 router.patch('/users/documents/status', updateDocumentStatus);
 router.patch('/users/:id/authorize', toggleUserAuthorization);
 router.delete('/users/:id', deleteUser);
