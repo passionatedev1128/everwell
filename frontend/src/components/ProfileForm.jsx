@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { updateProfile } from '../utils/api';
+import { useState, useEffect, useRef } from 'react';
+import { updateProfile, uploadUserPhoto } from '../utils/api';
+import { toast } from 'react-hot-toast';
 
 const ProfileForm = ({ user, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
@@ -14,8 +15,10 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
     }
   });
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -73,6 +76,42 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
     }
   };
 
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+      return;
+    }
+    if (file.size > maxSize) {
+      toast.error('Tamanho máximo é 5MB.');
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const response = await uploadUserPhoto(file);
+      if (response.success) {
+        toast.success('Foto atualizada com sucesso!');
+        if (onUpdateSuccess) {
+          onUpdateSuccess();
+        }
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Erro ao atualizar foto.');
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Perfil</h2>
@@ -81,6 +120,52 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
         <p className="text-mediumTeal">Carregando...</p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Avatar Section */}
+          <div className="border-b pb-6">
+            <label className="form-label block mb-4">Foto de Perfil</label>
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                {user.photo ? (
+                  <img
+                    src={user.photo}
+                    alt={user.name}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-primary/20"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-semibold border-4 border-primary/20">
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                )}
+                {uploadingAvatar && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleAvatarChange}
+                  disabled={uploadingAvatar}
+                  className="hidden"
+                  id="avatar-upload"
+                />
+                <label
+                  htmlFor="avatar-upload"
+                  className={`inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors cursor-pointer ${
+                    uploadingAvatar ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {uploadingAvatar ? 'Enviando...' : 'Alterar Foto'}
+                </label>
+                <p className="text-xs text-mediumTeal mt-2">
+                  Formatos aceitos: JPG, PNG, WEBP. Tamanho máximo: 5MB.
+                </p>
+              </div>
+            </div>
+          </div>
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
               {error}

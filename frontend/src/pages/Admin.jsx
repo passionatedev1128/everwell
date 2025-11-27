@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
-import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages } from '../utils/api';
+import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages, getAllBlogsAdmin, getBlogById, createBlog, updateBlog, deleteBlog, getAllFeedbacksAdmin, updateFeedbackStatus, deleteFeedback, getAllNotificationsAdmin, createNotificationAdmin, sendNotificationToAllUsers, deleteNotificationAdmin } from '../utils/api';
 import AdminTable from '../components/AdminTable';
 import DatePicker from '../components/DatePicker';
 
@@ -43,6 +43,31 @@ const Admin = () => {
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
   const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
+  const [blogs, setBlogs] = useState([]);
+  const [blogsLoading, setBlogsLoading] = useState(false);
+  const [blogModal, setBlogModal] = useState({ open: false, blog: null, mode: 'create' });
+  const [blogForm, setBlogForm] = useState({
+    title: '',
+    contentMarkdown: '',
+    excerpt: '',
+    imageUrl: '',
+    tags: [],
+    published: false
+  });
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [feedbacksLoading, setFeedbacksLoading] = useState(false);
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState('all');
+  const [messages, setMessages] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messageModal, setMessageModal] = useState({ open: false, mode: 'single' });
+  const [messageForm, setMessageForm] = useState({
+    userId: '',
+    sendToAll: false,
+    title: '',
+    message: '',
+    type: 'info',
+    link: ''
+  });
 
   const totalUsers = users.length;
   const authorizedUsers = users.filter((user) => user.isAuthorized).length;
@@ -51,9 +76,24 @@ const Admin = () => {
   const deliveredOrders = orders.filter((order) => order.status === 'delivered').length;
   const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
   const processingOrders = orders.filter((order) => ['pending', 'processing', 'paid'].includes(order.status)).length;
+  const totalProducts = products.length;
+  const visibleProducts = products.filter((p) => p.visible).length;
+  const totalBlogs = blogs.length;
+  const publishedBlogs = blogs.filter((b) => b.published).length;
+  const totalFeedbacks = feedbacks.length;
+  const pendingFeedbacks = feedbacks.filter((f) => f.status === 'pending').length;
+  const totalMessages = messages.length;
+  const unreadMessages = messages.filter((m) => !m.read).length;
 
   useEffect(() => {
     isMountedRef.current = true;
+    // Load all data on initial mount for dashboard overview
+    fetchUsers();
+    fetchOrders();
+    fetchProducts();
+    fetchBlogs();
+    fetchFeedbacks();
+    fetchMessages();
     return () => {
       isMountedRef.current = false;
     };
@@ -69,6 +109,12 @@ const Admin = () => {
         fetchOrders();
       } else if (activeTab === 'products') {
         fetchProducts();
+      } else if (activeTab === 'blogs') {
+        fetchBlogs();
+      } else if (activeTab === 'feedbacks') {
+        fetchFeedbacks();
+      } else if (activeTab === 'messages') {
+        fetchMessages();
       }
     }, 150);
     return () => clearTimeout(timer);
@@ -117,6 +163,52 @@ const Admin = () => {
       toast.error('Erro ao carregar produtos.');
     } finally {
       setProductsLoading(false);
+    }
+  };
+
+  const fetchBlogs = async () => {
+    try {
+      setBlogsLoading(true);
+      const response = await getAllBlogsAdmin();
+      if (response.success) {
+        setBlogs(response.blogs || []);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erro ao carregar blogs.');
+      toast.error('Erro ao carregar blogs.');
+    } finally {
+      setBlogsLoading(false);
+    }
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      setFeedbacksLoading(true);
+      const status = feedbackStatusFilter !== 'all' ? feedbackStatusFilter : null;
+      const response = await getAllFeedbacksAdmin(status);
+      if (response.success) {
+        setFeedbacks(response.feedbacks || []);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erro ao carregar feedbacks.');
+      toast.error('Erro ao carregar feedbacks.');
+    } finally {
+      setFeedbacksLoading(false);
+    }
+  };
+
+  const fetchMessages = async () => {
+    try {
+      setMessagesLoading(true);
+      const response = await getAllNotificationsAdmin();
+      if (response.success) {
+        setMessages(response.notifications || []);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erro ao carregar mensagens.');
+      toast.error('Erro ao carregar mensagens.');
+    } finally {
+      setMessagesLoading(false);
     }
   };
 
@@ -657,7 +749,7 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6">
             <div className="flex items-center justify-between mb-4">
@@ -716,7 +808,82 @@ const Admin = () => {
 
           <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-mediumTeal uppercase tracking-wide">Status</span>
+              <span className="text-sm font-medium text-mediumTeal uppercase tracking-wide">Produtos</span>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex items-baseline">
+              <p className="text-3xl font-bold text-darkTeal">{totalProducts}</p>
+              <p className="ml-2 text-sm text-mediumTeal">total</p>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-green-600 font-medium">{visibleProducts} visíveis</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-mediumTeal uppercase tracking-wide">Blogs</span>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex items-baseline">
+              <p className="text-3xl font-bold text-darkTeal">{totalBlogs}</p>
+              <p className="ml-2 text-sm text-mediumTeal">artigos</p>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-green-600 font-medium">{publishedBlogs} publicados</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-mediumTeal uppercase tracking-wide">Feedbacks</span>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex items-baseline">
+              <p className="text-3xl font-bold text-darkTeal">{totalFeedbacks}</p>
+              <p className="ml-2 text-sm text-mediumTeal">total</p>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-amber-600 font-medium">{pendingFeedbacks} pendentes</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-mediumTeal uppercase tracking-wide">Mensagens</span>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex items-baseline">
+              <p className="text-3xl font-bold text-darkTeal">{totalMessages}</p>
+              <p className="ml-2 text-sm text-mediumTeal">enviadas</p>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-blue-600 font-medium">{unreadMessages} não lidas</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-mediumTeal uppercase tracking-wide">Status Geral</span>
               <div className="p-2 bg-primary/10 rounded-lg">
                 <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -724,13 +891,13 @@ const Admin = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between cursor-pointer hover:bg-primary/5 p-2 rounded transition-colors">
-                <span className="text-sm text-mediumTeal">Autorizados</span>
+              <div className="flex items-center justify-between cursor-pointer hover:bg-primary/5 p-2 rounded transition-colors" onClick={() => setActiveTab('users')}>
+                <span className="text-sm text-mediumTeal">Usuários Autorizados</span>
                 <span className="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded">{authorizedUsers}</span>
               </div>
-              <div className="flex items-center justify-between cursor-pointer hover:bg-primary/5 p-2 rounded transition-colors">
-                <span className="text-sm text-mediumTeal">Pendentes</span>
-                <span className="px-2 py-1 text-xs font-semibold text-amber-700 bg-amber-100 rounded">{pendingUsers}</span>
+              <div className="flex items-center justify-between cursor-pointer hover:bg-primary/5 p-2 rounded transition-colors" onClick={() => setActiveTab('orders')}>
+                <span className="text-sm text-mediumTeal">Pedidos Processando</span>
+                <span className="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded">{processingOrders}</span>
               </div>
             </div>
           </div>
@@ -774,6 +941,45 @@ const Admin = () => {
           >
             <span className="relative z-10">Produtos</span>
             {activeTab === 'products' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('blogs')}
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
+              activeTab === 'blogs'
+                ? 'bg-primary text-white shadow-md transform scale-105'
+                : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
+            }`}
+          >
+            <span className="relative z-10">Blogs</span>
+            {activeTab === 'blogs' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('feedbacks')}
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
+              activeTab === 'feedbacks'
+                ? 'bg-primary text-white shadow-md transform scale-105'
+                : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
+            }`}
+          >
+            <span className="relative z-10">Feedbacks</span>
+            {activeTab === 'feedbacks' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
+              activeTab === 'messages'
+                ? 'bg-primary text-white shadow-md transform scale-105'
+                : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
+            }`}
+          >
+            <span className="relative z-10">Mensagens</span>
+            {activeTab === 'messages' && (
               <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
             )}
           </button>
@@ -1191,10 +1397,19 @@ const Admin = () => {
                       </div>
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleOpenProductModal(product)}
+                          onClick={() => {
+                            handleOpenProductModal(product);
+                            // Focus on image upload after modal opens
+                            setTimeout(() => {
+                              const fileInput = document.querySelector('input[type="file"][accept*="image"]');
+                              if (fileInput) {
+                                fileInput.click();
+                              }
+                            }, 300);
+                          }}
                           className="flex-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary/90 transition-colors"
                         >
-                          Editar
+                          Atualizar
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(product)}
@@ -1209,6 +1424,570 @@ const Admin = () => {
               )}
             </div>
           </div>
+        )}
+
+        {activeTab === 'blogs' && (
+          <div 
+            className={`bg-white rounded-lg shadow-sm border border-primary/20 transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
+            <div className="px-6 py-4 border-b border-primary/20">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-darkTeal">Gerenciar Blogs</h2>
+                  <p className="text-sm text-mediumTeal mt-1">Crie, edite e remova artigos do blog</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setBlogForm({
+                      title: '',
+                      contentMarkdown: '',
+                      excerpt: '',
+                      imageUrl: '',
+                      tags: [],
+                      published: false
+                    });
+                    setBlogModal({ open: true, blog: null, mode: 'create' });
+                  }}
+                  className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Novo Artigo
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              {blogsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4" />
+                  <p className="text-mediumTeal text-sm font-medium">Carregando blogs...</p>
+                </div>
+              ) : blogs.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhum artigo cadastrado</h3>
+                  <p className="text-sm text-mediumTeal mb-4">Comece criando seu primeiro artigo.</p>
+                  <button
+                    onClick={() => {
+                      setBlogForm({
+                        title: '',
+                        contentMarkdown: '',
+                        excerpt: '',
+                        imageUrl: '',
+                        tags: [],
+                        published: false
+                      });
+                      setBlogModal({ open: true, blog: null, mode: 'create' });
+                    }}
+                    className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
+                  >
+                    Criar Artigo
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {blogs.map((blog) => (
+                    <div
+                      key={blog._id}
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
+                    >
+                      {blog.imageUrl && (
+                        <div className="mb-3">
+                          <img
+                            src={blog.imageUrl}
+                            alt={blog.title}
+                            className="w-full h-32 object-cover rounded-md"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <h3 className="text-lg font-semibold text-darkTeal mb-2 line-clamp-2">{blog.title}</h3>
+                      {blog.excerpt && (
+                        <p className="text-sm text-mediumTeal mb-3 line-clamp-2">{blog.excerpt}</p>
+                      )}
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`px-2 py-1 text-xs font-medium rounded ${
+                          blog.published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {blog.published ? 'Publicado' : 'Rascunho'}
+                        </span>
+                        {blog.tags && blog.tags.length > 0 && (
+                          <span className="text-xs text-mediumTeal">
+                            {blog.tags.length} tag{blog.tags.length > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setBlogForm({
+                              title: blog.title || '',
+                              contentMarkdown: blog.contentMarkdown || '',
+                              excerpt: blog.excerpt || '',
+                              imageUrl: blog.imageUrl || '',
+                              tags: blog.tags || [],
+                              published: blog.published || false
+                            });
+                            setBlogModal({ open: true, blog, mode: 'edit' });
+                          }}
+                          className="flex-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary/90 transition-colors"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (window.confirm(`Tem certeza que deseja deletar o artigo "${blog.title}"?`)) {
+                              try {
+                                const response = await deleteBlog(blog._id);
+                                if (response.success) {
+                                  toast.success('Artigo deletado com sucesso!');
+                                  fetchBlogs();
+                                }
+                              } catch (err) {
+                                toast.error(err.response?.data?.message || 'Erro ao deletar artigo.');
+                              }
+                            }
+                          }}
+                          className="px-3 py-2 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+                        >
+                          Deletar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'feedbacks' && (
+          <div 
+            className={`bg-white rounded-lg shadow-sm border border-primary/20 transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
+            <div className="px-6 py-4 border-b border-primary/20">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-darkTeal">Gerenciar Feedbacks</h2>
+                  <p className="text-sm text-mediumTeal mt-1">Visualize e gerencie feedbacks dos usuários</p>
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={feedbackStatusFilter}
+                    onChange={(e) => {
+                      setFeedbackStatusFilter(e.target.value);
+                      fetchFeedbacks();
+                    }}
+                    className="rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="all">Todos os status</option>
+                    <option value="pending">Pendente</option>
+                    <option value="reviewed">Revisado</option>
+                    <option value="resolved">Resolvido</option>
+                    <option value="archived">Arquivado</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              {feedbacksLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4" />
+                  <p className="text-mediumTeal text-sm font-medium">Carregando feedbacks...</p>
+                </div>
+              ) : feedbacks.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhum feedback encontrado</h3>
+                  <p className="text-sm text-mediumTeal">Ainda não há feedbacks no sistema.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {feedbacks.map((feedback) => (
+                    <div
+                      key={feedback._id}
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <p className="font-semibold text-darkTeal">{feedback.name}</p>
+                            <p className="text-sm text-mediumTeal">{feedback.email}</p>
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <svg
+                                  key={i}
+                                  className={`w-4 h-4 ${i < feedback.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-sm text-mediumTeal mb-3">{feedback.message}</p>
+                          <p className="text-xs text-mediumTeal/70">
+                            {new Date(feedback.createdAt).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <select
+                            value={feedback.status}
+                            onChange={async (e) => {
+                              try {
+                                const response = await updateFeedbackStatus(feedback._id, e.target.value);
+                                if (response.success) {
+                                  toast.success('Status atualizado!');
+                                  fetchFeedbacks();
+                                }
+                              } catch (err) {
+                                toast.error(err.response?.data?.message || 'Erro ao atualizar status.');
+                              }
+                            }}
+                            className="rounded-md border border-primary/30 bg-white px-2 py-1 text-xs text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          >
+                            <option value="pending">Pendente</option>
+                            <option value="reviewed">Revisado</option>
+                            <option value="resolved">Resolvido</option>
+                            <option value="archived">Arquivado</option>
+                          </select>
+                          <button
+                            onClick={async () => {
+                              if (window.confirm('Tem certeza que deseja deletar este feedback?')) {
+                                try {
+                                  const response = await deleteFeedback(feedback._id);
+                                  if (response.success) {
+                                    toast.success('Feedback deletado!');
+                                    fetchFeedbacks();
+                                  }
+                                } catch (err) {
+                                  toast.error(err.response?.data?.message || 'Erro ao deletar feedback.');
+                                }
+                              }
+                            }}
+                            className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Deletar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'messages' && (
+          <div 
+            className={`bg-white rounded-lg shadow-sm border border-primary/20 transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
+            <div className="px-6 py-4 border-b border-primary/20">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-darkTeal">Gerenciar Mensagens</h2>
+                  <p className="text-sm text-mediumTeal mt-1">Envie notificações para usuários específicos ou todos os usuários</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setMessageForm({
+                      userId: '',
+                      sendToAll: false,
+                      title: '',
+                      message: '',
+                      type: 'info',
+                      link: ''
+                    });
+                    setMessageModal({ open: true, mode: 'single' });
+                  }}
+                  className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Nova Mensagem
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              {messagesLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4" />
+                  <p className="text-mediumTeal text-sm font-medium">Carregando mensagens...</p>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhuma mensagem encontrada</h3>
+                  <p className="text-sm text-mediumTeal">Comece enviando sua primeira mensagem.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message._id}
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <p className="font-semibold text-darkTeal">{message.title}</p>
+                            <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                              message.type === 'info' ? 'bg-blue-100 text-blue-700' :
+                              message.type === 'success' ? 'bg-green-100 text-green-700' :
+                              message.type === 'warning' ? 'bg-amber-100 text-amber-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {message.type}
+                            </span>
+                            {message.read && (
+                              <span className="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700">
+                                Lida
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-mediumTeal mb-2">{message.message}</p>
+                          <div className="flex items-center gap-4 text-xs text-mediumTeal/70">
+                            <span>Para: {message.userId?.name || 'Usuário'} ({message.userId?.email || 'N/A'})</span>
+                            <span>
+                              {new Date(message.createdAt).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            if (window.confirm('Tem certeza que deseja deletar esta mensagem?')) {
+                              try {
+                                const response = await deleteNotificationAdmin(message._id);
+                                if (response.success) {
+                                  toast.success('Mensagem deletada!');
+                                  fetchMessages();
+                                }
+                              } catch (err) {
+                                toast.error(err.response?.data?.message || 'Erro ao deletar mensagem.');
+                              }
+                            }
+                          }}
+                          className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+                        >
+                          Deletar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Message Modal */}
+        {messageModal.open && createPortal(
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setMessageModal({ open: false, mode: 'single' })}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
+                  <h2 className="text-xl font-semibold text-darkTeal">Nova Mensagem</h2>
+                  <button
+                    onClick={() => setMessageModal({ open: false, mode: 'single' })}
+                    className="text-mediumTeal hover:text-darkTeal transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    if (messageForm.sendToAll) {
+                      const response = await sendNotificationToAllUsers({
+                        title: messageForm.title,
+                        message: messageForm.message,
+                        type: messageForm.type,
+                        link: messageForm.link || null
+                      });
+                      if (response.success) {
+                        toast.success(`Mensagem enviada para ${response.count} usuário(s)!`);
+                        setMessageModal({ open: false, mode: 'single' });
+                        setMessageForm({
+                          userId: '',
+                          sendToAll: false,
+                          title: '',
+                          message: '',
+                          type: 'info',
+                          link: ''
+                        });
+                        fetchMessages();
+                      }
+                    } else {
+                      if (!messageForm.userId) {
+                        toast.error('Selecione um usuário ou marque "Enviar para todos".');
+                        return;
+                      }
+                      const response = await createNotificationAdmin({
+                        userId: messageForm.userId,
+                        title: messageForm.title,
+                        message: messageForm.message,
+                        type: messageForm.type,
+                        link: messageForm.link || null
+                      });
+                      if (response.success) {
+                        toast.success('Mensagem enviada com sucesso!');
+                        setMessageModal({ open: false, mode: 'single' });
+                        setMessageForm({
+                          userId: '',
+                          sendToAll: false,
+                          title: '',
+                          message: '',
+                          type: 'info',
+                          link: ''
+                        });
+                        fetchMessages();
+                      }
+                    }
+                  } catch (err) {
+                    toast.error(err.response?.data?.message || 'Erro ao enviar mensagem.');
+                  }
+                }} className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="sendToAll"
+                      checked={messageForm.sendToAll}
+                      onChange={(e) => setMessageForm({ ...messageForm, sendToAll: e.target.checked, userId: '' })}
+                      className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                    />
+                    <label htmlFor="sendToAll" className="text-sm font-medium text-darkTeal">
+                      Enviar para todos os usuários
+                    </label>
+                  </div>
+                  {!messageForm.sendToAll && (
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">
+                        Usuário *
+                      </label>
+                      <select
+                        value={messageForm.userId}
+                        onChange={(e) => setMessageForm({ ...messageForm, userId: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        required={!messageForm.sendToAll}
+                      >
+                        <option value="">Selecione um usuário</option>
+                        {users.map((user) => (
+                          <option key={user._id} value={user._id}>
+                            {user.name} ({user.email})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Título *
+                    </label>
+                    <input
+                      type="text"
+                      value={messageForm.title}
+                      onChange={(e) => setMessageForm({ ...messageForm, title: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Mensagem *
+                    </label>
+                    <textarea
+                      value={messageForm.message}
+                      onChange={(e) => setMessageForm({ ...messageForm, message: e.target.value })}
+                      rows={4}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Tipo
+                    </label>
+                    <select
+                      value={messageForm.type}
+                      onChange={(e) => setMessageForm({ ...messageForm, type: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="info">Info</option>
+                      <option value="success">Sucesso</option>
+                      <option value="warning">Aviso</option>
+                      <option value="error">Erro</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Link (opcional)
+                    </label>
+                    <input
+                      type="url"
+                      value={messageForm.link}
+                      onChange={(e) => setMessageForm({ ...messageForm, link: e.target.value })}
+                      placeholder="https://example.com"
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                    <button
+                      type="button"
+                      onClick={() => setMessageModal({ open: false, mode: 'single' })}
+                      className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      Enviar Mensagem
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>,
+          document.body
         )}
 
         {selectedOrder && createPortal(
@@ -1577,6 +2356,148 @@ const Admin = () => {
                       className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
                     >
                       {productModal.mode === 'create' ? 'Criar Produto' : 'Salvar Alterações'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Blog Create/Edit Modal */}
+        {blogModal.open && createPortal(
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
+                  <h2 className="text-2xl font-semibold text-darkTeal">
+                    {blogModal.mode === 'create' ? 'Novo Artigo' : 'Editar Artigo'}
+                  </h2>
+                  <button
+                    onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
+                    className="text-mediumTeal hover:text-darkTeal transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    if (blogModal.mode === 'create') {
+                      const response = await createBlog(blogForm);
+                      if (response.success) {
+                        toast.success('Artigo criado com sucesso!');
+                        setBlogModal({ open: false, blog: null, mode: 'create' });
+                        setBlogForm({
+                          title: '',
+                          contentMarkdown: '',
+                          excerpt: '',
+                          imageUrl: '',
+                          tags: [],
+                          published: false
+                        });
+                        fetchBlogs();
+                      }
+                    } else {
+                      const response = await updateBlog(blogModal.blog._id, blogForm);
+                      if (response.success) {
+                        toast.success('Artigo atualizado com sucesso!');
+                        setBlogModal({ open: false, blog: null, mode: 'create' });
+                        fetchBlogs();
+                      }
+                    }
+                  } catch (err) {
+                    toast.error(err.response?.data?.message || 'Erro ao salvar artigo.');
+                  }
+                }} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-2">Título *</label>
+                    <input
+                      type="text"
+                      value={blogForm.title}
+                      onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-2">Conteúdo (Markdown) *</label>
+                    <textarea
+                      value={blogForm.contentMarkdown}
+                      onChange={(e) => setBlogForm({ ...blogForm, contentMarkdown: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      rows={12}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-2">Resumo (máx. 300 caracteres)</label>
+                    <textarea
+                      value={blogForm.excerpt}
+                      onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      rows={3}
+                      maxLength={300}
+                    />
+                    <p className="text-xs text-mediumTeal mt-1">{blogForm.excerpt.length}/300 caracteres</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-2">URL da Imagem</label>
+                    <input
+                      type="url"
+                      value={blogForm.imageUrl}
+                      onChange={(e) => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-2">Tags (separadas por vírgula)</label>
+                    <input
+                      type="text"
+                      value={blogForm.tags.join(', ')}
+                      onChange={(e) => setBlogForm({ 
+                        ...blogForm, 
+                        tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) 
+                      })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="cannabis, CBD, saúde, bem-estar"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="published"
+                      checked={blogForm.published}
+                      onChange={(e) => setBlogForm({ ...blogForm, published: e.target.checked })}
+                      className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                    />
+                    <label htmlFor="published" className="text-sm font-medium text-darkTeal">
+                      Publicar artigo
+                    </label>
+                  </div>
+                  <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                    <button
+                      type="button"
+                      onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
+                      className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      {blogModal.mode === 'create' ? 'Criar Artigo' : 'Salvar Alterações'}
                     </button>
                   </div>
                 </form>

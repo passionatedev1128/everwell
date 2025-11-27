@@ -1202,3 +1202,75 @@ html {
   display: none;  /* Chrome, Safari, Opera */
 }
 
+/* Elegant fade-in animation for "every day." text */
+@keyframes elegantFadeIn {
+  0% {
+    opacity: 0.7;
+    transform: translateY(5px) scale(0.98);
+    text-shadow: 0 0 15px rgba(187, 224, 42, 0.3);
+    letter-spacing: 0.02em;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+    text-shadow: 0 0 40px rgba(187, 224, 42, 0.6), 0 0 80px rgba(187, 224, 42, 0.4);
+    letter-spacing: 0.03em;
+  }
+  100% {
+    opacity: 0.9;
+    transform: translateY(0px) scale(1);
+    text-shadow: 0 0 25px rgba(187, 224, 42, 0.5), 0 0 50px rgba(187, 224, 42, 0.3);
+    letter-spacing: 0.02em;
+  }
+}
+
+.animate-elegant-fade-in {
+  animation: elegantFadeIn 3s ease-in-out infinite;
+  will-change: transform, opacity, text-shadow;
+}
+
+/* Loading bar animation for JotForm */
+@keyframes loadingBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-loading-bar {
+  animation: loadingBar 2s ease-in-out infinite;
+}
+
+/* Metronic-style combobox with top arrow */
+select.metronic-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234fb3a8' d='M6 0L0 6h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+  border: 1px solid rgba(79, 179, 168, 0.3);
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+select.metronic-select:focus {
+  border-color: rgb(79, 179, 168);
+  outline: none;
+  ring: 2px;
+  ring-color: rgba(79, 179, 168, 0.2);
+}
+
+/* Apply to all select elements by default */
+select:not([multiple]) {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234fb3a8' d='M6 0L0 6h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+

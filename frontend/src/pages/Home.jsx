@@ -7,6 +7,7 @@ import Carousel from '../components/Carousel';
 import { initScrollAnimations } from '../utils/scrollAnimations';
 import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
 import { trackEvent as trackGtmEvent } from '../utils/gtm';
+import api from '../utils/api';
 
 const trustBadges = [
   {
@@ -53,23 +54,7 @@ const processSteps = [
   }
 ];
 
-const productHighlights = [
-  {
-    name: 'EverWell Focus Gummies',
-    description: 'Blend inteligente de CBD e nootrópicos para foco sustentado e equilíbrio mental.',
-    image: 'https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&fit=crop&w=900&q=80'
-  },
-  {
-    name: 'EverWell Performance Oil',
-    description: 'Formulação full spectrum com absorção otimizada e controle preciso de dosagem.',
-    image: 'https://images.unsplash.com/photo-1617653513183-0e3d963902df?auto=format&fit=crop&w=900&q=80'
-  },
-  {
-    name: 'EverWell Recovery Cream',
-    description: 'Tecnologia transdérmica com CBD e ativos naturais para alívio e recuperação muscular.',
-    image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf100?auto=format&fit=crop&w=900&q=80'
-  }
-];
+// productHighlights will be fetched from API
 
 const testimonials = [
   {
@@ -125,6 +110,7 @@ const Home = () => {
   const [backgroundVisible, setBackgroundVisible] = useState(false);
   const [showJotForm, setShowJotForm] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [productHighlights, setProductHighlights] = useState([]);
   const backgroundSectionRef = useRef(null);
 
   const handleCloseModal = () => {
@@ -153,6 +139,30 @@ const Home = () => {
     if (backgroundSectionRef.current) {
       observer.observe(backgroundSectionRef.current);
     }
+
+    // Fetch products for highlights
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get('/products');
+        const products = response.data.products || [];
+        // Get first 3 visible products with images
+        const highlights = products
+          .filter(p => p.visible && p.images && p.images.length > 0)
+          .slice(0, 3)
+          .map(p => ({
+            name: p.name,
+            description: p.description || p.subtitle || '',
+            image: p.images[0] || ''
+          }));
+        setProductHighlights(highlights);
+      } catch (error) {
+        // Silently fail and use empty array
+        console.error('Error fetching products:', error);
+        setProductHighlights([]);
+      }
+    };
+
+    fetchProducts();
 
     return () => {
       if (backgroundSectionRef.current) {
@@ -210,8 +220,15 @@ const Home = () => {
               </h2>
             </div>
             
-            {/* every day. in lime green */}
-            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal text-lime-green lowercase italic mb-12 sm:mb-16 relative z-20" style = {{color: "#BBE02A", fontFamily: "monospace"}}>
+            {/* every day. in lime green with elegant animation */}
+            <p 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal text-lime-green lowercase italic mb-12 sm:mb-16 relative z-20 animate-elegant-fade-in" 
+              style={{
+                color: "#BBE02A", 
+                fontFamily: "monospace",
+                animationDelay: '1.2s'
+              }}
+            >
               every day.
             </p>
           </div>
@@ -431,22 +448,26 @@ const Home = () => {
           {productHighlights.length > 3 ? (
             <Carousel
               items={productHighlights.map((product) => (
-                <div key={product.name} className="product-card space-y-3 sm:space-y-4 mx-2">
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="product-card-image"
-                    onError={(e) => {
-                      // Fallback to a placeholder if image fails to load
-                      e.target.src = '';
-                    }}
-                  />
-                  <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
-                  <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
-                  <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
-                    Detalhes
-                    <span aria-hidden>→</span>
-                  </Link>
+                <div key={product.name} className="product-card space-y-3 sm:space-y-4 mx-2 relative overflow-visible">
+                  <div className="relative -mt-8 -mx-4 mb-4" style={{ transform: 'scale(0.85)' }}>
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      onError={(e) => {
+                        // Fallback to a placeholder if image fails to load
+                        e.target.src = '';
+                      }}
+                    />
+                  </div>
+                  <div className="pt-4">
+                    <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
+                    <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
+                    <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                      Detalhes
+                      <span aria-hidden>→</span>
+                    </Link>
+                  </div>
                 </div>
               ))}
               itemsPerView={3}
@@ -454,22 +475,26 @@ const Home = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {productHighlights.map((product) => (
-                <div key={product.name} className="product-card space-y-3 sm:space-y-4">
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="product-card-image"
-                    onError={(e) => {
-                      // Fallback to a placeholder if image fails to load
-                      e.target.src = '';
-                    }}
-                  />
-                  <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
-                  <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
-                  <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
-                    Detalhes
-                    <span aria-hidden>→</span>
-                  </Link>
+                <div key={product.name} className="product-card space-y-3 sm:space-y-4 relative overflow-visible">
+                  <div className="relative -mt-8 -mx-4 mb-4" style={{ transform: 'scale(0.85)' }}>
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      onError={(e) => {
+                        // Fallback to a placeholder if image fails to load
+                        e.target.src = '';
+                      }}
+                    />
+                  </div>
+                  <div className="pt-4">
+                    <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
+                    <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
+                    <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                      Detalhes
+                      <span aria-hidden>→</span>
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
@@ -489,26 +514,40 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {testimonials.map((testimonial) => (
-              <div key={testimonial.name} className="card text-left flex flex-col gap-6 scroll-animate transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
+              <div 
+                key={testimonial.name} 
+                className="card text-left flex flex-col gap-4 scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group"
+                style={{
+                  transform: 'perspective(1000px) rotateX(0deg)',
+                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'perspective(1000px) rotateX(2deg) translateY(-8px)';
+                  e.currentTarget.style.boxShadow = '0 20px 60px -15px rgba(79, 179, 168, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(0px)';
+                  e.currentTarget.style.boxShadow = '';
+                }}
+              >
                 <div className="flex items-center gap-4">
                   <img
                     src={testimonial.avatar}
                     alt={testimonial.name}
-                    className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60"
+                    className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40"
                   />
                   <div>
-                    <p className="font-semibold text-darkTeal">{testimonial.name}</p>
-                    <p className="text-xs uppercase tracking-[0.35em] text-primary/70">{testimonial.title}</p>
+                    <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary">{testimonial.name}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 mb-2">
+                <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20" fill="currentColor">
+                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
-                <p className="text-darkTeal/80 italic leading-relaxed">“{testimonial.quote}”</p>
+                <p className="text-darkTeal/80 leading-relaxed mt-2">"{testimonial.quote}"</p>
               </div>
             ))}
           </div>
@@ -523,11 +562,23 @@ const Home = () => {
             <h2 className="section-title text-2xl sm:text-3xl md:text-4xl">Uma plataforma completa para alta performance e bem-estar</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-            {differentiators.map((item) => (
-              <div key={item.title} className="card space-y-4">
-                <span className="text-4xl">{item.icon}</span>
-                <h3 className="text-xl font-semibold text-darkTeal">{item.title}</h3>
-                <p className="muted-text">{item.copy}</p>
+            {differentiators.map((item, index) => (
+              <div 
+                key={item.title} 
+                className="card space-y-4 overflow-hidden group relative"
+                style={{
+                  backgroundImage: `url(/images/differentiator-${index + 1}.jpg)`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  minHeight: '300px'
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10 space-y-4">
+                  <span className="text-4xl block">{item.icon}</span>
+                  <h3 className="text-xl font-semibold text-white group-hover:text-white transition-colors duration-300">{item.title}</h3>
+                  <p className="text-white/90 group-hover:text-white transition-colors duration-300">{item.copy}</p>
+                </div>
               </div>
             ))}
           </div>

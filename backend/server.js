@@ -29,6 +29,7 @@ import userRoutes from './routes/users.js';
 import orderRoutes from './routes/orders.js';
 import leadRoutes from './routes/leads.js';
 import feedbackRoutes from './routes/feedback.js';
+import notificationRoutes from './routes/notifications.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -98,6 +99,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handling
 app.use(errorHandler);

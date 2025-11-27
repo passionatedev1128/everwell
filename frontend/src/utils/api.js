@@ -223,5 +223,88 @@ export const uploadUserPhoto = async (file) => {
   return response.data;
 };
 
+// Blog API functions (Admin)
+export const getAllBlogsAdmin = async () => {
+  const response = await api.get('/blogs/admin/all');
+  return response.data;
+};
+
+export const getBlogById = async (blogId) => {
+  const response = await api.get(`/blogs/admin/${blogId}`);
+  return response.data;
+};
+
+export const createBlog = async (blogData) => {
+  const response = await api.post('/blogs/admin', blogData);
+  return response.data;
+};
+
+export const updateBlog = async (blogId, blogData) => {
+  const response = await api.patch(`/blogs/admin/${blogId}`, blogData);
+  return response.data;
+};
+
+export const deleteBlog = async (blogId) => {
+  const response = await api.delete(`/blogs/admin/${blogId}`);
+  return response.data;
+};
+
+// Feedback API functions (Admin)
+export const getAllFeedbacksAdmin = async (status = null) => {
+  const params = status && status !== 'all' ? { status } : {};
+  const response = await api.get('/feedback', { params });
+  return response.data;
+};
+
+export const updateFeedbackStatus = async (feedbackId, status, response) => {
+  const response_data = await api.patch(`/feedback/${feedbackId}/status`, { status, response });
+  return response_data.data;
+};
+
+export const deleteFeedback = async (feedbackId) => {
+  const response = await api.delete(`/feedback/${feedbackId}`);
+  return response.data;
+};
+
+// Notification API functions
+export const getNotifications = async () => {
+  const response = await api.get('/notifications');
+  return response.data;
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  const response = await api.patch(`/notifications/${notificationId}/read`);
+  return response.data;
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const response = await api.patch('/notifications/read-all');
+  return response.data;
+};
+
+// Admin notification/message functions
+export const getAllNotificationsAdmin = async (userId = null, read = null) => {
+  const params = {};
+  if (userId) params.userId = userId;
+  if (read !== null) params.read = read;
+  const response = await api.get('/notifications/admin/all', { params });
+  return response.data;
+};
+
+export const createNotificationAdmin = async (notificationData) => {
+  const response = await api.post('/notifications/admin', notificationData);
+  return response.data;
+};
+
+export const sendNotificationToAllUsers = async (notificationData) => {
+  const response = await api.post('/notifications/admin/send-all', notificationData);
+  return response.data;
+};
+
+export const deleteNotificationAdmin = async (notificationId) => {
+  const response = await api.delete(`/notifications/admin/${notificationId}`);
+  return response.data;
+};
+
 export default api;
 

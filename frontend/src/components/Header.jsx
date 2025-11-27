@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { isAuthenticated, getUser, removeToken } from '../utils/auth';
 import { useCart } from '../context/CartContext';
 import FeedbackModal from './FeedbackModal';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -99,27 +100,28 @@ const Header = () => {
 
           <div className="hidden lg:flex items-center gap-3">
             {authenticated && (
-              <button
-                onClick={() => setIsFeedbackModalOpen(true)}
-                className="px-3 py-2 text-sm font-medium text-[rgb(79,179,168)]/80 hover:text-[rgb(79,179,168)] transition-colors flex items-center gap-2"
-                title="Deixe seu feedback"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-                Feedback
-              </button>
-            )}
-            <Link to="/agendar" className="btn-primary">
-              Agendar consulta
-            </Link>
-              {authenticated ? (
-              <div className="relative" ref={accountMenuRef}>
+              <>
                 <button
-                  type="button"
-                  onClick={() => setIsAccountMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-all duration-300 group"
+                  onClick={() => setIsFeedbackModalOpen(true)}
+                  className="px-3 py-2 text-sm font-medium text-[rgb(79,179,168)]/80 hover:text-[rgb(79,179,168)] transition-colors flex items-center gap-2"
+                  title="Deixe seu feedback"
                 >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                  Feedback
+                </button>
+              </>
+            )}
+              {authenticated ? (
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <div className="relative" ref={accountMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsAccountMenuOpen((prev) => !prev)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-all duration-300 group"
+                  >
                   {user?.photo ? (
                     <img 
                       src={user.photo} 
@@ -147,15 +149,25 @@ const Header = () => {
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
-                </button>
+                  </button>
 
-                {isAccountMenuOpen && (
+                  {isAccountMenuOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm animate-scale-in">
                     <div className="absolute top-0 right-4 -mt-2 w-4 h-4 bg-white border-l border-t border-primary/20 transform rotate-45"></div>
                     <div className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent">
                       <p className="text-sm font-semibold text-darkTeal">{user?.name}</p>
                     </div>
                     <div className="py-1">
+                      <Link
+                        to="/agendar"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors rounded-md mx-1"
+                        onClick={() => setIsAccountMenuOpen(false)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Agendar consulta
+                      </Link>
                       <Link
                         to="/dashboard"
                         className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-darkTeal hover:bg-primary/10 transition-colors rounded-md mx-1"
@@ -193,11 +205,16 @@ const Header = () => {
                       </button>
                     </div>
                   </div>
-                )}
+                  )}
+                </div>
               </div>
             ) : (
-              <Link to="/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors">
-                <svg className="w-6 h-6 text-[rgb(79,179,168)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <Link to="/login" className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 hover:bg-primary/20 transition-all duration-300 hover:scale-110">
+                <img src="/icons/user-login-icon.svg" alt="Entrar" className="w-7 h-7" onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }} />
+                <svg className="w-6 h-6 text-[rgb(79,179,168)] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </Link>

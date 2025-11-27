@@ -114,8 +114,9 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
             {users.map((user) => (
               <tr 
                 key={user._id} 
-                className="hover:bg-primary/5 transition-colors cursor-pointer"
+                className="hover:bg-primary/10 transition-all duration-200 cursor-pointer border-b border-primary/10"
                 onClick={() => navigate(`/admin/users/${user._id}`)}
+                style={{ transition: 'background-color 0.2s ease' }}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-darkTeal">{user.name}</div>

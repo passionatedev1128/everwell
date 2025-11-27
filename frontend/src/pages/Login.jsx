@@ -263,7 +263,7 @@ const Login = () => {
               disabled={loading}
               className="w-full btn-primary disabled:opacity-50"
             >
-              {loading ? 'Processando...' : (isLogin ? 'FAZER LOGIN' : 'Enviar Link de Verificação')}
+              {loading ? (isLogin ? 'Processando...' : 'Enviar Link de Verificação') : (isLogin ? 'FAZER LOGIN' : 'Enviar Link de Verificação')}
             </button>
           </form>
 

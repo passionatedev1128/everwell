@@ -96,24 +96,15 @@ const FAQAccordion = () => {
               className="px-6 md:px-8 pb-6 text-darkTeal/80 leading-relaxed border-t border-primary/20 bg-gradient-to-br from-white/80 to-primary/5 animate-fade-in-up"
               style={{
                 animation: 'slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                transformOrigin: 'top'
+                transformOrigin: 'top',
+                marginTop: '10px',
+                display: 'block'
               }}
             >
               <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 {faq.answer}
               </div>
             </div>
-          )}
-          {openIndex !== index && openIndex !== null && (
-            <div 
-              className="px-6 md:px-8 pb-0 text-darkTeal/80 leading-relaxed border-t border-primary/20 bg-gradient-to-br from-white/80 to-primary/5"
-              style={{
-                animation: 'slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                transformOrigin: 'top',
-                maxHeight: 0,
-                overflow: 'hidden'
-              }}
-            />
           )}
         </div>
       ))}

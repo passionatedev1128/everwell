@@ -23,7 +23,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
         message: ''
       });
     }
-  }, [isOpen, user]);
+  }, [isOpen]); // Only depend on isOpen to prevent infinite loops
 
   if (!isOpen) return null;
 
@@ -76,11 +76,15 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+        isOpen ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={handleClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className={`bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+          isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
@@ -170,9 +174,9 @@ const FeedbackModal = ({ isOpen, onClose }) => {
               </label>
               <textarea
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                 rows={4}
-                className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary resize-none"
                 placeholder="Conte-nos sua opinião sobre o site..."
                 required
               />
