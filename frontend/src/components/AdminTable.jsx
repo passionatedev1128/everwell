@@ -119,7 +119,20 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                 style={{ transition: 'background-color 0.2s ease' }}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-darkTeal">{user.name}</div>
+                  <div className="flex items-center gap-3">
+                    {user.photo ? (
+                      <img 
+                        src={user.photo} 
+                        alt={user.name} 
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                        {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </div>
+                    )}
+                    <div className="text-sm font-medium text-darkTeal">{user.name}</div>
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-mediumTeal">{user.email}</div>

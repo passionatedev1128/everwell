@@ -1,6 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
-import { updateProfile, uploadUserPhoto } from '../utils/api';
+import { updateProfile, uploadUserPhoto, getCurrentUser } from '../utils/api';
 import { toast } from 'react-hot-toast';
+import { setUser } from '../utils/auth';
+
+// Countries list with dialing codes
+const getCountriesList = () => {
+  return [
+    { name: 'Brasil', code: 'BR', dialCode: '+55' },
+    { name: 'Estados Unidos', code: 'US', dialCode: '+1' },
+    { name: 'Argentina', code: 'AR', dialCode: '+54' },
+    { name: 'Chile', code: 'CL', dialCode: '+56' },
+    { name: 'Colômbia', code: 'CO', dialCode: '+57' },
+    { name: 'México', code: 'MX', dialCode: '+52' },
+    { name: 'Portugal', code: 'PT', dialCode: '+351' },
+    { name: 'Espanha', code: 'ES', dialCode: '+34' },
+    { name: 'França', code: 'FR', dialCode: '+33' },
+    { name: 'Alemanha', code: 'DE', dialCode: '+49' },
+    { name: 'Itália', code: 'IT', dialCode: '+39' },
+    { name: 'Reino Unido', code: 'GB', dialCode: '+44' },
+    { name: 'Canadá', code: 'CA', dialCode: '+1' },
+    { name: 'Austrália', code: 'AU', dialCode: '+61' },
+    { name: 'Japão', code: 'JP', dialCode: '+81' },
+    { name: 'China', code: 'CN', dialCode: '+86' },
+    { name: 'Índia', code: 'IN', dialCode: '+91' },
+    { name: 'Rússia', code: 'RU', dialCode: '+7' },
+    { name: 'África do Sul', code: 'ZA', dialCode: '+27' },
+    { name: 'Outro', code: 'XX', dialCode: '+' }
+  ];
+};
+
+const getCountryCode = (countryName) => {
+  const country = getCountriesList().find(c => c.name === countryName);
+  return country ? country.dialCode : null;
+};
 
 const ProfileForm = ({ user, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
@@ -20,8 +52,10 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef(null);
 
+  // Only update formData from user if formData is empty (initial load)
+  // This preserves user's edits when user object updates (e.g., after photo upload)
   useEffect(() => {
-    if (user) {
+    if (user && (!formData.name && !formData.phone && !formData.address.street)) {
       setFormData({
         name: user.name || '',
         phone: user.phone || '',
@@ -65,9 +99,16 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
       const response = await updateProfile(formData);
       if (response.success) {
         setSuccess('Perfil atualizado com sucesso!');
+        // Update user in localStorage to refresh header
+        const userResponse = await getCurrentUser();
+        if (userResponse.success && userResponse.user) {
+          setUser(userResponse.user);
+        }
         if (onUpdateSuccess) {
           onUpdateSuccess();
         }
+        // Force header refresh by dispatching custom event
+        window.dispatchEvent(new Event('userUpdated'));
       }
     } catch (error) {
       setError(error.response?.data?.message || 'Erro ao atualizar perfil. Tente novamente.');
@@ -98,9 +139,16 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
       const response = await uploadUserPhoto(file);
       if (response.success) {
         toast.success('Foto atualizada com sucesso!');
+        // Update user in localStorage to refresh header
+        const userResponse = await getCurrentUser();
+        if (userResponse.success && userResponse.user) {
+          setUser(userResponse.user);
+        }
         if (onUpdateSuccess) {
           onUpdateSuccess();
         }
+        // Force header refresh by dispatching custom event
+        window.dispatchEvent(new Event('userUpdated'));
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Erro ao atualizar foto.');
@@ -261,6 +309,29 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
+                <label htmlFor="address.country" className="form-label">País</label>
+                <select
+                  id="address.country"
+                  name="address.country"
+                  value={formData.address.country}
+                  onChange={(e) => {
+                    const countryCode = getCountryCode(e.target.value);
+                    handleChange(e);
+                    if (countryCode) {
+                      setFormData(prev => ({
+                        ...prev,
+                        phone: countryCode + (prev.phone || '').replace(/^\+\d{1,3}\s?/, '')
+                      }));
+                    }
+                  }}
+                  className="form-input"
+                >
+                  {getCountriesList().map(country => (
+                    <option key={country.code} value={country.name}>{country.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label htmlFor="address.zipCode" className="form-label">CEP</label>
                 <input
                   type="text"
@@ -269,17 +340,6 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
                   value={formData.address.zipCode}
                   onChange={handleChange}
                   placeholder="00000-000"
-                  className="form-input"
-                />
-              </div>
-              <div>
-                <label htmlFor="address.country" className="form-label">País</label>
-                <input
-                  type="text"
-                  id="address.country"
-                  name="address.country"
-                  value={formData.address.country}
-                  onChange={handleChange}
                   className="form-input"
                 />
               </div>

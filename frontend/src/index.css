@@ -246,6 +246,12 @@
     box-shadow: 0 1px 2px rgba(15, 41, 61, 0.05);
   }
   
+  .form-input:focus {
+    border-color: rgb(79, 179, 168);
+    box-shadow: 0 0 0 4px rgba(79, 179, 168, 0.1), 0 2px 8px rgba(79, 179, 168, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
   .form-input::placeholder {
     @apply text-lightTeal;
   }
@@ -548,32 +554,69 @@ button, a, input, select, textarea {
   transition: all 0.2s ease-in-out;
 }
 
+/* Scroll to top button - prevent blinking by only transitioning background-color */
+.scroll-to-top-btn {
+  transition: background-color 0.2s ease-in-out, opacity 0.3s ease-in-out !important;
+  transform: none !important;
+  animation: none !important;
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 50 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.scroll-to-top-btn:hover {
+  transform: none !important;
+  animation: none !important;
+}
+
+/* Notification bell button - prevent badge from moving on hover */
+.notification-bell-btn {
+  transform: none !important;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+.notification-bell-btn:hover {
+  transform: none !important;
+}
+
+.notification-bell-badge {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.notification-bell-btn:hover .notification-bell-badge {
+  transform: none !important;
+  top: 0 !important;
+  right: 0 !important;
+}
+
 /* Elegant combobox styling with animations - Metronic style */
 select {
   @apply rounded-xl border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal;
   @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
   @apply transition-all duration-300 hover:border-primary/50 hover:shadow-sm;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
-  background-size: 1.25em 1.25em;
+  background-size: 0.9em 0.9em;
   padding-right: 2.5rem;
   cursor: pointer;
   position: relative;
-}
-
-select:hover {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(79, 179, 168, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 select:focus {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(79, 179, 168, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 179, 168, 0.15);
 }
+
 
 /* Custom dropdown wrapper for enhanced styling */
 .custom-select-wrapper {
@@ -780,7 +823,8 @@ input[type="date"]::-moz-calendar-picker-indicator {
 }
 
 .react-datepicker__day-name {
-  @apply text-white/90 font-medium text-xs;
+  @apply font-medium text-xs;
+  color: #4ade80 !important; /* Green-like color */
   width: 2.25rem;
   line-height: 2.25rem;
   margin: 0;
@@ -806,7 +850,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #1a3d3a !important;
+  color: #2d5a55 !important;
 }
 
 .react-datepicker__day:hover {
@@ -847,26 +891,49 @@ input[type="date"]::-moz-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
+  top: 0.75rem !important;
+  animation: none !important;
+  transform: none !important;
+  position: absolute !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .react-datepicker__navigation:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: none !important;
+  animation: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.react-datepicker__navigation:active {
+  background: rgba(255, 255, 255, 0.35) !important;
 }
 
 .react-datepicker__navigation--previous {
-  left: 0.5rem;
+  left: 0.8rem !important;
+  top: 0.75rem !important;
 }
 
 .react-datepicker__navigation--next {
-  right: 0.5rem;
+  right: 0.8rem !important;
+  top: 0.75rem !important;
+}
+
+.react-datepicker__navigation-icon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .react-datepicker__navigation-icon::before {
@@ -874,12 +941,15 @@ input[type="date"]::-moz-calendar-picker-indicator {
   border-width: 2px 2px 0 0;
   width: 8px;
   height: 8px;
-  top: 6px;
-  left: 6px;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-135deg);
+  margin: 0 !important;
+  position: absolute;
 }
 
 .react-datepicker__navigation-icon--next::before {
-  left: 8px;
+  transform: translate(-50%, -50%) rotate(45deg) !important;
 }
 
 /* Mobile responsive datepicker */
@@ -1272,5 +1342,152 @@ select:not([multiple]) {
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   padding-right: 2.5rem;
+}
+
+/* Page transition animations */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Apply animations to all modals */
+.modal-overlay {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-overlay.closing {
+  animation: modalFadeOut 0.3s ease-out;
+}
+
+.modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-content.closing {
+  animation: modalSlideOut 0.3s ease-out;
+}
+
+main.page-transition {
+  animation: pageFadeIn 0.4s ease-out;
+}
+
+/* Enhanced page transition for route changes */
+main {
+  animation: pageFadeIn 0.4s ease-out;
+}
+
+/* Change "every day." animation to show only once */
+.animate-elegant-fade-in {
+  animation: elegantFadeIn 3s ease-in-out 1;
+  animation-fill-mode: forwards;
+  will-change: transform, opacity, text-shadow;
+}
+
+/* Checkbox styling with animation */
+input[type="checkbox"] {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(79, 179, 168, 0.3);
+  border-radius: 0.25rem;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input[type="checkbox"]:hover {
+  border-color: rgb(79, 179, 168);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(79, 179, 168, 0.1);
+}
+
+input[type="checkbox"]:checked {
+  background-color: rgb(79, 179, 168);
+  border-color: rgb(79, 179, 168);
+  transform: scale(1.05);
+}
+
+input[type="checkbox"]:checked::before {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+  animation: checkmark 0.2s ease-out;
+}
+
+@keyframes checkmark {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(79, 179, 168, 0.2);
 }
 

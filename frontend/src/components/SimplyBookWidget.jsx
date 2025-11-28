@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 // Global flag to prevent multiple widget initializations
 let isWidgetInitializing = false;
@@ -365,6 +366,21 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
               // Ensure only one iframe exists
               cleanupDuplicateIframes();
               
+              // Double-check: ensure only one iframe remains
+              const finalIframes = widgetElement?.querySelectorAll('iframe');
+              if (finalIframes && finalIframes.length > 1) {
+                // Remove all but the first iframe
+                for (let i = 1; i < finalIframes.length; i++) {
+                  try {
+                    if (finalIframes[i].parentNode) {
+                      finalIframes[i].parentNode.removeChild(finalIframes[i]);
+                    }
+                  } catch (e) {
+                    console.warn('Error removing duplicate iframe:', e);
+                  }
+                }
+              }
+              
               const iframe = iframes[0];
               // Monitor iframe for errors
               iframe.onerror = () => {
@@ -474,12 +490,15 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
       // Only remove script if we created it (not if it was already there)
       // Use try-catch and check if script is still a child before removing
       try {
-        if (!existingScript && script && script.parentNode === document.body) {
+        if (!existingScript && script && script.parentNode && script.parentNode === document.body) {
           document.body.removeChild(script);
         }
       } catch (e) {
         // Script might have already been removed by React or another process
-        console.warn('Error removing script:', e);
+        // Ignore NotFoundError - the node is not a child
+        if (e.name !== 'NotFoundError') {
+          console.warn('Error removing script:', e);
+        }
       }
     };
   }, [companyId, serviceId]);
@@ -487,11 +506,22 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
   return (
     <div className="w-full min-h-screen bg-[#f5faf7] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="space-y-2 text-center md:text-left">
-          <h1 className="text-4xl font-heading font-semibold text-darkTeal">Agendar consulta</h1>
-          <p className="text-mediumTeal max-w-2xl">
-            Escolha o horário ideal com a equipe médica EverWell e receba suporte premium em toda a jornada.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2 text-center md:text-left">
+            <h1 className="text-4xl font-heading font-semibold text-darkTeal">Agendar consulta</h1>
+            <p className="text-mediumTeal max-w-2xl">
+              Escolha o horário ideal com a equipe médica EverWell e receba suporte premium em toda a jornada.
+            </p>
+          </div>
+          <Link
+            to="/"
+            className="btn-secondary px-6 py-3 text-sm font-semibold tracking-wide text-center inline-flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Go to the homepage
+          </Link>
         </div>
         {status === 'error' ? (
           <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-10 text-center space-y-4">

@@ -13,9 +13,29 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const authenticated = isAuthenticated();
-  const user = getUser();
+  const [user, setUserState] = useState(getUser());
   const { getCartItemsCount } = useCart();
   const cartCount = getCartItemsCount();
+
+  // Listen for user updates
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      const updatedUser = getUser();
+      setUserState(updatedUser);
+    };
+    window.addEventListener('userUpdated', handleUserUpdate);
+    // Also refresh on location change (in case user data was updated elsewhere)
+    const interval = setInterval(() => {
+      const currentUser = getUser();
+      if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
+        setUserState(currentUser);
+      }
+    }, 1000);
+    return () => {
+      window.removeEventListener('userUpdated', handleUserUpdate);
+      clearInterval(interval);
+    };
+  }, [user]);
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -103,7 +123,7 @@ const Header = () => {
               <>
                 <button
                   onClick={() => setIsFeedbackModalOpen(true)}
-                  className="px-3 py-2 text-sm font-medium text-[rgb(79,179,168)]/80 hover:text-[rgb(79,179,168)] transition-colors flex items-center gap-2"
+                  className="px-3 py-2 text-sm font-medium text-[rgb(79,179,168)]/80 hover:text-[rgb(79,179,168)] transition-all duration-300 flex items-center gap-2 hover:scale-105 hover:shadow-md rounded-md"
                   title="Deixe seu feedback"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

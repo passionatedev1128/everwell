@@ -14,6 +14,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
     message: ''
   });
   const [loading, setLoading] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -74,16 +75,24 @@ const FeedbackModal = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const handleCloseWithAnimation = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      handleClose();
+      setIsClosing(false);
+    }, 300);
+  };
+
   return createPortal(
     <div
       className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
-        isOpen ? 'opacity-100' : 'opacity-0'
+        isOpen && !isClosing ? 'opacity-100' : 'opacity-0'
       }`}
-      onClick={handleClose}
+      onClick={handleCloseWithAnimation}
     >
       <div
         className={`bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
-          isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+          isOpen && !isClosing ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -91,7 +100,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
             <h2 className="text-2xl font-semibold text-darkTeal">Deixe seu Feedback</h2>
             <button
-              onClick={handleClose}
+              onClick={handleCloseWithAnimation}
               className="text-mediumTeal hover:text-darkTeal transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +194,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
             <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
               <button
                 type="button"
-                onClick={handleClose}
+                onClick={handleCloseWithAnimation}
                 className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
               >
                 Cancelar

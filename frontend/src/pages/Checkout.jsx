@@ -5,6 +5,37 @@ import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
 
+// Countries list with dialing codes
+const getCountriesList = () => {
+  return [
+    { name: 'Brasil', code: 'BR', dialCode: '+55' },
+    { name: 'Estados Unidos', code: 'US', dialCode: '+1' },
+    { name: 'Argentina', code: 'AR', dialCode: '+54' },
+    { name: 'Chile', code: 'CL', dialCode: '+56' },
+    { name: 'Colômbia', code: 'CO', dialCode: '+57' },
+    { name: 'México', code: 'MX', dialCode: '+52' },
+    { name: 'Portugal', code: 'PT', dialCode: '+351' },
+    { name: 'Espanha', code: 'ES', dialCode: '+34' },
+    { name: 'França', code: 'FR', dialCode: '+33' },
+    { name: 'Alemanha', code: 'DE', dialCode: '+49' },
+    { name: 'Itália', code: 'IT', dialCode: '+39' },
+    { name: 'Reino Unido', code: 'GB', dialCode: '+44' },
+    { name: 'Canadá', code: 'CA', dialCode: '+1' },
+    { name: 'Austrália', code: 'AU', dialCode: '+61' },
+    { name: 'Japão', code: 'JP', dialCode: '+81' },
+    { name: 'China', code: 'CN', dialCode: '+86' },
+    { name: 'Índia', code: 'IN', dialCode: '+91' },
+    { name: 'Rússia', code: 'RU', dialCode: '+7' },
+    { name: 'África do Sul', code: 'ZA', dialCode: '+27' },
+    { name: 'Outro', code: 'XX', dialCode: '+' }
+  ];
+};
+
+const getCountryCode = (countryName) => {
+  const country = getCountriesList().find(c => c.name === countryName);
+  return country ? country.dialCode : null;
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
@@ -151,14 +182,27 @@ const Checkout = () => {
 
                   <div className="form-group">
                     <label className="form-label">País</label>
-                    <input
-                      type="text"
+                    <select
                       name="country"
                       value={formData.country}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e);
+                        const countryCode = getCountryCode(e.target.value);
+                        if (countryCode) {
+                          // Auto-fill telephone with country code if empty
+                          const phoneInput = document.querySelector('input[name="phone"]');
+                          if (phoneInput && !phoneInput.value) {
+                            phoneInput.value = countryCode;
+                          }
+                        }
+                      }}
                       className="form-input"
                       required
-                    />
+                    >
+                      {getCountriesList().map(country => (
+                        <option key={country.code} value={country.name}>{country.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>

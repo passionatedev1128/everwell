@@ -11,24 +11,47 @@ const LoadingBar = () => {
       setIsLoading(true);
       setProgress(0);
 
+      // Check SimplyBookWidget status
+      const checkWidgetStatus = () => {
+        const widgetElement = document.getElementById('simplybook_widget');
+        if (widgetElement) {
+          const iframes = widgetElement.querySelectorAll('iframe');
+          if (iframes.length > 0) {
+            // Widget is ready
+            setProgress(100);
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 300);
+            return true;
+          }
+        }
+        return false;
+      };
+
       // Simulate loading progress
       const interval = setInterval(() => {
+        if (checkWidgetStatus()) {
+          clearInterval(interval);
+          return;
+        }
         setProgress((prev) => {
           if (prev >= 90) {
-            clearInterval(interval);
             return 90;
           }
           return prev + 10;
         });
-      }, 100);
+      }, 200);
 
-      // Complete loading after a delay
+      // Complete loading after max delay or when widget is ready
       const timeout = setTimeout(() => {
-        setProgress(100);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 300);
-      }, 1000);
+        if (!checkWidgetStatus()) {
+          setProgress(100);
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 300);
+        }
+        clearInterval(interval);
+      }, 5000);
 
       return () => {
         clearInterval(interval);

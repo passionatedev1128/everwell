@@ -80,14 +80,18 @@ const NotificationBell = () => {
     <div className="relative" ref={menuRef}>
       <button
         onClick={handleOpen}
-        className="relative p-2 rounded-full hover:bg-primary/10 transition-colors"
+        className="notification-bell-btn relative p-2 rounded-full hover:bg-primary/10 transition-colors"
         title="Notificações"
+        style={{
+          transform: 'none',
+          transition: 'background-color 0.2s ease-in-out'
+        }}
       >
         <svg className="w-6 h-6 text-[rgb(79,179,168)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="notification-bell-badge absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -109,19 +113,46 @@ const NotificationBell = () => {
                 <p className="text-sm">Nenhuma notificação</p>
               </div>
             ) : (
-              notifications.map((notification) => (
-                <div
-                  key={notification._id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`px-4 py-3 hover:bg-primary/5 transition-colors cursor-pointer border-b border-primary/5 ${
-                    !notification.read ? 'bg-primary/5' : ''
-                  }`}
-                >
-                  <p className="text-sm font-medium text-darkTeal">{notification.title}</p>
-                  <p className="text-xs text-mediumTeal mt-1">{notification.message}</p>
-                  <p className="text-xs text-mediumTeal/70 mt-1">
-                    {new Date(notification.createdAt).toLocaleDateString('pt-BR')}
-                  </p>
+              notifications.map((notification, index) => (
+                <div key={notification._id}>
+                  <div
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`px-4 py-3 transition-colors cursor-pointer ${
+                      !notification.read 
+                        ? 'bg-primary/15 hover:bg-primary/25 border-l-4 border-l-primary' 
+                        : 'hover:bg-primary/10'
+                    } ${index < notifications.length - 1 ? 'border-b border-primary/10' : ''}`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        {!notification.read && (
+                          <span className="mt-1.5 w-2 h-2 bg-primary rounded-full flex-shrink-0"></span>
+                        )}
+                        <div className="flex-1">
+                          <p className={`text-sm font-semibold ${!notification.read ? 'text-primary' : 'text-darkTeal'}`}>
+                            {notification.title || 'Notificação'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="ml-4 space-y-1">
+                        <p className="text-xs font-medium text-mediumTeal">
+                          Tipo: <span className="text-darkTeal">{notification.type || 'info'}</span>
+                        </p>
+                        <p className="text-xs text-mediumTeal leading-relaxed">
+                          {notification.message || notification.content || ''}
+                        </p>
+                        <p className="text-xs text-mediumTeal/70 pt-1">
+                          {new Date(notification.createdAt).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))
             )}

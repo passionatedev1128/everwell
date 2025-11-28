@@ -42,18 +42,27 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
       
+      // Public routes that should not trigger redirects
+      const publicRoutes = ['/', '/duvidas', '/blog', '/login', '/reset-password', '/auth/callback', '/agendar'];
+      const currentPath = window.location.pathname;
+      const isPublicRoute = publicRoutes.some(route => currentPath === route) || 
+                           currentPath.startsWith('/blog/') ||
+                           currentPath.startsWith('/verify-email/') ||
+                           currentPath.startsWith('/complete-registration/');
+      
       // Check if user was deleted (404 on /auth/me endpoint)
       if (error.response?.status === 404 && error.config?.url?.includes('/auth/me')) {
         // User no longer exists - clear session
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        if (window.location.pathname !== '/login') {
+        // Only redirect if not on a public route
+        if (!isPublicRoute && currentPath !== '/login') {
           window.location.href = '/login';
         }
         return Promise.reject(error);
       }
       
-      // For other 401/403 errors, redirect to login
+      // For other 401/403 errors, only redirect if not on a public route
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
@@ -62,8 +71,8 @@ api.interceptors.response.use(
         sessionStorage.setItem('authError', error.response.data.message);
       }
       
-      // Only redirect if not already on login page
-      if (window.location.pathname !== '/login') {
+      // Only redirect if not on a public route and not already on login page
+      if (!isPublicRoute && currentPath !== '/login') {
         window.location.href = '/login';
       }
     }
@@ -303,6 +312,16 @@ export const sendNotificationToAllUsers = async (notificationData) => {
 
 export const deleteNotificationAdmin = async (notificationId) => {
   const response = await api.delete(`/notifications/admin/${notificationId}`);
+  return response.data;
+};
+
+// Admin document management
+export const updateDocumentStatus = async (userId, documentType, status) => {
+  const response = await api.patch('/admin/users/documents/status', {
+    userId,
+    documentType,
+    status
+  });
   return response.data;
 };
 

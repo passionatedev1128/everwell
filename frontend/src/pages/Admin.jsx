@@ -1399,13 +1399,6 @@ const Admin = () => {
                         <button
                           onClick={() => {
                             handleOpenProductModal(product);
-                            // Focus on image upload after modal opens
-                            setTimeout(() => {
-                              const fileInput = document.querySelector('input[type="file"][accept*="image"]');
-                              if (fileInput) {
-                                fileInput.click();
-                              }
-                            }, 300);
                           }}
                           className="flex-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary/90 transition-colors"
                         >
@@ -1494,7 +1487,7 @@ const Admin = () => {
                   {blogs.map((blog) => (
                     <div
                       key={blog._id}
-                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow flex flex-col h-full"
                     >
                       {blog.imageUrl && (
                         <div className="mb-3">
@@ -1524,7 +1517,15 @@ const Admin = () => {
                           </span>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      {(blog.createdAt || blog.updatedAt) && (
+                        <p className="text-xs text-mediumTeal/70 mb-3">
+                          {blog.updatedAt && new Date(blog.updatedAt) > new Date(blog.createdAt) 
+                            ? `Atualizado: ${new Date(blog.updatedAt).toLocaleDateString('pt-BR')}`
+                            : `Criado: ${new Date(blog.createdAt).toLocaleDateString('pt-BR')}`
+                          }
+                        </p>
+                      )}
+                      <div className="flex gap-2 mt-auto pt-3">
                         <button
                           onClick={() => {
                             setBlogForm({
@@ -1543,11 +1544,12 @@ const Admin = () => {
                         </button>
                         <button
                           onClick={async () => {
-                            if (window.confirm(`Tem certeza que deseja deletar o artigo "${blog.title}"?`)) {
+                            const confirmed = window.confirm(`Tem certeza que deseja deletar o artigo "${blog.title}"?\n\nEsta ação não pode ser desfeita.`);
+                            if (confirmed) {
                               try {
                                 const response = await deleteBlog(blog._id);
                                 if (response.success) {
-                                  toast.success('Artigo deletado com sucesso!');
+                                  toast.success(`Artigo "${blog.title}" foi deletado com sucesso!`);
                                   fetchBlogs();
                                 }
                               } catch (err) {
@@ -1785,11 +1787,12 @@ const Admin = () => {
                         </div>
                         <button
                           onClick={async () => {
-                            if (window.confirm('Tem certeza que deseja deletar esta mensagem?')) {
+                            const confirmed = window.confirm(`Tem certeza que deseja deletar a mensagem "${message.title || 'esta mensagem'}"?\n\nEsta ação não pode ser desfeita.`);
+                            if (confirmed) {
                               try {
                                 const response = await deleteNotificationAdmin(message._id);
                                 if (response.success) {
-                                  toast.success('Mensagem deletada!');
+                                  toast.success(`Mensagem "${message.title || 'Mensagem'}" foi deletada com sucesso!`);
                                   fetchMessages();
                                 }
                               } catch (err) {
@@ -2110,12 +2113,14 @@ const Admin = () => {
         {/* Product Create/Edit Modal */}
         {productModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
             onClick={handleCloseProductModal}
+            style={{ animation: 'fadeIn 0.3s ease-out' }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
@@ -2279,18 +2284,45 @@ const Admin = () => {
                         />
                         {image && (
                           <div className="flex gap-1 flex-shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newImages = [...productForm.images];
-                                newImages[index] = '';
-                                setProductForm({ ...productForm, images: newImages });
-                              }}
-                              className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700 transition-colors"
-                              title="Atualizar imagem"
-                            >
+                            <label className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700 transition-colors cursor-pointer">
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept="image/jpeg,image/jpg,image/png,image/webp"
+                                multiple={false}
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                                  const maxSize = 5 * 1024 * 1024;
+                                  if (!allowedTypes.includes(file.type)) {
+                                    toast.error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+                                    return;
+                                  }
+                                  if (file.size > maxSize) {
+                                    toast.error('Tamanho máximo é 5MB.');
+                                    return;
+                                  }
+                                  try {
+                                    setUploadingImages(true);
+                                    const response = await uploadProductImages([file]);
+                                    if (response.success && response.images && response.images.length > 0) {
+                                      const newImages = [...productForm.images];
+                                      newImages[index] = response.images[0];
+                                      setProductForm({ ...productForm, images: newImages });
+                                      toast.success('Imagem atualizada com sucesso!');
+                                    }
+                                  } catch (err) {
+                                    toast.error(err.response?.data?.message || 'Erro ao enviar imagem.');
+                                  } finally {
+                                    setUploadingImages(false);
+                                    e.target.value = '';
+                                  }
+                                }}
+                                disabled={uploadingImages}
+                              />
                               Atualizar
-                            </button>
+                            </label>
                             {productForm.images.length > 1 && (
                               <button
                                 type="button"
@@ -2305,13 +2337,6 @@ const Admin = () => {
                         )}
                       </div>
                     ))}
-                    <button
-                      type="button"
-                      onClick={handleAddImageField}
-                      className="mt-2 px-3 py-2 bg-primary/10 text-primary text-sm font-medium rounded-md hover:bg-primary/20 transition-colors"
-                    >
-                      + Adicionar Campo de URL
-                    </button>
                     <p className="mt-2 text-xs text-mediumTeal">
                       Você pode fazer upload de imagens ou inserir URLs. Faça upload de múltiplas imagens de uma vez.
                     </p>
@@ -2368,12 +2393,14 @@ const Admin = () => {
         {/* Blog Create/Edit Modal */}
         {blogModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
             onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
+            style={{ animation: 'fadeIn 0.3s ease-out' }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
@@ -2452,23 +2479,76 @@ const Admin = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-darkTeal mb-2">URL da Imagem</label>
-                    <input
-                      type="url"
-                      value={blogForm.imageUrl}
-                      onChange={(e) => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                      placeholder="https://example.com/image.jpg"
-                    />
+                    <div className="space-y-2">
+                      <input
+                        type="url"
+                        value={blogForm.imageUrl}
+                        onChange={(e) => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg className="w-8 h-8 mb-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="mb-2 text-sm text-darkTeal">
+                            <span className="font-semibold">Clique para fazer upload</span> ou arraste e solte
+                          </p>
+                          <p className="text-xs text-mediumTeal">JPG, PNG ou WEBP (máx. 5MB)</p>
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                            const maxSize = 5 * 1024 * 1024;
+                            if (!allowedTypes.includes(file.type)) {
+                              toast.error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+                              return;
+                            }
+                            if (file.size > maxSize) {
+                              toast.error('Tamanho máximo é 5MB.');
+                              return;
+                            }
+                            try {
+                              const response = await uploadProductImages([file]);
+                              if (response.success && response.images && response.images.length > 0) {
+                                setBlogForm({ ...blogForm, imageUrl: response.images[0] });
+                                toast.success('Imagem enviada com sucesso!');
+                              }
+                            } catch (err) {
+                              toast.error(err.response?.data?.message || 'Erro ao enviar imagem.');
+                            } finally {
+                              e.target.value = '';
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-darkTeal mb-2">Tags (separadas por vírgula)</label>
                     <input
                       type="text"
                       value={blogForm.tags.join(', ')}
-                      onChange={(e) => setBlogForm({ 
-                        ...blogForm, 
-                        tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) 
-                      })}
+                      onChange={(e) => {
+                        // Allow typing comma without immediately splitting
+                        const value = e.target.value;
+                        setBlogForm({ 
+                          ...blogForm, 
+                          tags: value ? value.split(',').map(t => t.trim()).filter(t => t) : []
+                        });
+                      }}
+                      onKeyDown={(e) => {
+                        // Allow comma to be typed
+                        if (e.key === ',') {
+                          e.stopPropagation();
+                        }
+                      }}
                       className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
                       placeholder="cannabis, CBD, saúde, bem-estar"
                     />
@@ -2510,12 +2590,14 @@ const Admin = () => {
         {/* Delete Product Modal */}
         {deleteProductModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
             onClick={() => setDeleteProductModal({ open: false, product: null })}
+            style={{ animation: 'fadeIn 0.3s ease-out' }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -2534,7 +2616,7 @@ const Admin = () => {
                 <br />
                 Esta ação não pode ser desfeita. Se o produto estiver associado a pedidos, a exclusão será bloqueada.
               </p>
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-end px-6">
                 <button
                   onClick={() => setDeleteProductModal({ open: false, product: null })}
                   className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
@@ -2556,12 +2638,14 @@ const Admin = () => {
         {/* Delete User Modal */}
         {deleteModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
             onClick={() => setDeleteModal({ open: false, user: null })}
+            style={{ animation: 'fadeIn 0.3s ease-out' }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">

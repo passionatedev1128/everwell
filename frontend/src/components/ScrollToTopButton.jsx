@@ -5,15 +5,22 @@ const ScrollToTopButton = () => {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      // Show button only when scrolled down more than 100px, hide when at top
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      setIsVisible(scrollTop > 100);
     };
 
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    // Check initial scroll position
+    toggleVisibility();
+
+    // Listen to scroll events
+    window.addEventListener('scroll', toggleVisibility, { passive: true });
+    window.addEventListener('resize', toggleVisibility, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', toggleVisibility);
+      window.removeEventListener('resize', toggleVisibility);
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -23,19 +30,16 @@ const ScrollToTopButton = () => {
     });
   };
 
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-primary text-white shadow-lg hover:bg-primary-dark hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
-      aria-label="Voltar ao topo"
-      style={{ animation: 'none', willChange: 'transform' }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.animation = 'none';
+      className="scroll-to-top-btn fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-primary text-white shadow-lg hover:bg-primary-dark flex items-center justify-center"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? 'auto' : 'none',
+        transition: 'background-color 0.2s ease-in-out, opacity 0.3s ease-in-out'
       }}
+      aria-label="Voltar ao topo"
     >
       <svg
         className="w-6 h-6"

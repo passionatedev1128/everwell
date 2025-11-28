@@ -98,10 +98,12 @@ const FAQAccordion = () => {
                 animation: 'slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 transformOrigin: 'top',
                 marginTop: '10px',
-                display: 'block'
+                display: 'block',
+                visibility: 'visible',
+                opacity: 1
               }}
             >
-              <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="animate-fade-in" style={{ animationDelay: '0.1s', marginTop: '10px' }}>
                 {faq.answer}
               </div>
             </div>

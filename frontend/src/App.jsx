@@ -32,7 +32,7 @@ import ResetPassword from './pages/ResetPassword';
 import OAuthCallback from './pages/OAuthCallback';
 import Booking from './pages/Booking';
 
-// Component to track page views
+// Component to track page views and add animation
 function PageViewTracker() {
   const location = useLocation();
 
@@ -41,6 +41,15 @@ function PageViewTracker() {
     trackPageView(location.pathname + location.search, document.title);
     hubspotTrackPageView(location.pathname + location.search, document.title);
     gtmTrackPageView(location.pathname + location.search, document.title);
+    
+    // Add page transition animation
+    const main = document.querySelector('main');
+    if (main) {
+      main.classList.add('page-transition');
+      setTimeout(() => {
+        main.classList.remove('page-transition');
+      }, 300);
+    }
   }, [location]);
 
   return null;

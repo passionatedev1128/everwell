@@ -152,7 +152,8 @@ const Home = () => {
           .map(p => ({
             name: p.name,
             description: p.description || p.subtitle || '',
-            image: p.images[0] || ''
+            image: p.images[0] || '',
+            slug: p.slug || ''
           }));
         setProductHighlights(highlights);
       } catch (error) {
@@ -448,22 +449,23 @@ const Home = () => {
           {productHighlights.length > 3 ? (
             <Carousel
               items={productHighlights.map((product) => (
-                <div key={product.name} className="product-card space-y-3 sm:space-y-4 mx-2 relative overflow-visible">
-                  <div className="relative -mt-8 -mx-4 mb-4" style={{ transform: 'scale(0.85)' }}>
+                <div key={product.name} className="product-card mx-2 relative flex flex-col">
+                  <div className="relative -mt-8 -mx-4 mb-4 flex items-center justify-center bg-primary/5 rounded-lg" style={{ minHeight: '200px', maxHeight: '300px' }}>
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      className="w-full h-full object-contain rounded-lg shadow-lg"
+                      style={{ maxHeight: '300px' }}
                       onError={(e) => {
                         // Fallback to a placeholder if image fails to load
                         e.target.src = '';
                       }}
                     />
                   </div>
-                  <div className="pt-4">
+                  <div className="flex flex-col h-full space-y-3 sm:space-y-4">
                     <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
-                    <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
-                    <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                    <p className="text-mediumTeal text-sm sm:text-base flex-grow">{product.description}</p>
+                    <Link to={product.slug ? `/produtos/${product.slug}` : "/produtos"} className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2 mt-auto">
                       Detalhes
                       <span aria-hidden>→</span>
                     </Link>
@@ -475,22 +477,23 @@ const Home = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {productHighlights.map((product) => (
-                <div key={product.name} className="product-card space-y-3 sm:space-y-4 relative overflow-visible">
-                  <div className="relative -mt-8 -mx-4 mb-4" style={{ transform: 'scale(0.85)' }}>
+                <div key={product.name} className="product-card relative flex flex-col">
+                  <div className="relative -mt-8 -mx-4 mb-4 flex items-center justify-center bg-primary/5 rounded-lg" style={{ minHeight: '200px', maxHeight: '300px' }}>
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      className="w-full h-full object-contain rounded-lg shadow-lg"
+                      style={{ maxHeight: '300px' }}
                       onError={(e) => {
                         // Fallback to a placeholder if image fails to load
                         e.target.src = '';
                       }}
                     />
                   </div>
-                  <div className="pt-4">
+                  <div className="flex flex-col h-full space-y-3 sm:space-y-4">
                     <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
-                    <p className="text-mediumTeal text-sm sm:text-base">{product.description}</p>
-                    <Link to="/produtos" className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2">
+                    <p className="text-mediumTeal text-sm sm:text-base flex-grow">{product.description}</p>
+                    <Link to={product.slug ? `/produtos/${product.slug}` : "/produtos"} className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2 mt-auto">
                       Detalhes
                       <span aria-hidden>→</span>
                     </Link>
@@ -573,11 +576,11 @@ const Home = () => {
                   minHeight: '300px'
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 via-primary/90 to-primary-dark/95 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative z-10 space-y-4">
                   <span className="text-4xl block">{item.icon}</span>
-                  <h3 className="text-xl font-semibold text-white group-hover:text-white transition-colors duration-300">{item.title}</h3>
-                  <p className="text-white/90 group-hover:text-white transition-colors duration-300">{item.copy}</p>
+                  <h3 className="text-xl font-semibold transition-colors duration-300" style={{ color: 'rgb(79 179 168 / var(--tw-bg-opacity, 1))' }}>{item.title}</h3>
+                  <p className="transition-colors duration-300" style={{ color: 'rgb(79 179 168 / var(--tw-bg-opacity, 1))' }}>{item.copy}</p>
                 </div>
               </div>
             ))}

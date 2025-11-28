@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../utils/api';
+import api, { updateDocumentStatus } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
 const UserDetail = () => {
@@ -178,6 +178,93 @@ const UserDetail = () => {
                     {user.emailVerified ? 'Email Verificado' : 'Email Não Verificado'}
                   </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Document Status Section */}
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+              <h2 className="text-2xl font-semibold text-darkTeal mb-6">Status dos Documentos</h2>
+              <div className="space-y-3">
+                {['medicalPrescription', 'importAuthorization', 'proofOfResidence'].map((docType) => {
+                  const doc = user.documents?.[docType];
+                  const docLabels = {
+                    medicalPrescription: 'Receita Médica',
+                    importAuthorization: 'Autorização Anvisa',
+                    proofOfResidence: 'Comprovante de Residência'
+                  };
+                  const statusLabels = {
+                    pending: 'Pendente',
+                    approved: 'Aprovado',
+                    rejected: 'Rejeitado'
+                  };
+                  const statusColors = {
+                    pending: 'bg-amber-100 text-amber-800',
+                    approved: 'bg-green-100 text-green-800',
+                    rejected: 'bg-red-100 text-red-800'
+                  };
+                  return (
+                    <div key={docType} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                      <span className="text-mediumTeal font-medium">{docLabels[docType]}</span>
+                      {doc ? (
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[doc.status] || 'bg-gray-100 text-gray-800'}`}>
+                            {statusLabels[doc.status] || 'Desconhecido'}
+                          </span>
+                          {doc.url && (
+                            <a
+                              href={doc.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline text-xs"
+                            >
+                              Ver documento
+                            </a>
+                          )}
+                          {doc.status === 'pending' && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const response = await updateDocumentStatus(userId, docType, 'approved');
+                                    if (response.success) {
+                                      toast.success('Documento aprovado com sucesso!');
+                                      fetchUserData();
+                                    }
+                                  } catch (error) {
+                                    toast.error(error.response?.data?.message || 'Erro ao aprovar documento.');
+                                  }
+                                }}
+                                className="px-2 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
+                              >
+                                Aprovar
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const response = await updateDocumentStatus(userId, docType, 'rejected');
+                                    if (response.success) {
+                                      toast.success('Documento rejeitado.');
+                                      fetchUserData();
+                                    }
+                                  } catch (error) {
+                                    toast.error(error.response?.data?.message || 'Erro ao rejeitar documento.');
+                                  }
+                                }}
+                                className="px-2 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors"
+                              >
+                                Rejeitar
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Não enviado
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
