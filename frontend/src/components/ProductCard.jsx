@@ -12,12 +12,12 @@ const ProductCard = ({ product }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-primary/20 overflow-hidden hover:shadow-md transition-shadow">
       {product.images && product.images.length > 0 && (
-        <div className="bg-primary/5 flex items-center justify-center" style={{ minHeight: '200px', maxHeight: '300px', padding: '7px' }}>
+        <div className="bg-primary/5 flex items-center justify-center" style={{ minHeight: '200px', maxHeight: '300px' }}>
           <img
             src={product.images[0]}
             alt={product.name}
             className="w-full h-full object-contain max-h-[300px]"
-            style={{ maxWidth: '100%', maxHeight: '300px' }}
+            style={{ maxWidth: '100%', maxHeight: '300px', padding: '10px' }}
           />
         </div>
       )}
