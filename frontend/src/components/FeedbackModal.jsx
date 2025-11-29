@@ -85,16 +85,21 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
   return createPortal(
     <div
-      className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
-        isOpen && !isClosing ? 'opacity-100' : 'opacity-0'
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+        isClosing ? 'opacity-0' : 'opacity-100'
       }`}
       onClick={handleCloseWithAnimation}
     >
       <div
         className={`bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
-          isOpen && !isClosing ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+          isClosing 
+            ? 'opacity-0 scale-95 translate-y-4' 
+            : 'opacity-100 scale-100 translate-y-0'
         }`}
         onClick={(e) => e.stopPropagation()}
+        style={{
+          animation: isClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
       >
         <div className="p-6">
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">

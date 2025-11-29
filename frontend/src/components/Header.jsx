@@ -17,6 +17,15 @@ const Header = () => {
   const { getCartItemsCount } = useCart();
   const cartCount = getCartItemsCount();
 
+  // Helper function to check if user has a valid photo
+  const hasValidPhoto = (user) => {
+    return user?.photo && 
+           typeof user.photo === 'string' && 
+           user.photo.trim() !== '' && 
+           user.photo !== 'null' && 
+           user.photo !== 'undefined';
+  };
+
   // Listen for user updates
   useEffect(() => {
     const handleUserUpdate = () => {
@@ -142,17 +151,28 @@ const Header = () => {
                     onClick={() => setIsAccountMenuOpen((prev) => !prev)}
                     className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary/10 transition-all duration-300 group"
                   >
-                  {user?.photo ? (
+                  {hasValidPhoto(user) ? (
                     <img 
                       src={user.photo} 
                       alt={user?.name || 'User'} 
                       className="w-8 h-8 rounded-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30"
+                      onError={(e) => {
+                        // If image fails to load, hide it and show fallback
+                        e.target.style.display = 'none';
+                        const fallback = e.target.nextElementSibling;
+                        if (fallback) {
+                          fallback.style.display = 'flex';
+                        }
+                      }}
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'E'}
-                    </div>
-                  )}
+                  ) : null}
+                  <div 
+                    className={`w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30 ${
+                      hasValidPhoto(user) ? 'hidden' : ''
+                    }`}
+                  >
+                    {user?.name?.charAt(0)?.toUpperCase() || 'E'}
+                  </div>
                   <div className="hidden xl:flex flex-col items-start text-left">
                     <span className="text-sm font-medium text-[rgb(79,179,168)] leading-tight">
                       {user?.name}
@@ -321,7 +341,26 @@ const Header = () => {
               {authenticated ? (
                 <>
                   <div className="flex items-center gap-3 px-3 sm:px-4 py-2">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
+                    {hasValidPhoto(user) ? (
+                      <img 
+                        src={user.photo} 
+                        alt={user?.name || 'User'} 
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                        onError={(e) => {
+                          // If image fails to load, hide it and show fallback
+                          e.target.style.display = 'none';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) {
+                            fallback.style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium flex-shrink-0 ${
+                        hasValidPhoto(user) ? 'hidden' : ''
+                      }`}
+                    >
                       {user?.name?.charAt(0)?.toUpperCase() || 'E'}
                     </div>
                     <div className="min-w-0 flex-1">

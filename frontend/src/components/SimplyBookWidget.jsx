@@ -13,24 +13,32 @@ let mutationObserver = null;
 const cleanupDuplicateIframes = () => {
   try {
     const widgetElement = document.getElementById('simplybook_widget');
-    if (widgetElement) {
+    if (widgetElement && widgetElement.parentNode) {
+      // Only proceed if element is still mounted
       const iframes = widgetElement.querySelectorAll('iframe');
       if (iframes.length > 1) {
         // Keep only the first iframe, remove all others
         for (let i = 1; i < iframes.length; i++) {
           try {
             const duplicateIframe = iframes[i];
-            if (duplicateIframe && duplicateIframe.parentNode) {
-              duplicateIframe.remove();
+            if (duplicateIframe) {
+              // Check if node is still in the DOM before removing
+              if (duplicateIframe.parentNode && duplicateIframe.parentNode.contains(duplicateIframe)) {
+                duplicateIframe.remove();
+              } else {
+                // Node already removed, just skip
+                continue;
+              }
             }
           } catch (e) {
-            // Ignore errors
+            // Ignore all errors - node may have already been removed by React
+            // Don't log anything to avoid console noise
           }
         }
       }
     }
   } catch (e) {
-    // Ignore errors
+    // Ignore all errors - element may be unmounting
   }
 };
 
@@ -111,6 +119,8 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const isInitializedRef = useRef(false);
   const widgetInstanceRef = useRef(null);
+  const widgetContainerRef = useRef(null);
+  const isUnmountingRef = useRef(false);
 
   useEffect(() => {
     // Validate companyId
@@ -130,12 +140,17 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
           for (let i = 1; i < existingIframes.length; i++) {
             try {
               const duplicateIframe = existingIframes[i];
-              if (duplicateIframe && duplicateIframe.parentNode) {
-                duplicateIframe.remove();
+              if (duplicateIframe) {
+                // Check if node is still in the DOM before removing
+                if (duplicateIframe.parentNode && duplicateIframe.parentNode.contains(duplicateIframe)) {
+                  duplicateIframe.remove();
+                }
               }
             } catch (e) {
               // Ignore errors when removing duplicate iframes
-              console.warn('Error removing duplicate iframe during cleanup:', e);
+              if (e.name !== 'NotFoundError') {
+                console.warn('Error removing duplicate iframe during cleanup:', e);
+              }
             }
           }
           // Widget already exists with one iframe
@@ -186,9 +201,23 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
     // Check if script is already loaded
     const existingScript = document.querySelector('script[src="https://widget.simplybook.me/v2/widget/widget.js"]');
     
-    // Clear any existing widget content
-    if (widgetElement) {
-      widgetElement.innerHTML = '';
+    // Clear any existing widget content (safely, without innerHTML to avoid React conflicts)
+    if (widgetElement && widgetElement.parentNode) {
+      try {
+        // Remove children one by one to avoid React reconciliation issues
+        const children = Array.from(widgetElement.childNodes);
+        children.forEach(child => {
+          try {
+            if (child.parentNode === widgetElement) {
+              child.remove();
+            }
+          } catch (e) {
+            // Ignore errors - child may have already been removed
+          }
+        });
+      } catch (e) {
+        // Ignore errors - element may be in transition
+      }
     }
 
     const script = existingScript || document.createElement('script');
@@ -243,9 +272,23 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
               cleanupDuplicateIframes();
               return;
             }
-            // Only clear if we're sure we're initializing
-            if (isWidgetInitializing && !widgetInstanceGlobal) {
-              widgetElement.innerHTML = '';
+            // Only clear if we're sure we're initializing and element is still mounted
+            if (isWidgetInitializing && !widgetInstanceGlobal && widgetElement.parentNode) {
+              try {
+                // Remove children one by one to avoid React reconciliation issues
+                const children = Array.from(widgetElement.childNodes);
+                children.forEach(child => {
+                  try {
+                    if (child.parentNode === widgetElement) {
+                      child.remove();
+                    }
+                  } catch (e) {
+                    // Ignore errors - child may have already been removed
+                  }
+                });
+              } catch (e) {
+                // Ignore errors - element may be in transition
+              }
             }
           }
 
@@ -350,6 +393,19 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
           setTimeout(() => {
             startDuplicateMonitoring();
             cleanupDuplicateIframes(); // Clean up immediately
+            
+            // Remove loading spinner if it exists (React-managed content)
+            const widgetElement = document.getElementById('simplybook_widget');
+            if (widgetElement) {
+              const loadingSpinner = widgetElement.querySelector('.animate-spin')?.closest('div.flex');
+              if (loadingSpinner && loadingSpinner.parentNode === widgetElement) {
+                try {
+                  loadingSpinner.remove();
+                } catch (e) {
+                  // Ignore errors - may have already been removed
+                }
+              }
+            }
           }, 100);
 
           // Check for iframe after widget initialization
@@ -372,11 +428,20 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
                 // Remove all but the first iframe
                 for (let i = 1; i < finalIframes.length; i++) {
                   try {
-                    if (finalIframes[i].parentNode) {
-                      finalIframes[i].parentNode.removeChild(finalIframes[i]);
+                    const iframe = finalIframes[i];
+                    if (iframe) {
+                      // Always use remove() which is safer than removeChild
+                      try {
+                        iframe.remove();
+                      } catch (e) {
+                        // Ignore all errors - iframe may have already been removed
+                      }
                     }
                   } catch (e) {
-                    console.warn('Error removing duplicate iframe:', e);
+                    // Ignore errors - node may have already been removed
+                    if (e.name !== 'NotFoundError') {
+                      console.warn('Error removing duplicate iframe:', e);
+                    }
                   }
                 }
               }
@@ -464,6 +529,9 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
     }
 
     return () => {
+      // Mark as unmounting to prevent any DOM operations
+      isUnmountingRef.current = true;
+      
       if (loadTimeout) clearTimeout(loadTimeout);
       if (initTimeout) clearTimeout(initTimeout);
       if (iframeCheckInterval) clearInterval(iframeCheckInterval);
@@ -474,11 +542,18 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
         // Ignore errors when removing event listener
       }
       
-      // Clean up duplicate iframes one final time
-      cleanupDuplicateIframes();
-      
-      // Stop monitoring (will restart on next mount if needed)
+      // Stop monitoring first (will restart on next mount if needed)
       stopDuplicateMonitoring();
+      
+      // Clean up duplicate iframes one final time (defensively)
+      // Only if not unmounting to avoid React conflicts
+      if (!isUnmountingRef.current) {
+        try {
+          cleanupDuplicateIframes();
+        } catch (e) {
+          // Ignore cleanup errors during unmount - React may have already cleaned up
+        }
+      }
       
       // Reset refs but don't reset global flags/widget instance on unmount
       // (they'll be reused on next mount to prevent re-initialization)
@@ -490,16 +565,23 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
       // Only remove script if we created it (not if it was already there)
       // Use try-catch and check if script is still a child before removing
       try {
-        if (!existingScript && script && script.parentNode && script.parentNode === document.body) {
-          document.body.removeChild(script);
+        if (!existingScript && script && script.parentNode) {
+          // Double-check that the script is actually a child of the parent
+          if (script.parentNode.contains(script) && script.parentNode === document.body) {
+            document.body.removeChild(script);
+          }
         }
       } catch (e) {
         // Script might have already been removed by React or another process
-        // Ignore NotFoundError - the node is not a child
-        if (e.name !== 'NotFoundError') {
+        // Ignore NotFoundError and TypeError - the node may not be a child or may be null
+        if (e.name !== 'NotFoundError' && e.name !== 'TypeError') {
           console.warn('Error removing script:', e);
         }
       }
+      
+      // Don't manually clear widget container - let React handle DOM cleanup
+      // This prevents conflicts between React's cleanup and our manual DOM manipulation
+      // The widget container will be cleaned up by React's normal unmount process
     };
   }, [companyId, serviceId]);
 
@@ -553,19 +635,22 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
             </div>
           </div>
         ) : (
-          <div
-            id="simplybook_widget"
-            className="rounded-3xl bg-white/90 border border-white/60 shadow-[0_24px_60px_-30px_rgba(15,41,61,0.45)] min-h-[640px]"
-          >
+          <>
             {status === 'loading' && (
-              <div className="flex items-center justify-center min-h-[640px]">
+              <div className="rounded-3xl bg-white/90 border border-white/60 shadow-[0_24px_60px_-30px_rgba(15,41,61,0.45)] min-h-[640px] flex items-center justify-center">
                 <div className="text-center space-y-3">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
                   <p className="text-mediumTeal">Conectando à agenda segura da EverWell…</p>
                 </div>
               </div>
             )}
-          </div>
+            <div
+              ref={widgetContainerRef}
+              id="simplybook_widget"
+              className={`rounded-3xl bg-white/90 border border-white/60 shadow-[0_24px_60px_-30px_rgba(15,41,61,0.45)] min-h-[640px] ${status === 'loading' ? 'hidden' : ''}`}
+              suppressHydrationWarning
+            />
+          </>
         )}
       </div>
     </div>

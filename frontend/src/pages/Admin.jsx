@@ -60,6 +60,12 @@ const Admin = () => {
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messageModal, setMessageModal] = useState({ open: false, mode: 'single' });
+  const [messageModalClosing, setMessageModalClosing] = useState(false);
+  const [productModalClosing, setProductModalClosing] = useState(false);
+  const [blogModalClosing, setBlogModalClosing] = useState(false);
+  const [deleteProductModalClosing, setDeleteProductModalClosing] = useState(false);
+  const [deleteModalClosing, setDeleteModalClosing] = useState(false);
+  const [orderModalClosing, setOrderModalClosing] = useState(false);
   const [messageForm, setMessageForm] = useState({
     userId: '',
     sendToAll: false,
@@ -410,8 +416,12 @@ const Admin = () => {
             },
           });
         }
-        setDeleteModal({ open: false, user: null });
-        fetchUsers(); // Refresh list
+        setDeleteModalClosing(true);
+        setTimeout(() => {
+          setDeleteModal({ open: false, user: null });
+          setDeleteModalClosing(false);
+          fetchUsers();
+        }, 300); // Refresh list
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erro ao deletar usuário.', {
@@ -523,19 +533,23 @@ const Admin = () => {
   };
 
   const handleCloseProductModal = () => {
-    setProductModal({ open: false, product: null, mode: 'create' });
-    setProductForm({
-      name: '',
-      description: '',
-      subtitle: '',
-      price: '',
-      images: [''],
-      restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
-      visible: true,
-      category: 'gummy',
-      productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
-    });
-    setUploadedFiles([]);
+    setProductModalClosing(true);
+    setTimeout(() => {
+      setProductModal({ open: false, product: null, mode: 'create' });
+      setProductModalClosing(false);
+      setProductForm({
+        name: '',
+        description: '',
+        subtitle: '',
+        price: '',
+        images: [''],
+        restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
+        visible: true,
+        category: 'gummy',
+        productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+      });
+      setUploadedFiles([]);
+    }, 300);
   };
 
   const handleAddImageField = () => {
@@ -683,8 +697,12 @@ const Admin = () => {
       const response = await deleteProduct(deleteProductModal.product._id);
       if (response.success) {
         toast.success(`Produto ${deleteProductModal.product.name} deletado com sucesso!`);
-        setDeleteProductModal({ open: false, product: null });
-        fetchProducts();
+        setDeleteProductModalClosing(true);
+        setTimeout(() => {
+          setDeleteProductModal({ open: false, product: null });
+          setDeleteProductModalClosing(false);
+          fetchProducts();
+        }, 300);
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erro ao deletar produto.');
@@ -1816,18 +1834,39 @@ const Admin = () => {
         {/* Message Modal */}
         {messageModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={() => setMessageModal({ open: false, mode: 'single' })}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              messageModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setMessageModalClosing(true);
+              setTimeout(() => {
+                setMessageModal({ open: false, mode: 'single' });
+                setMessageModalClosing(false);
+              }, 300);
+            }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className={`bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+                messageModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: messageModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
                   <h2 className="text-xl font-semibold text-darkTeal">Nova Mensagem</h2>
                   <button
-                    onClick={() => setMessageModal({ open: false, mode: 'single' })}
+                    onClick={() => {
+                      setMessageModalClosing(true);
+                      setTimeout(() => {
+                        setMessageModal({ open: false, mode: 'single' });
+                        setMessageModalClosing(false);
+                      }, 300);
+                    }}
                     className="text-mediumTeal hover:text-darkTeal transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1847,7 +1886,11 @@ const Admin = () => {
                       });
                       if (response.success) {
                         toast.success(`Mensagem enviada para ${response.count} usuário(s)!`);
-                        setMessageModal({ open: false, mode: 'single' });
+                        setMessageModalClosing(true);
+                        setTimeout(() => {
+                          setMessageModal({ open: false, mode: 'single' });
+                          setMessageModalClosing(false);
+                        }, 300);
                         setMessageForm({
                           userId: '',
                           sendToAll: false,
@@ -1872,7 +1915,11 @@ const Admin = () => {
                       });
                       if (response.success) {
                         toast.success('Mensagem enviada com sucesso!');
-                        setMessageModal({ open: false, mode: 'single' });
+                        setMessageModalClosing(true);
+                        setTimeout(() => {
+                          setMessageModal({ open: false, mode: 'single' });
+                          setMessageModalClosing(false);
+                        }, 300);
                         setMessageForm({
                           userId: '',
                           sendToAll: false,
@@ -1974,7 +2021,13 @@ const Admin = () => {
                   <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
                     <button
                       type="button"
-                      onClick={() => setMessageModal({ open: false, mode: 'single' })}
+                      onClick={() => {
+                        setMessageModalClosing(true);
+                        setTimeout(() => {
+                          setMessageModal({ open: false, mode: 'single' });
+                          setMessageModalClosing(false);
+                        }, 300);
+                      }}
                       className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
                     >
                       Cancelar
@@ -1995,12 +2048,27 @@ const Admin = () => {
 
         {selectedOrder && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedOrder(null)}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              orderModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setOrderModalClosing(true);
+              setTimeout(() => {
+                setSelectedOrder(null);
+                setOrderModalClosing(false);
+              }, 300);
+            }}
           >
             <div
-              className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+              className={`bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+                orderModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: orderModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
@@ -2008,7 +2076,13 @@ const Admin = () => {
                     Detalhes do Pedido #{selectedOrder._id.slice(-8).toUpperCase()}
                   </h2>
                   <button
-                    onClick={() => setSelectedOrder(null)}
+                    onClick={() => {
+                      setOrderModalClosing(true);
+                      setTimeout(() => {
+                        setSelectedOrder(null);
+                        setOrderModalClosing(false);
+                      }, 300);
+                    }}
                     className="text-mediumTeal hover:text-darkTeal transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2113,14 +2187,27 @@ const Admin = () => {
         {/* Product Create/Edit Modal */}
         {productModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
-            onClick={handleCloseProductModal}
-            style={{ animation: 'fadeIn 0.3s ease-out' }}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              productModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setProductModalClosing(true);
+              setTimeout(() => {
+                handleCloseProductModal();
+                setProductModalClosing(false);
+              }, 300);
+            }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300"
+              className={`bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+                productModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
-              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
+              style={{
+                animation: productModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
@@ -2128,7 +2215,13 @@ const Admin = () => {
                     {productModal.mode === 'create' ? 'Criar Novo Produto' : 'Editar Produto'}
                   </h2>
                   <button
-                    onClick={handleCloseProductModal}
+                    onClick={() => {
+                      setProductModalClosing(true);
+                      setTimeout(() => {
+                        handleCloseProductModal();
+                        setProductModalClosing(false);
+                      }, 300);
+                    }}
                     className="text-mediumTeal hover:text-darkTeal transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2393,14 +2486,27 @@ const Admin = () => {
         {/* Blog Create/Edit Modal */}
         {blogModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
-            onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
-            style={{ animation: 'fadeIn 0.3s ease-out' }}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              blogModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setBlogModalClosing(true);
+              setTimeout(() => {
+                setBlogModal({ open: false, blog: null, mode: 'create' });
+                setBlogModalClosing(false);
+              }, 300);
+            }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300"
+              className={`bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+                blogModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
-              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
+              style={{
+                animation: blogModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
@@ -2408,7 +2514,13 @@ const Admin = () => {
                     {blogModal.mode === 'create' ? 'Novo Artigo' : 'Editar Artigo'}
                   </h2>
                   <button
-                    onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
+                    onClick={() => {
+                      setBlogModalClosing(true);
+                      setTimeout(() => {
+                        setBlogModal({ open: false, blog: null, mode: 'create' });
+                        setBlogModalClosing(false);
+                      }, 300);
+                    }}
                     className="text-mediumTeal hover:text-darkTeal transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2423,23 +2535,31 @@ const Admin = () => {
                       const response = await createBlog(blogForm);
                       if (response.success) {
                         toast.success('Artigo criado com sucesso!');
-                        setBlogModal({ open: false, blog: null, mode: 'create' });
-                        setBlogForm({
-                          title: '',
-                          contentMarkdown: '',
-                          excerpt: '',
-                          imageUrl: '',
-                          tags: [],
-                          published: false
-                        });
-                        fetchBlogs();
+                        setBlogModalClosing(true);
+                        setTimeout(() => {
+                          setBlogModal({ open: false, blog: null, mode: 'create' });
+                          setBlogModalClosing(false);
+                          setBlogForm({
+                            title: '',
+                            contentMarkdown: '',
+                            excerpt: '',
+                            imageUrl: '',
+                            tags: [],
+                            published: false
+                          });
+                          fetchBlogs();
+                        }, 300);
                       }
                     } else {
                       const response = await updateBlog(blogModal.blog._id, blogForm);
                       if (response.success) {
                         toast.success('Artigo atualizado com sucesso!');
-                        setBlogModal({ open: false, blog: null, mode: 'create' });
-                        fetchBlogs();
+                        setBlogModalClosing(true);
+                        setTimeout(() => {
+                          setBlogModal({ open: false, blog: null, mode: 'create' });
+                          setBlogModalClosing(false);
+                          fetchBlogs();
+                        }, 300);
                       }
                     }
                   } catch (err) {
@@ -2568,7 +2688,13 @@ const Admin = () => {
                   <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
                     <button
                       type="button"
-                      onClick={() => setBlogModal({ open: false, blog: null, mode: 'create' })}
+                      onClick={() => {
+                        setBlogModalClosing(true);
+                        setTimeout(() => {
+                          setBlogModal({ open: false, blog: null, mode: 'create' });
+                          setBlogModalClosing(false);
+                        }, 300);
+                      }}
                       className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
                     >
                       Cancelar
@@ -2590,14 +2716,27 @@ const Admin = () => {
         {/* Delete Product Modal */}
         {deleteProductModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
-            onClick={() => setDeleteProductModal({ open: false, product: null })}
-            style={{ animation: 'fadeIn 0.3s ease-out' }}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              deleteProductModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setDeleteProductModalClosing(true);
+              setTimeout(() => {
+                setDeleteProductModal({ open: false, product: null });
+                setDeleteProductModalClosing(false);
+              }, 300);
+            }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300"
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                deleteProductModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
-              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
+              style={{
+                animation: deleteProductModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -2618,7 +2757,13 @@ const Admin = () => {
               </p>
               <div className="flex gap-3 justify-end px-6">
                 <button
-                  onClick={() => setDeleteProductModal({ open: false, product: null })}
+                  onClick={() => {
+                    setDeleteProductModalClosing(true);
+                    setTimeout(() => {
+                      setDeleteProductModal({ open: false, product: null });
+                      setDeleteProductModalClosing(false);
+                    }, 300);
+                  }}
                   className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
                 >
                   Cancelar
@@ -2638,14 +2783,27 @@ const Admin = () => {
         {/* Delete User Modal */}
         {deleteModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300"
-            onClick={() => setDeleteModal({ open: false, user: null })}
-            style={{ animation: 'fadeIn 0.3s ease-out' }}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              deleteModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setDeleteModalClosing(true);
+              setTimeout(() => {
+                setDeleteModal({ open: false, user: null });
+                setDeleteModalClosing(false);
+              }, 300);
+            }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300"
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                deleteModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
-              style={{ animation: 'modalSlideIn 0.3s ease-out' }}
+              style={{
+                animation: deleteModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -2666,7 +2824,13 @@ const Admin = () => {
               </p>
               <div className="flex gap-3 justify-end">
                 <button
-                  onClick={() => setDeleteModal({ open: false, user: null })}
+                  onClick={() => {
+                    setDeleteModalClosing(true);
+                    setTimeout(() => {
+                      setDeleteModal({ open: false, user: null });
+                      setDeleteModalClosing(false);
+                    }, 300);
+                  }}
                   className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
                 >
                   Cancelar

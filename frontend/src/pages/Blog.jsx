@@ -138,12 +138,12 @@ const Blog = () => {
                     <article className="card h-full flex flex-col overflow-hidden">
                       {/* Image Container */}
                       {blog.imageUrl && (
-                        <div className="relative w-full overflow-hidden rounded-t-3xl mb-6 -mx-8 -mt-8">
+                        <div className="relative w-full h-64 overflow-hidden rounded-t-3xl mb-6 bg-primary/5">
                           <div className="absolute inset-0 bg-gradient-to-t from-darkTeal/20 to-transparent z-10"></div>
                           <img
                             src={blog.imageUrl}
                             alt={blog.title}
-                            className="w-full h-auto object-contain transition-transform duration-700 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                           {/* Overlay gradient on hover */}
                           <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors duration-300 z-20"></div>

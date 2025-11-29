@@ -7,6 +7,7 @@ import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import FloatingCartButton from './components/FloatingCartButton';
 import LoadingBar from './components/LoadingBar';
+import PageTransition from './components/PageTransition';
 import { CartProvider } from './context/CartContext';
 import { trackPageView } from './utils/analytics';
 import { trackPageView as hubspotTrackPageView } from './utils/hubspot';
@@ -32,7 +33,7 @@ import ResetPassword from './pages/ResetPassword';
 import OAuthCallback from './pages/OAuthCallback';
 import Booking from './pages/Booking';
 
-// Component to track page views and add animation
+// Component to track page views
 function PageViewTracker() {
   const location = useLocation();
 
@@ -41,15 +42,6 @@ function PageViewTracker() {
     trackPageView(location.pathname + location.search, document.title);
     hubspotTrackPageView(location.pathname + location.search, document.title);
     gtmTrackPageView(location.pathname + location.search, document.title);
-    
-    // Add page transition animation
-    const main = document.querySelector('main');
-    if (main) {
-      main.classList.add('page-transition');
-      setTimeout(() => {
-        main.classList.remove('page-transition');
-      }, 300);
-    }
   }, [location]);
 
   return null;
@@ -107,82 +99,84 @@ function App() {
         <div className="min-h-screen flex flex-col bg-[#f5faf7]">
           <Header />
           <main className="flex-grow pt-16 sm:pt-20">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/duvidas" element={<Doubts />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/verify-email/:token" element={<VerifyEmail />} />
-              <Route path="/complete-registration/:token" element={<CompleteRegistration />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/auth/callback" element={<OAuthCallback />} />
-              <Route path="/agendar" element={<Booking />} />
-              <Route
-                path="/produtos"
-                element={
-                  <ProtectedRoute requireAuth requireAuthorization>
-                    <Products />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/produtos/:slug"
-                element={
-                  <ProtectedRoute requireAuth requireAuthorization>
-                    <ProductDetail />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute requireAuth>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/carrinho"
-                element={
-                  <ProtectedRoute requireAuth requireAuthorization>
-                    <Cart />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/checkout"
-                element={
-                  <ProtectedRoute requireAuth requireAuthorization>
-                    <Checkout />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/pedidos"
-                element={
-                  <ProtectedRoute requireAuth requireAuthorization>
-                    <Orders />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requireAuth requireAdmin>
-                    <Admin />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/users/:userId"
-                element={
-                  <ProtectedRoute requireAuth requireAdmin>
-                    <UserDetail />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
+            <PageTransition>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/duvidas" element={<Doubts />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                <Route path="/complete-registration/:token" element={<CompleteRegistration />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/auth/callback" element={<OAuthCallback />} />
+                <Route path="/agendar" element={<Booking />} />
+                <Route
+                  path="/produtos"
+                  element={
+                    <ProtectedRoute requireAuth requireAuthorization>
+                      <Products />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/produtos/:slug"
+                  element={
+                    <ProtectedRoute requireAuth requireAuthorization>
+                      <ProductDetail />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute requireAuth>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/carrinho"
+                  element={
+                    <ProtectedRoute requireAuth requireAuthorization>
+                      <Cart />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/checkout"
+                  element={
+                    <ProtectedRoute requireAuth requireAuthorization>
+                      <Checkout />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pedidos"
+                  element={
+                    <ProtectedRoute requireAuth requireAuthorization>
+                      <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requireAuth requireAdmin>
+                      <Admin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/users/:userId"
+                  element={
+                    <ProtectedRoute requireAuth requireAdmin>
+                      <UserDetail />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </PageTransition>
           </main>
           <Footer />
           <FloatingCartButton />
