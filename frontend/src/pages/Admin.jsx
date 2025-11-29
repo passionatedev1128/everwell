@@ -5,6 +5,7 @@ import api from '../utils/api';
 import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages, getAllBlogsAdmin, getBlogById, createBlog, updateBlog, deleteBlog, getAllFeedbacksAdmin, updateFeedbackStatus, deleteFeedback, getAllNotificationsAdmin, createNotificationAdmin, sendNotificationToAllUsers, deleteNotificationAdmin } from '../utils/api';
 import AdminTable from '../components/AdminTable';
 import DatePicker from '../components/DatePicker';
+import ElegantSelect from '../components/ElegantSelect';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('users');
@@ -41,6 +42,9 @@ const Admin = () => {
   const [sortBy, setSortBy] = useState('date-desc');
   const [userSortConfig, setUserSortConfig] = useState({ field: null, direction: 'asc' });
   const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
+  const [deleteBlogModal, setDeleteBlogModal] = useState({ open: false, blog: null });
+  const [deleteFeedbackModal, setDeleteFeedbackModal] = useState({ open: false, feedback: null });
+  const [deleteMessageModal, setDeleteMessageModal] = useState({ open: false, message: null });
   const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
   const [blogs, setBlogs] = useState([]);
@@ -54,17 +58,21 @@ const Admin = () => {
     tags: [],
     published: false
   });
+  const [blogTagsInput, setBlogTagsInput] = useState(''); // Raw input for tags to allow comma typing
   const [feedbacks, setFeedbacks] = useState([]);
   const [feedbacksLoading, setFeedbacksLoading] = useState(false);
   const [feedbackStatusFilter, setFeedbackStatusFilter] = useState('all');
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
-  const [messageModal, setMessageModal] = useState({ open: false, mode: 'single' });
+  const [messageModal, setMessageModal] = useState({ open: false, mode: 'single', editingMessage: null });
   const [messageModalClosing, setMessageModalClosing] = useState(false);
   const [productModalClosing, setProductModalClosing] = useState(false);
   const [blogModalClosing, setBlogModalClosing] = useState(false);
   const [deleteProductModalClosing, setDeleteProductModalClosing] = useState(false);
   const [deleteModalClosing, setDeleteModalClosing] = useState(false);
+  const [deleteBlogModalClosing, setDeleteBlogModalClosing] = useState(false);
+  const [deleteFeedbackModalClosing, setDeleteFeedbackModalClosing] = useState(false);
+  const [deleteMessageModalClosing, setDeleteMessageModalClosing] = useState(false);
   const [orderModalClosing, setOrderModalClosing] = useState(false);
   const [messageForm, setMessageForm] = useState({
     userId: '',
@@ -436,6 +444,63 @@ const Admin = () => {
     }
   };
 
+  const confirmDeleteBlog = async () => {
+    if (!deleteBlogModal.blog) return;
+
+    try {
+      const response = await deleteBlog(deleteBlogModal.blog._id);
+      if (response.success) {
+        toast.success(`Artigo "${deleteBlogModal.blog.title}" foi deletado com sucesso!`);
+        setDeleteBlogModalClosing(true);
+        setTimeout(() => {
+          setDeleteBlogModal({ open: false, blog: null });
+          setDeleteBlogModalClosing(false);
+          fetchBlogs();
+        }, 300);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao deletar artigo.');
+    }
+  };
+
+  const confirmDeleteFeedback = async () => {
+    if (!deleteFeedbackModal.feedback) return;
+
+    try {
+      const response = await deleteFeedback(deleteFeedbackModal.feedback._id);
+      if (response.success) {
+        toast.success('Feedback deletado!');
+        setDeleteFeedbackModalClosing(true);
+        setTimeout(() => {
+          setDeleteFeedbackModal({ open: false, feedback: null });
+          setDeleteFeedbackModalClosing(false);
+          fetchFeedbacks();
+        }, 300);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao deletar feedback.');
+    }
+  };
+
+  const confirmDeleteMessage = async () => {
+    if (!deleteMessageModal.message) return;
+
+    try {
+      const response = await deleteNotificationAdmin(deleteMessageModal.message._id);
+      if (response.success) {
+        toast.success(`Mensagem "${deleteMessageModal.message.title || 'Mensagem'}" foi deletada com sucesso!`);
+        setDeleteMessageModalClosing(true);
+        setTimeout(() => {
+          setDeleteMessageModal({ open: false, message: null });
+          setDeleteMessageModalClosing(false);
+          fetchMessages();
+        }, 300);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao deletar mensagem.');
+    }
+  };
+
   const handleStatusUpdate = async (orderId, newStatus) => {
     if (!confirm(`Tem certeza que deseja alterar o status do pedido para "${newStatus}"?`)) {
       return;
@@ -503,6 +568,7 @@ const Admin = () => {
 
   // Product CRUD handlers
   const handleOpenProductModal = (product = null) => {
+    if (productModalClosing) return; // Don't open if currently closing
     setUploadedFiles([]);
     if (product) {
       setProductForm({
@@ -534,6 +600,7 @@ const Admin = () => {
   };
 
   const handleCloseProductModal = () => {
+    if (productModalClosing) return; // Prevent multiple calls
     setProductModalClosing(true);
     setTimeout(() => {
       setProductModal({ open: false, product: null, mode: 'create' });
@@ -552,6 +619,7 @@ const Admin = () => {
       setUploadedFiles([]);
     }, 300);
   };
+
 
   const handleAddImageField = () => {
     setProductForm({
@@ -1119,21 +1187,20 @@ const Admin = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-darkTeal mb-1">
-                      Ordenar por
-                    </label>
-                    <select
+                    <ElegantSelect
+                      label="Ordenar por"
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                    >
-                      <option value="date-desc">Data (Mais recente)</option>
-                      <option value="date-asc">Data (Mais antigo)</option>
-                      <option value="amount-desc">Valor (Maior)</option>
-                      <option value="amount-asc">Valor (Menor)</option>
-                      <option value="status">Status</option>
-                      <option value="customer">Cliente (A-Z)</option>
-                    </select>
+                      onChange={(value) => setSortBy(value)}
+                      options={[
+                        { value: 'date-desc', label: 'Data (Mais recente)' },
+                        { value: 'date-asc', label: 'Data (Mais antigo)' },
+                        { value: 'amount-desc', label: 'Valor (Maior)' },
+                        { value: 'amount-asc', label: 'Valor (Menor)' },
+                        { value: 'status', label: 'Status' },
+                        { value: 'customer', label: 'Cliente (A-Z)' }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                 </div>
 
@@ -1401,7 +1468,8 @@ const Admin = () => {
                           <img
                             src={product.images[0]}
                             alt={product.name}
-                            className="w-full h-32 object-cover rounded-md"
+                            className="w-full h-48 object-contain rounded-md"
+                            style={{ width: '100%', height: '200px', objectFit: 'contain' }}
                             onError={(e) => {
                               e.target.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
                             }}
@@ -1460,6 +1528,7 @@ const Admin = () => {
                       tags: [],
                       published: false
                     });
+                    setBlogTagsInput('');
                     setBlogModal({ open: true, blog: null, mode: 'create' });
                   }}
                   className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2"
@@ -1494,6 +1563,7 @@ const Admin = () => {
                         tags: [],
                         published: false
                       });
+                      setBlogTagsInput('');
                       setBlogModal({ open: true, blog: null, mode: 'create' });
                     }}
                     className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
@@ -1555,6 +1625,8 @@ const Admin = () => {
                               tags: blog.tags || [],
                               published: blog.published || false
                             });
+                            // Set the tags input to the joined tags string
+                            setBlogTagsInput((blog.tags || []).join(', '));
                             setBlogModal({ open: true, blog, mode: 'edit' });
                           }}
                           className="flex-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary/90 transition-colors"
@@ -1562,19 +1634,8 @@ const Admin = () => {
                           Editar
                         </button>
                         <button
-                          onClick={async () => {
-                            const confirmed = window.confirm(`Tem certeza que deseja deletar o artigo "${blog.title}"?\n\nEsta ação não pode ser desfeita.`);
-                            if (confirmed) {
-                              try {
-                                const response = await deleteBlog(blog._id);
-                                if (response.success) {
-                                  toast.success(`Artigo "${blog.title}" foi deletado com sucesso!`);
-                                  fetchBlogs();
-                                }
-                              } catch (err) {
-                                toast.error(err.response?.data?.message || 'Erro ao deletar artigo.');
-                              }
-                            }
+                          onClick={() => {
+                            setDeleteBlogModal({ open: true, blog });
                           }}
                           className="px-3 py-2 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
                         >
@@ -1602,21 +1663,21 @@ const Admin = () => {
                   <p className="text-sm text-mediumTeal mt-1">Visualize e gerencie feedbacks dos usuários</p>
                 </div>
                 <div className="flex gap-2">
-                  <select
+                  <ElegantSelect
                     value={feedbackStatusFilter}
-                    onChange={(e) => {
-                      const newStatus = e.target.value;
+                    onChange={(newStatus) => {
                       setFeedbackStatusFilter(newStatus);
                       fetchFeedbacks(newStatus);
                     }}
-                    className="rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="all">Todos os status</option>
-                    <option value="pending">Pendente</option>
-                    <option value="reviewed">Revisado</option>
-                    <option value="resolved">Resolvido</option>
-                    <option value="archived">Arquivado</option>
-                  </select>
+                    options={[
+                      { value: 'all', label: 'Todos os status' },
+                      { value: 'pending', label: 'Pendente' },
+                      { value: 'reviewed', label: 'Revisado' },
+                      { value: 'resolved', label: 'Resolvido' },
+                      { value: 'archived', label: 'Arquivado' }
+                    ]}
+                    className="w-auto min-w-[180px]"
+                  />
                 </div>
               </div>
             </div>
@@ -1635,12 +1696,13 @@ const Admin = () => {
                   <p className="text-sm text-mediumTeal">Ainda não há feedbacks no sistema.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {feedbacks.map((feedback) => (
-                    <div
-                      key={feedback._id}
-                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
-                    >
+                <div className="space-y-0">
+                  {feedbacks.map((feedback, index) => (
+                    <div key={feedback._id}>
+                      {index > 0 && <div className="border-t border-primary/20 my-4"></div>}
+                      <div
+                        className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md hover:bg-primary/10 transition-all cursor-pointer"
+                      >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
@@ -1671,11 +1733,11 @@ const Admin = () => {
                           </p>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <select
+                          <ElegantSelect
                             value={feedback.status}
-                            onChange={async (e) => {
+                            onChange={async (status) => {
                               try {
-                                const response = await updateFeedbackStatus(feedback._id, e.target.value);
+                                const response = await updateFeedbackStatus(feedback._id, status);
                                 if (response.success) {
                                   toast.success('Status atualizado!');
                                   fetchFeedbacks();
@@ -1684,32 +1746,24 @@ const Admin = () => {
                                 toast.error(err.response?.data?.message || 'Erro ao atualizar status.');
                               }
                             }}
-                            className="rounded-md border border-primary/30 bg-white px-2 py-1 text-xs text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                          >
-                            <option value="pending">Pendente</option>
-                            <option value="reviewed">Revisado</option>
-                            <option value="resolved">Resolvido</option>
-                            <option value="archived">Arquivado</option>
-                          </select>
+                            options={[
+                              { value: 'pending', label: 'Pendente' },
+                              { value: 'reviewed', label: 'Revisado' },
+                              { value: 'resolved', label: 'Resolvido' },
+                              { value: 'archived', label: 'Arquivado' }
+                            ]}
+                            className="w-full"
+                          />
                           <button
-                            onClick={async () => {
-                              if (window.confirm('Tem certeza que deseja deletar este feedback?')) {
-                                try {
-                                  const response = await deleteFeedback(feedback._id);
-                                  if (response.success) {
-                                    toast.success('Feedback deletado!');
-                                    fetchFeedbacks();
-                                  }
-                                } catch (err) {
-                                  toast.error(err.response?.data?.message || 'Erro ao deletar feedback.');
-                                }
-                              }
+                            onClick={() => {
+                              setDeleteFeedbackModal({ open: true, feedback });
                             }}
                             className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
                           >
                             Deletar
                           </button>
                         </div>
+                      </div>
                       </div>
                     </div>
                   ))}
@@ -1741,7 +1795,7 @@ const Admin = () => {
                       type: 'info',
                       link: ''
                     });
-                    setMessageModal({ open: true, mode: 'single' });
+                    setMessageModal({ open: true, mode: 'single', editingMessage: null });
                   }}
                   className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2"
                 >
@@ -1771,7 +1825,7 @@ const Admin = () => {
                   {messages.map((message) => (
                     <div
                       key={message._id}
-                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow"
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md hover:bg-primary/10 transition-all cursor-pointer"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
@@ -1805,25 +1859,33 @@ const Admin = () => {
                             </span>
                           </div>
                         </div>
-                        <button
-                          onClick={async () => {
-                            const confirmed = window.confirm(`Tem certeza que deseja deletar a mensagem "${message.title || 'esta mensagem'}"?\n\nEsta ação não pode ser desfeita.`);
-                            if (confirmed) {
-                              try {
-                                const response = await deleteNotificationAdmin(message._id);
-                                if (response.success) {
-                                  toast.success(`Mensagem "${message.title || 'Mensagem'}" foi deletada com sucesso!`);
-                                  fetchMessages();
-                                }
-                              } catch (err) {
-                                toast.error(err.response?.data?.message || 'Erro ao deletar mensagem.');
-                              }
-                            }
-                          }}
-                          className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
-                        >
-                          Deletar
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              // Open edit modal with message data
+                              setMessageForm({
+                                userId: message.userId?._id || message.userId || '',
+                                sendToAll: false,
+                                title: message.title || '',
+                                message: message.message || message.content || '',
+                                type: message.type || 'info',
+                                link: ''
+                              });
+                              setMessageModal({ open: true, mode: 'single', editingMessage: message });
+                            }}
+                            className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeleteMessageModal({ open: true, message });
+                            }}
+                            className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Deletar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1842,7 +1904,7 @@ const Admin = () => {
             onClick={() => {
               setMessageModalClosing(true);
               setTimeout(() => {
-                setMessageModal({ open: false, mode: 'single' });
+                setMessageModal({ open: false, mode: 'single', editingMessage: null });
                 setMessageModalClosing(false);
               }, 300);
             }}
@@ -1860,12 +1922,14 @@ const Admin = () => {
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
-                  <h2 className="text-xl font-semibold text-darkTeal">Nova Mensagem</h2>
+                  <h2 className="text-xl font-semibold text-darkTeal">
+                    {messageModal.editingMessage ? 'Editar e Reenviar Mensagem' : 'Nova Mensagem'}
+                  </h2>
                   <button
                     onClick={() => {
                       setMessageModalClosing(true);
                       setTimeout(() => {
-                        setMessageModal({ open: false, mode: 'single' });
+                        setMessageModal({ open: false, mode: 'single', editingMessage: null });
                         setMessageModalClosing(false);
                       }, 300);
                     }}
@@ -1879,18 +1943,20 @@ const Admin = () => {
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   try {
+                    const isEditing = messageModal.editingMessage !== null;
+                    
                     if (messageForm.sendToAll) {
                       const response = await sendNotificationToAllUsers({
                         title: messageForm.title,
                         message: messageForm.message,
                         type: messageForm.type,
-                        link: messageForm.link || null
+                        link: null
                       });
                       if (response.success) {
-                        toast.success(`Mensagem enviada para ${response.count} usuário(s)!`);
+                        toast.success(isEditing ? `Mensagem editada e reenviada para ${response.count} usuário(s)!` : `Mensagem enviada para ${response.count} usuário(s)!`);
                         setMessageModalClosing(true);
                         setTimeout(() => {
-                          setMessageModal({ open: false, mode: 'single' });
+                          setMessageModal({ open: false, mode: 'single', editingMessage: null });
                           setMessageModalClosing(false);
                         }, 300);
                         setMessageForm({
@@ -1913,13 +1979,13 @@ const Admin = () => {
                         title: messageForm.title,
                         message: messageForm.message,
                         type: messageForm.type,
-                        link: messageForm.link || null
+                        link: null
                       });
                       if (response.success) {
-                        toast.success('Mensagem enviada com sucesso!');
+                        toast.success(isEditing ? 'Mensagem editada e reenviada com sucesso!' : 'Mensagem enviada com sucesso!');
                         setMessageModalClosing(true);
                         setTimeout(() => {
-                          setMessageModal({ open: false, mode: 'single' });
+                          setMessageModal({ open: false, mode: 'single', editingMessage: null });
                           setMessageModalClosing(false);
                         }, 300);
                         setMessageForm({
@@ -1944,9 +2010,13 @@ const Admin = () => {
                       checked={messageForm.sendToAll}
                       onChange={(e) => setMessageForm({ ...messageForm, sendToAll: e.target.checked, userId: '' })}
                       className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                      disabled={messageModal.editingMessage !== null}
                     />
-                    <label htmlFor="sendToAll" className="text-sm font-medium text-darkTeal">
+                    <label htmlFor="sendToAll" className={`text-sm font-medium ${messageModal.editingMessage ? 'text-mediumTeal' : 'text-darkTeal'}`}>
                       Enviar para todos os usuários
+                      {messageModal.editingMessage && (
+                        <span className="text-xs text-mediumTeal ml-1">(não disponível ao editar)</span>
+                      )}
                     </label>
                   </div>
                   {!messageForm.sendToAll && (
@@ -1954,19 +2024,27 @@ const Admin = () => {
                       <label className="block text-sm font-medium text-darkTeal mb-1">
                         Usuário *
                       </label>
-                      <select
+                      <ElegantSelect
+                        label=""
                         value={messageForm.userId}
-                        onChange={(e) => setMessageForm({ ...messageForm, userId: e.target.value })}
-                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        onChange={(userId) => setMessageForm({ ...messageForm, userId })}
+                        placeholder="Selecione um usuário"
+                        options={[
+                          { value: '', label: 'Selecione um usuário' },
+                          ...users.map((user) => ({
+                            value: user._id,
+                            label: `${user.name} (${user.email})`
+                          }))
+                        ]}
                         required={!messageForm.sendToAll}
-                      >
-                        <option value="">Selecione um usuário</option>
-                        {users.map((user) => (
-                          <option key={user._id} value={user._id}>
-                            {user.name} ({user.email})
-                          </option>
-                        ))}
-                      </select>
+                        disabled={messageModal.editingMessage !== null}
+                        className="w-full"
+                      />
+                      {messageModal.editingMessage && (
+                        <p className="text-xs text-mediumTeal mt-1">
+                          O destinatário não pode ser alterado ao editar uma mensagem.
+                        </p>
+                      )}
                     </div>
                   )}
                   <div>
@@ -1994,30 +2072,17 @@ const Admin = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-darkTeal mb-1">
-                      Tipo
-                    </label>
-                    <select
+                    <ElegantSelect
+                      label="Tipo"
                       value={messageForm.type}
-                      onChange={(e) => setMessageForm({ ...messageForm, type: e.target.value })}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                    >
-                      <option value="info">Info</option>
-                      <option value="success">Sucesso</option>
-                      <option value="warning">Aviso</option>
-                      <option value="error">Erro</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-darkTeal mb-1">
-                      Link (opcional)
-                    </label>
-                    <input
-                      type="url"
-                      value={messageForm.link}
-                      onChange={(e) => setMessageForm({ ...messageForm, link: e.target.value })}
-                      placeholder="https://example.com"
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      onChange={(type) => setMessageForm({ ...messageForm, type })}
+                      options={[
+                        { value: 'info', label: 'Info' },
+                        { value: 'success', label: 'Sucesso' },
+                        { value: 'warning', label: 'Aviso' },
+                        { value: 'error', label: 'Erro' }
+                      ]}
+                      className="w-full"
                     />
                   </div>
                   <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
@@ -2038,7 +2103,7 @@ const Admin = () => {
                       type="submit"
                       className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
                     >
-                      Enviar Mensagem
+                      {messageModal.editingMessage ? 'Reenviar Mensagem' : 'Enviar Mensagem'}
                     </button>
                   </div>
                 </form>
@@ -2192,12 +2257,10 @@ const Admin = () => {
             className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
               productModalClosing ? 'opacity-0' : 'opacity-100'
             }`}
-            onClick={() => {
-              setProductModalClosing(true);
-              setTimeout(() => {
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
                 handleCloseProductModal();
-                setProductModalClosing(false);
-              }, 300);
+              }
             }}
           >
             <div
@@ -2217,13 +2280,7 @@ const Admin = () => {
                     {productModal.mode === 'create' ? 'Criar Novo Produto' : 'Editar Produto'}
                   </h2>
                   <button
-                    onClick={() => {
-                      setProductModalClosing(true);
-                      setTimeout(() => {
-                        handleCloseProductModal();
-                        setProductModalClosing(false);
-                      }, 300);
-                    }}
+                    onClick={handleCloseProductModal}
                     className="text-mediumTeal hover:text-darkTeal transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2247,19 +2304,18 @@ const Admin = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-darkTeal mb-1">
-                        Categoria *
-                      </label>
-                      <select
+                      <ElegantSelect
+                        label="Categoria *"
                         value={productForm.category}
-                        onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        onChange={(category) => setProductForm({ ...productForm, category })}
+                        options={[
+                          { value: 'gummy', label: 'Gummy' },
+                          { value: 'oleo', label: 'Óleo' },
+                          { value: 'creme', label: 'Creme' }
+                        ]}
                         required
-                      >
-                        <option value="gummy">Gummy</option>
-                        <option value="oleo">Óleo</option>
-                        <option value="creme">Creme</option>
-                      </select>
+                        className="w-full"
+                      />
                     </div>
                   </div>
 
@@ -2532,9 +2588,16 @@ const Admin = () => {
                 </div>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
+                  // Convert tags input to array before submitting
+                  const tagsArray = blogTagsInput ? blogTagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+                  const formData = {
+                    ...blogForm,
+                    tags: tagsArray
+                  };
+                  
                   try {
                     if (blogModal.mode === 'create') {
-                      const response = await createBlog(blogForm);
+                      const response = await createBlog(formData);
                       if (response.success) {
                         toast.success('Artigo criado com sucesso!');
                         setBlogModalClosing(true);
@@ -2549,11 +2612,12 @@ const Admin = () => {
                             tags: [],
                             published: false
                           });
+                          setBlogTagsInput('');
                           fetchBlogs();
                         }, 300);
                       }
                     } else {
-                      const response = await updateBlog(blogModal.blog._id, blogForm);
+                      const response = await updateBlog(blogModal.blog._id, formData);
                       if (response.success) {
                         toast.success('Artigo atualizado com sucesso!');
                         setBlogModalClosing(true);
@@ -2602,13 +2666,27 @@ const Admin = () => {
                   <div>
                     <label className="block text-sm font-medium text-darkTeal mb-2">URL da Imagem</label>
                     <div className="space-y-2">
-                      <input
-                        type="url"
-                        value={blogForm.imageUrl}
-                        onChange={(e) => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
-                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                        placeholder="https://example.com/image.jpg"
-                      />
+                      <div className="flex gap-3 items-start">
+                        {blogForm.imageUrl && (
+                          <div className="w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0">
+                            <img
+                              src={blogForm.imageUrl}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/128?text=Erro';
+                              }}
+                            />
+                          </div>
+                        )}
+                        <input
+                          type="url"
+                          value={blogForm.imageUrl}
+                          onChange={(e) => setBlogForm({ ...blogForm, imageUrl: e.target.value })}
+                          className="flex-1 rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                      </div>
                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <svg className="w-8 h-8 mb-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2656,20 +2734,19 @@ const Admin = () => {
                     <label className="block text-sm font-medium text-darkTeal mb-2">Tags (separadas por vírgula)</label>
                     <input
                       type="text"
-                      value={blogForm.tags.join(', ')}
+                      value={blogTagsInput}
                       onChange={(e) => {
-                        // Allow typing comma without immediately splitting
+                        // Store raw input value to allow comma typing
+                        setBlogTagsInput(e.target.value);
+                      }}
+                      onBlur={(e) => {
+                        // Convert to array only when user leaves the field
                         const value = e.target.value;
+                        const tagsArray = value ? value.split(',').map(t => t.trim()).filter(t => t) : [];
                         setBlogForm({ 
                           ...blogForm, 
-                          tags: value ? value.split(',').map(t => t.trim()).filter(t => t) : []
+                          tags: tagsArray
                         });
-                      }}
-                      onKeyDown={(e) => {
-                        // Allow comma to be typed
-                        if (e.key === ',') {
-                          e.stopPropagation();
-                        }
                       }}
                       className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
                       placeholder="cannabis, CBD, saúde, bem-estar"
@@ -2839,6 +2916,207 @@ const Admin = () => {
                 </button>
                 <button
                   onClick={confirmDeleteUser}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Delete Blog Modal */}
+        {deleteBlogModal.open && createPortal(
+          <div
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              deleteBlogModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setDeleteBlogModalClosing(true);
+              setTimeout(() => {
+                setDeleteBlogModal({ open: false, blog: null });
+                setDeleteBlogModalClosing(false);
+              }, 300);
+            }}
+          >
+            <div
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                deleteBlogModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: deleteBlogModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-darkTeal">Confirmar exclusão</h3>
+                  <p className="text-sm text-mediumTeal">Esta ação é irreversível</p>
+                </div>
+              </div>
+              <p className="text-mediumTeal mb-6">
+                Tem certeza que deseja deletar o artigo <strong className="text-darkTeal">"{deleteBlogModal.blog?.title}"</strong>?
+                <br />
+                <br />
+                Esta ação não pode ser desfeita.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setDeleteBlogModalClosing(true);
+                    setTimeout(() => {
+                      setDeleteBlogModal({ open: false, blog: null });
+                      setDeleteBlogModalClosing(false);
+                    }, 300);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteBlog}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Delete Feedback Modal */}
+        {deleteFeedbackModal.open && createPortal(
+          <div
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              deleteFeedbackModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setDeleteFeedbackModalClosing(true);
+              setTimeout(() => {
+                setDeleteFeedbackModal({ open: false, feedback: null });
+                setDeleteFeedbackModalClosing(false);
+              }, 300);
+            }}
+          >
+            <div
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                deleteFeedbackModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: deleteFeedbackModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-darkTeal">Confirmar exclusão</h3>
+                  <p className="text-sm text-mediumTeal">Esta ação é irreversível</p>
+                </div>
+              </div>
+              <p className="text-mediumTeal mb-6">
+                Tem certeza que deseja deletar este feedback?
+                <br />
+                <br />
+                Esta ação não pode ser desfeita.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setDeleteFeedbackModalClosing(true);
+                    setTimeout(() => {
+                      setDeleteFeedbackModal({ open: false, feedback: null });
+                      setDeleteFeedbackModalClosing(false);
+                    }, 300);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteFeedback}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Delete Message Modal */}
+        {deleteMessageModal.open && createPortal(
+          <div
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              deleteMessageModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setDeleteMessageModalClosing(true);
+              setTimeout(() => {
+                setDeleteMessageModal({ open: false, message: null });
+                setDeleteMessageModalClosing(false);
+              }, 300);
+            }}
+          >
+            <div
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                deleteMessageModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: deleteMessageModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-darkTeal">Confirmar exclusão</h3>
+                  <p className="text-sm text-mediumTeal">Esta ação é irreversível</p>
+                </div>
+              </div>
+              <p className="text-mediumTeal mb-6">
+                Tem certeza que deseja deletar a mensagem <strong className="text-darkTeal">"{deleteMessageModal.message?.title || 'esta mensagem'}"</strong>?
+                <br />
+                <br />
+                Esta ação não pode ser desfeita. A mensagem será removida apenas do banco de dados e não afetará os usuários que já a receberam.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setDeleteMessageModalClosing(true);
+                    setTimeout(() => {
+                      setDeleteMessageModal({ open: false, message: null });
+                      setDeleteMessageModalClosing(false);
+                    }, 300);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteMessage}
                   className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                 >
                   Deletar

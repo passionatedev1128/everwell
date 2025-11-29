@@ -9,33 +9,44 @@ let initPromise = null; // Track init promise to prevent concurrent calls
 let duplicateCleanupInterval = null;
 let mutationObserver = null;
 
-// Function to clean up duplicate iframes
+// Function to clean up duplicate iframes - ENHANCED to be more aggressive
 const cleanupDuplicateIframes = () => {
   try {
     const widgetElement = document.getElementById('simplybook_widget');
-    if (widgetElement && widgetElement.parentNode) {
-      // Only proceed if element is still mounted
+    if (widgetElement) {
+      // Get ALL iframes in the widget container
       const iframes = widgetElement.querySelectorAll('iframe');
       if (iframes.length > 1) {
-        // Keep only the first iframe, remove all others
+        // Keep ONLY the first iframe, remove ALL others immediately
         for (let i = 1; i < iframes.length; i++) {
           try {
             const duplicateIframe = iframes[i];
             if (duplicateIframe) {
-              // Check if node is still in the DOM before removing
-              if (duplicateIframe.parentNode && duplicateIframe.parentNode.contains(duplicateIframe)) {
-                duplicateIframe.remove();
-              } else {
-                // Node already removed, just skip
-                continue;
-              }
+              // Remove immediately without checking parent (safer)
+              duplicateIframe.remove();
             }
           } catch (e) {
-            // Ignore all errors - node may have already been removed by React
-            // Don't log anything to avoid console noise
+            // Ignore all errors - node may have already been removed
           }
         }
       }
+      
+      // Also check for iframes that might be direct children
+      const directChildren = Array.from(widgetElement.childNodes);
+      let iframeCount = 0;
+      directChildren.forEach(child => {
+        if (child && child.tagName === 'IFRAME') {
+          iframeCount++;
+          // If we already have one iframe from querySelectorAll, remove this duplicate
+          if (iframeCount > 1) {
+            try {
+              child.remove();
+            } catch (e) {
+              // Ignore errors
+            }
+          }
+        }
+      });
     }
   } catch (e) {
     // Ignore all errors - element may be unmounting
@@ -52,10 +63,10 @@ const startDuplicateMonitoring = () => {
     mutationObserver.disconnect();
   }
 
-  // Periodic cleanup
+  // Periodic cleanup - more frequent to catch duplicates quickly
   duplicateCleanupInterval = setInterval(() => {
     cleanupDuplicateIframes();
-  }, 500); // Check every 500ms
+  }, 250); // Check every 250ms for faster cleanup
 
   // MutationObserver to watch for new iframes being added
   const widgetElement = document.getElementById('simplybook_widget');
@@ -121,6 +132,7 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
   const widgetInstanceRef = useRef(null);
   const widgetContainerRef = useRef(null);
   const isUnmountingRef = useRef(false);
+  const hasCalledInitRef = useRef(false); // Track if this component instance has called init
 
   useEffect(() => {
     // Validate companyId
@@ -130,58 +142,56 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
       return;
     }
 
-    // Clean up any duplicate iframes first
+    // Clean up any duplicate iframes first - do this immediately
     const widgetElement = document.getElementById('simplybook_widget');
     if (widgetElement) {
       try {
         const existingIframes = widgetElement.querySelectorAll('iframe');
         if (existingIframes.length > 1) {
-          // Keep only the first iframe, remove duplicates
+          // Keep only the first iframe, remove all duplicates immediately
           for (let i = 1; i < existingIframes.length; i++) {
             try {
               const duplicateIframe = existingIframes[i];
-              if (duplicateIframe) {
-                // Check if node is still in the DOM before removing
-                if (duplicateIframe.parentNode && duplicateIframe.parentNode.contains(duplicateIframe)) {
-                  duplicateIframe.remove();
-                }
+              if (duplicateIframe && duplicateIframe.parentNode) {
+                duplicateIframe.remove();
               }
             } catch (e) {
-              // Ignore errors when removing duplicate iframes
-              if (e.name !== 'NotFoundError') {
-                console.warn('Error removing duplicate iframe during cleanup:', e);
-              }
+              // Ignore errors
             }
           }
-          // Widget already exists with one iframe
+        }
+        
+        // If we already have exactly one iframe, don't reinitialize
+        if (existingIframes.length >= 1) {
           isInitializedRef.current = true;
           widgetInitialized = true;
           isWidgetInitializing = false;
           setStatus('ready');
-          startDuplicateMonitoring(); // Start monitoring to prevent new duplicates
-          return;
-        } else if (existingIframes.length === 1) {
-          // Widget already initialized with one iframe
-          isInitializedRef.current = true;
-          widgetInitialized = true;
-          isWidgetInitializing = false;
-          setStatus('ready');
-          startDuplicateMonitoring(); // Start monitoring to prevent new duplicates
+          startDuplicateMonitoring();
           return;
         }
       } catch (e) {
         // Ignore errors during early cleanup
-        console.warn('Error during early iframe cleanup:', e);
       }
     }
 
     // Prevent multiple initializations - check both refs and globals
-    if (isInitializedRef.current || isWidgetInitializing || widgetInitialized || widgetInstanceGlobal) {
+    if (isInitializedRef.current || isWidgetInitializing || widgetInitialized || widgetInstanceGlobal || hasCalledInitRef.current) {
       // If widget instance exists globally, use it
       if (widgetInstanceGlobal) {
         isInitializedRef.current = true;
         setStatus('ready');
         startDuplicateMonitoring();
+        // Clean up any duplicates that might have appeared
+        cleanupDuplicateIframes();
+        return;
+      }
+      // If this component instance already called init, don't do it again
+      if (hasCalledInitRef.current) {
+        isInitializedRef.current = true;
+        setStatus('ready');
+        startDuplicateMonitoring();
+        cleanupDuplicateIframes();
         return;
       }
       return;
@@ -201,18 +211,30 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
     // Check if script is already loaded
     const existingScript = document.querySelector('script[src="https://widget.simplybook.me/v2/widget/widget.js"]');
     
-    // Clear any existing widget content (safely, without innerHTML to avoid React conflicts)
-    if (widgetElement && widgetElement.parentNode) {
+    // CRITICAL: Clean up ALL existing iframes before initializing to prevent duplicates
+    if (widgetElement) {
       try {
-        // Remove children one by one to avoid React reconciliation issues
+        // Remove ALL iframes first - this is the key fix
+        const allIframes = widgetElement.querySelectorAll('iframe');
+        allIframes.forEach(iframe => {
+          try {
+            if (iframe && iframe.parentNode) {
+              iframe.remove();
+            }
+          } catch (e) {
+            // Ignore errors
+          }
+        });
+        
+        // Also remove any other direct children that might be iframes
         const children = Array.from(widgetElement.childNodes);
         children.forEach(child => {
           try {
-            if (child.parentNode === widgetElement) {
+            if (child && child.tagName === 'IFRAME' && child.parentNode === widgetElement) {
               child.remove();
             }
           } catch (e) {
-            // Ignore errors - child may have already been removed
+            // Ignore errors
           }
         });
       } catch (e) {
@@ -240,11 +262,33 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
       if (widgetElement) {
         const existingIframes = widgetElement.querySelectorAll('iframe');
         if (existingIframes.length > 0) {
+          // Clean up any duplicates first
+          if (existingIframes.length > 1) {
+            for (let i = 1; i < existingIframes.length; i++) {
+              try {
+                existingIframes[i].remove();
+              } catch (e) {
+                // Ignore
+              }
+            }
+          }
           isWidgetInitializing = false;
           widgetInitialized = true;
           setStatus('ready');
+          startDuplicateMonitoring();
           return;
         }
+      }
+      
+      // CRITICAL: If widgetInstanceGlobal exists and has been initialized, don't create a new one
+      if (widgetInstanceGlobal && widgetInitialized) {
+        console.log('SimplyBook widget instance already exists globally, reusing it');
+        isWidgetInitializing = false;
+        isInitializedRef.current = true;
+        widgetInstanceRef.current = widgetInstanceGlobal;
+        setStatus('ready');
+        startDuplicateMonitoring();
+        return;
       }
 
       setStatus('ready');
@@ -321,6 +365,39 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
             return;
           }
 
+          // CRITICAL: Check if widget is already initialized before creating new instance
+          const widgetElementCheckBeforeCreate = document.getElementById('simplybook_widget');
+          if (widgetElementCheckBeforeCreate) {
+            const existingIframesCheck = widgetElementCheckBeforeCreate.querySelectorAll('iframe');
+            if (existingIframesCheck.length > 0) {
+              // Widget already initialized with iframe, don't create new instance
+              console.log('SimplyBook widget already has iframe, reusing existing instance');
+              isWidgetInitializing = false;
+              widgetInitialized = true;
+              if (widgetInstanceGlobal) {
+                widgetInstanceRef.current = widgetInstanceGlobal;
+              }
+              setStatus('ready');
+              startDuplicateMonitoring();
+              return;
+            }
+          }
+          
+          // CRITICAL: Clean up any existing iframes before creating new widget instance
+          const widgetElementCleanup = document.getElementById('simplybook_widget');
+          if (widgetElementCleanup) {
+            const existingIframesCleanup = widgetElementCleanup.querySelectorAll('iframe');
+            existingIframesCleanup.forEach(iframe => {
+              try {
+                if (iframe && iframe.parentNode) {
+                  iframe.remove();
+                }
+              } catch (e) {
+                // Ignore errors
+              }
+            });
+          }
+          
           // Create new widget instance
           const widget = new window.SimplybookWidget({
             widget_type: "iframe",
@@ -360,6 +437,23 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
             },
           });
 
+          // CRITICAL: Check if iframe already exists before initializing
+          const widgetElementCheck = document.getElementById('simplybook_widget');
+          if (widgetElementCheck) {
+            const existingIframesCheck = widgetElementCheck.querySelectorAll('iframe');
+            if (existingIframesCheck.length > 0) {
+              // Iframe already exists, don't initialize again
+              console.log('SimplyBook widget already initialized, skipping duplicate init');
+              isWidgetInitializing = false;
+              widgetInitialized = true;
+              widgetInstanceGlobal = widget;
+              widgetInstanceRef.current = widget;
+              setStatus('ready');
+              startDuplicateMonitoring();
+              return;
+            }
+          }
+          
           // Store globally before init
           widgetInstanceGlobal = widget;
           widgetInstanceRef.current = widget;
@@ -367,6 +461,39 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
           // Create a promise to track init completion
           initPromise = new Promise((resolve, reject) => {
             try {
+              // Final check: ensure no iframe exists before calling init
+              const finalCheckElement = document.getElementById('simplybook_widget');
+              if (finalCheckElement) {
+                const finalCheckIframes = finalCheckElement.querySelectorAll('iframe');
+                if (finalCheckIframes.length > 0) {
+                  // Iframe appeared between checks, don't init - widget already initialized
+                  console.log('SimplyBook iframe detected before init, skipping duplicate initialization');
+                  widgetInitialized = true;
+                  isWidgetInitializing = false;
+                  resolve();
+                  return;
+                }
+              }
+              
+              // One more cleanup pass right before init
+              cleanupDuplicateIframes();
+              
+              // CRITICAL: Check one final time if iframe exists (prevent double init from StrictMode)
+              const absoluteFinalCheck = document.getElementById('simplybook_widget');
+              if (absoluteFinalCheck) {
+                const absoluteFinalIframes = absoluteFinalCheck.querySelectorAll('iframe');
+                if (absoluteFinalIframes.length > 0) {
+                  console.log('SimplyBook iframe detected at absolute final check, aborting init() call');
+                  widgetInitialized = true;
+                  isWidgetInitializing = false;
+                  hasCalledInitRef.current = true;
+                  resolve();
+                  return;
+                }
+              }
+              
+              // Mark that we've called init for this component instance
+              hasCalledInitRef.current = true;
               widgetInstanceGlobal.init('simplybook_widget');
               // Resolve after a short delay to allow init to start
               setTimeout(() => {
@@ -391,8 +518,14 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
           
           // Start monitoring for duplicate iframes immediately after initialization
           setTimeout(() => {
+            // Aggressive cleanup - run multiple times to catch any duplicates
+            cleanupDuplicateIframes();
+            setTimeout(() => cleanupDuplicateIframes(), 50);
+            setTimeout(() => cleanupDuplicateIframes(), 150);
+            setTimeout(() => cleanupDuplicateIframes(), 300);
+            setTimeout(() => cleanupDuplicateIframes(), 600);
+            
             startDuplicateMonitoring();
-            cleanupDuplicateIframes(); // Clean up immediately
             
             // Remove loading spinner if it exists (React-managed content)
             const widgetElement = document.getElementById('simplybook_widget');
@@ -410,7 +543,8 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
 
           // Check for iframe after widget initialization
           initTimeout = setTimeout(() => {
-            cleanupDuplicateIframes(); // Clean up duplicates first
+            // Aggressively clean up ALL duplicates first
+            cleanupDuplicateIframes();
             
             const widgetElement = document.getElementById('simplybook_widget');
             const iframes = widgetElement?.querySelectorAll('iframe');
@@ -419,34 +553,61 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
               setStatus('error');
               setErrorMessage('Não foi possível conectar ao sistema de agendamento. O serviço pode estar temporariamente indisponível. Por favor, tente novamente mais tarde ou entre em contato via WhatsApp.');
             } else {
-              // Ensure only one iframe exists
-              cleanupDuplicateIframes();
-              
-              // Double-check: ensure only one iframe remains
+              // CRITICAL: Ensure ONLY ONE iframe exists - remove ALL duplicates immediately
               const finalIframes = widgetElement?.querySelectorAll('iframe');
               if (finalIframes && finalIframes.length > 1) {
-                // Remove all but the first iframe
+                console.warn(`Found ${finalIframes.length} iframes, removing duplicates`);
+                // Keep ONLY the first iframe, remove ALL others immediately
                 for (let i = 1; i < finalIframes.length; i++) {
                   try {
                     const iframe = finalIframes[i];
                     if (iframe) {
-                      // Always use remove() which is safer than removeChild
-                      try {
-                        iframe.remove();
-                      } catch (e) {
-                        // Ignore all errors - iframe may have already been removed
-                      }
+                      iframe.remove();
+                      console.log(`Removed duplicate iframe ${i + 1}`);
                     }
                   } catch (e) {
-                    // Ignore errors - node may have already been removed
-                    if (e.name !== 'NotFoundError') {
-                      console.warn('Error removing duplicate iframe:', e);
-                    }
+                    // Ignore all errors
                   }
                 }
               }
               
+              // Final cleanup pass - run multiple times to be sure
+              cleanupDuplicateIframes();
+              setTimeout(() => cleanupDuplicateIframes(), 50);
+              setTimeout(() => cleanupDuplicateIframes(), 100);
+              setTimeout(() => cleanupDuplicateIframes(), 200);
+              setTimeout(() => cleanupDuplicateIframes(), 500);
+              setTimeout(() => cleanupDuplicateIframes(), 1000);
+              
               const iframe = iframes[0];
+              
+              // Set up a MutationObserver to catch iframes as soon as they're added
+              if (widgetElement) {
+                const observer = new MutationObserver((mutations) => {
+                  const currentIframes = widgetElement.querySelectorAll('iframe');
+                  if (currentIframes.length > 1) {
+                    console.warn(`MutationObserver detected ${currentIframes.length} iframes, cleaning up immediately`);
+                    for (let i = 1; i < currentIframes.length; i++) {
+                      try {
+                        currentIframes[i].remove();
+                      } catch (e) {
+                        // Ignore
+                      }
+                    }
+                  }
+                });
+                
+                observer.observe(widgetElement, {
+                  childList: true,
+                  subtree: true
+                });
+                
+                // Disconnect observer after 15 seconds (by then widget should be stable)
+                setTimeout(() => {
+                  observer.disconnect();
+                }, 15000);
+              }
+              
               // Monitor iframe for errors
               iframe.onerror = () => {
                 setStatus('error');

@@ -1,23 +1,33 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getCurrentUser, getOrders } from '../utils/api';
+import { Link, useLocation } from 'react-router-dom';
+import { getCurrentUser, getOrders, getNotifications } from '../utils/api';
 import DocumentUpload from '../components/DocumentUpload';
 import ProfileForm from '../components/ProfileForm';
 import { DashboardCardSkeleton } from '../components/SkeletonLoader';
 import { EmptyDocuments } from '../components/EmptyState';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.tab || 'overview');
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [tabTransition, setTabTransition] = useState(false);
 
   useEffect(() => {
-    fetchUserData();
-    if (activeTab === 'overview') {
-      fetchOrders();
-    }
+    setTabTransition(true);
+    const timer = setTimeout(() => {
+      setTabTransition(false);
+      fetchUserData();
+      if (activeTab === 'overview') {
+        fetchOrders();
+      } else if (activeTab === 'messages') {
+        fetchNotifications();
+      }
+    }, 150);
+    return () => clearTimeout(timer);
   }, [activeTab]);
 
   const fetchUserData = async () => {
@@ -43,6 +53,17 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await getNotifications();
+      if (response.success) {
+        setNotifications(response.notifications || []);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
     }
   };
 
@@ -182,6 +203,22 @@ const Dashboard = () => {
                     <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
                   )}
                 </button>
+                <button
+                  onClick={() => setActiveTab('messages')}
+                  className={`w-full text-left px-4 py-2 rounded-md transition-all duration-300 relative overflow-hidden ${
+                    activeTab === 'messages'
+                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                      : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
+                  }`}
+                  style={{
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  <span className="relative z-10">Mensagens</span>
+                  {activeTab === 'messages' && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
+                  )}
+                </button>
               </nav>
             </div>
           </div>
@@ -189,6 +226,7 @@ const Dashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-md p-6">
+              <div className={`transition-all duration-300 ${tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
               {activeTab === 'overview' && (
                 <div>
                   <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Visão Geral</h2>
@@ -322,7 +360,13 @@ const Dashboard = () => {
                         return (
                           <div key={docType} className="flex justify-between items-center p-3 bg-bgSecondary rounded-md">
                             <span className="text-mediumTeal">{docLabels[docType]}</span>
-                            <span className={`badge ${getStatusBadge(docInfo.status)}`}>
+                            <span 
+                              className={`badge ${getStatusBadge(docInfo.status)}`}
+                              style={{
+                                backgroundColor: docInfo.status === 'approved' ? '#10b981' : docInfo.status === 'pending' ? '#f59e0b' : docInfo.status === 'rejected' ? '#ef4444' : '#6b7280',
+                                color: '#ffffff'
+                              }}
+                            >
                               {docInfo.label}
                             </span>
                           </div>
@@ -356,6 +400,54 @@ const Dashboard = () => {
                   <DocumentUpload user={user} onUploadSuccess={fetchUserData} />
                 </div>
               )}
+
+              {activeTab === 'messages' && (
+                <div>
+                  <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Mensagens</h2>
+                  {notifications.length === 0 ? (
+                    <div className="text-center py-12">
+                      <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhuma mensagem</h3>
+                      <p className="text-sm text-mediumTeal">Você não possui mensagens no momento.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {notifications.map((notification) => (
+                        <div
+                          key={notification._id}
+                          className={`bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-all ${
+                            !notification.read ? 'bg-primary/10 border-l-4 border-l-primary' : ''
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <p className="font-semibold text-darkTeal">{notification.title || 'Notificação'}</p>
+                                {!notification.read && (
+                                  <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                )}
+                              </div>
+                              <p className="text-sm text-mediumTeal mb-2">{notification.message || notification.content || ''}</p>
+                              <p className="text-xs text-mediumTeal/70">
+                                {new Date(notification.createdAt).toLocaleDateString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              </div>
             </div>
           </div>
         </div>

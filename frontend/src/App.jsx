@@ -111,22 +111,8 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/auth/callback" element={<OAuthCallback />} />
                 <Route path="/agendar" element={<Booking />} />
-                <Route
-                  path="/produtos"
-                  element={
-                    <ProtectedRoute requireAuth requireAuthorization>
-                      <Products />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/produtos/:slug"
-                  element={
-                    <ProtectedRoute requireAuth requireAuthorization>
-                      <ProductDetail />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/produtos" element={<Products />} />
+                <Route path="/produtos/:slug" element={<ProductDetail />} />
                 <Route
                   path="/dashboard"
                   element={

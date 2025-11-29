@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 
 const NotificationBell = () => {
@@ -7,6 +8,7 @@ const NotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const menuRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchNotifications();
@@ -57,6 +59,37 @@ const NotificationBell = () => {
       } catch (error) {
         console.error('Error marking notification as read:', error);
       }
+    }
+  };
+
+  const getTypeIcon = (type) => {
+    const iconClass = "w-4 h-4 flex-shrink-0";
+    switch (type) {
+      case 'success':
+        return (
+          <svg className={`${iconClass} text-green-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'warning':
+        return (
+          <svg className={`${iconClass} text-yellow-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        );
+      case 'error':
+        return (
+          <svg className={`${iconClass} text-red-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'info':
+      default:
+        return (
+          <svg className={`${iconClass} text-blue-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
     }
   };
 
@@ -128,16 +161,14 @@ const NotificationBell = () => {
                         {!notification.read && (
                           <span className="mt-1.5 w-2 h-2 bg-primary rounded-full flex-shrink-0"></span>
                         )}
-                        <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-1">
+                          {getTypeIcon(notification.type || 'info')}
                           <p className={`text-sm font-semibold ${!notification.read ? 'text-primary' : 'text-darkTeal'}`}>
                             {notification.title || 'Notificação'}
                           </p>
                         </div>
                       </div>
                       <div className="ml-4 space-y-1">
-                        <p className="text-xs font-medium text-mediumTeal">
-                          Tipo: <span className="text-darkTeal">{notification.type || 'info'}</span>
-                        </p>
                         <p className="text-xs text-mediumTeal leading-relaxed">
                           {notification.message || notification.content || ''}
                         </p>
@@ -156,6 +187,20 @@ const NotificationBell = () => {
                 </div>
               ))
             )}
+          </div>
+          <div className="px-4 py-3 border-t border-primary/10">
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/dashboard', { state: { tab: 'messages' } });
+              }}
+              className="w-full text-left px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-md transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Ir para caixa de mensagens
+            </button>
           </div>
         </div>
       )}

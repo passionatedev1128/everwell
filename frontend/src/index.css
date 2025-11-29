@@ -824,10 +824,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
 .react-datepicker__day-name {
   @apply font-medium text-xs;
-  color: #4ade80 !important; /* Green-like color */
+  color: #4fb3a8 !important; /* Primary teal color */
   width: 2.25rem;
   line-height: 2.25rem;
   margin: 0;
+  margin-top: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1499,5 +1500,132 @@ input[type="checkbox"]:checked::before {
 input[type="checkbox"]:focus {
   outline: none;
   box-shadow: 0 0 0 4px rgba(79, 179, 168, 0.2);
+}
+
+/* Elegant Custom Dropdown Styles with Animations */
+select {
+  @apply appearance-none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+/* Hover state - Enhanced arrow and lift effect */
+select:hover {
+  @apply border-primary/50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(79, 179, 168, 0.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Focus state - Rotated arrow, ring, and enhanced shadow */
+select:focus {
+  @apply border-primary ring-2 ring-primary/20;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 179, 168, 0.25);
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234fb3a8' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 15l7-7 7 7'%3E%3C/path%3E%3C/svg%3E");
+  animation: selectFocusPulse 0.3s ease-out;
+}
+
+/* Subtle pulse animation on focus */
+@keyframes selectFocusPulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(79, 179, 168, 0.15);
+  }
+  50% {
+    box-shadow: 0 6px 16px rgba(79, 179, 168, 0.3);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(79, 179, 168, 0.25);
+  }
+}
+
+select:active {
+  transform: translateY(0);
+}
+
+select:disabled {
+  @apply opacity-50 cursor-not-allowed;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  transform: none;
+  box-shadow: none;
+}
+
+/* Custom option styling */
+select option {
+  @apply bg-white text-darkTeal;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+select option:hover {
+  @apply bg-primary/10;
+}
+
+select option:checked,
+select option:focus {
+  @apply bg-primary/20 text-primary font-medium;
+}
+
+/* Dropdown animation keyframes */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom ElegantSelect dropdown animations */
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-dropdownSlideIn {
+  animation: dropdownSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Enhanced select wrapper for better visual feedback */
+.elegant-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.elegant-select-wrapper::before {
+  content: '';
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #4fb3a8;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.elegant-select-wrapper:focus-within::before {
+  transform: translateY(-50%) rotate(180deg);
 }
 

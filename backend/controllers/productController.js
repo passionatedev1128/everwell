@@ -2,14 +2,7 @@ import Product from '../models/Product.js';
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    // Check if user is authorized
-    if (!req.user.isAuthorized) {
-      return res.status(403).json({
-        success: false,
-        message: 'Acesso negado. Você precisa ser autorizado para visualizar os produtos.'
-      });
-    }
-
+    // Products are now public - no authorization check needed
     const products = await Product.find({ visible: true }).sort({ createdAt: -1 });
     
     res.json({
@@ -24,14 +17,7 @@ export const getAllProducts = async (req, res, next) => {
 
 export const getProductById = async (req, res, next) => {
   try {
-    // Check if user is authorized
-    if (!req.user.isAuthorized) {
-      return res.status(403).json({
-        success: false,
-        message: 'Acesso negado. Você precisa ser autorizado para visualizar este produto.'
-      });
-    }
-
+    // Products are now public - no authorization check needed
     const product = await Product.findOne({ 
       _id: req.params.id,
       visible: true 
@@ -55,14 +41,7 @@ export const getProductById = async (req, res, next) => {
 
 export const getProductBySlug = async (req, res, next) => {
   try {
-    // Check if user is authorized
-    if (!req.user.isAuthorized) {
-      return res.status(403).json({
-        success: false,
-        message: 'Acesso negado. Você precisa ser autorizado para visualizar este produto.'
-      });
-    }
-
+    // Products are now public - no authorization check needed
     const product = await Product.findOne({ 
       slug: req.params.slug,
       visible: true 
