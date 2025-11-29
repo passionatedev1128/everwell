@@ -187,10 +187,11 @@ const Admin = () => {
     }
   };
 
-  const fetchFeedbacks = async () => {
+  const fetchFeedbacks = async (statusFilter = null) => {
     try {
       setFeedbacksLoading(true);
-      const status = feedbackStatusFilter !== 'all' ? feedbackStatusFilter : null;
+      const statusToUse = statusFilter !== null ? statusFilter : feedbackStatusFilter;
+      const status = statusToUse !== 'all' ? statusToUse : null;
       const response = await getAllFeedbacksAdmin(status);
       if (response.success) {
         setFeedbacks(response.feedbacks || []);
@@ -1604,8 +1605,9 @@ const Admin = () => {
                   <select
                     value={feedbackStatusFilter}
                     onChange={(e) => {
-                      setFeedbackStatusFilter(e.target.value);
-                      fetchFeedbacks();
+                      const newStatus = e.target.value;
+                      setFeedbackStatusFilter(newStatus);
+                      fetchFeedbacks(newStatus);
                     }}
                     className="rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
                   >
