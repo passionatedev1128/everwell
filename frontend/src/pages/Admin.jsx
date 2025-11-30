@@ -46,7 +46,9 @@ const Admin = () => {
   const [deleteFeedbackModal, setDeleteFeedbackModal] = useState({ open: false, feedback: null });
   const [deleteMessageModal, setDeleteMessageModal] = useState({ open: false, message: null });
   const [passwordModal, setPasswordModal] = useState({ open: false, userId: null, userName: '' });
+  const [passwordModalClosing, setPasswordModalClosing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
   const [blogs, setBlogs] = useState([]);
@@ -68,6 +70,18 @@ const Admin = () => {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messageModal, setMessageModal] = useState({ open: false, mode: 'single', editingMessage: null });
   const [messageModalClosing, setMessageModalClosing] = useState(false);
+  const [faqs, setFaqs] = useState([]);
+  const [faqsLoading, setFaqsLoading] = useState(false);
+  const [faqModal, setFaqModal] = useState({ open: false, faq: null, mode: 'create' });
+  const [faqModalClosing, setFaqModalClosing] = useState(false);
+  const [deleteFaqModal, setDeleteFaqModal] = useState({ open: false, faq: null });
+  const [deleteFaqModalClosing, setDeleteFaqModalClosing] = useState(false);
+  const [faqForm, setFaqForm] = useState({
+    question: '',
+    answer: '',
+    order: 0,
+    active: true
+  });
   const [productModalClosing, setProductModalClosing] = useState(false);
   const [blogModalClosing, setBlogModalClosing] = useState(false);
   const [deleteProductModalClosing, setDeleteProductModalClosing] = useState(false);
@@ -131,6 +145,8 @@ const Admin = () => {
         fetchFeedbacks();
       } else if (activeTab === 'messages') {
         fetchMessages();
+      } else if (activeTab === 'faqs') {
+        fetchFaqs();
       }
     }, 150);
     return () => clearTimeout(timer);
@@ -226,6 +242,85 @@ const Admin = () => {
       toast.error('Erro ao carregar mensagens.');
     } finally {
       setMessagesLoading(false);
+    }
+  };
+
+  const fetchFaqs = async () => {
+    try {
+      setFaqsLoading(true);
+      // Try admin endpoint first, fallback to public endpoint
+      try {
+        const response = await api.get('/admin/faqs');
+        if (response.data.success) {
+          setFaqs(response.data.faqs || []);
+        }
+      } catch (adminErr) {
+        // If admin endpoint doesn't exist, use public endpoint
+        const response = await api.get('/faqs');
+        if (response.data.success) {
+          setFaqs(response.data.faqs || []);
+        }
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erro ao carregar FAQs.');
+      toast.error('Erro ao carregar FAQs.');
+    } finally {
+      setFaqsLoading(false);
+    }
+  };
+
+  const handleCreateFaq = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post('/admin/faqs', faqForm);
+      if (response.data.success) {
+        toast.success('FAQ criado com sucesso!');
+        setFaqModalClosing(true);
+        setTimeout(() => {
+          setFaqModal({ open: false, faq: null, mode: 'create' });
+          setFaqModalClosing(false);
+          setFaqForm({ question: '', answer: '', order: 0, active: true });
+          fetchFaqs();
+        }, 300);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao criar FAQ.');
+    }
+  };
+
+  const handleUpdateFaq = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.patch(`/admin/faqs/${faqModal.faq._id}`, faqForm);
+      if (response.data.success) {
+        toast.success('FAQ atualizado com sucesso!');
+        setFaqModalClosing(true);
+        setTimeout(() => {
+          setFaqModal({ open: false, faq: null, mode: 'create' });
+          setFaqModalClosing(false);
+          setFaqForm({ question: '', answer: '', order: 0, active: true });
+          fetchFaqs();
+        }, 300);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao atualizar FAQ.');
+    }
+  };
+
+  const confirmDeleteFaq = async () => {
+    try {
+      const response = await api.delete(`/admin/faqs/${deleteFaqModal.faq._id}`);
+      if (response.data.success) {
+        toast.success('FAQ deletado com sucesso!');
+        setDeleteFaqModalClosing(true);
+        setTimeout(() => {
+          setDeleteFaqModal({ open: false, faq: null });
+          setDeleteFaqModalClosing(false);
+          fetchFaqs();
+        }, 300);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao deletar FAQ.');
     }
   };
 
@@ -1072,6 +1167,19 @@ const Admin = () => {
               <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('faqs')}
+            className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
+              activeTab === 'faqs'
+                ? 'bg-primary text-white shadow-md transform scale-105'
+                : 'text-mediumTeal hover:text-darkTeal hover:bg-primary/10'
+            }`}
+          >
+            <span className="relative z-10">FAQs</span>
+            {activeTab === 'faqs' && (
+              <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90 animate-pulse"></span>
+            )}
+          </button>
         </div>
 
         {activeTab === 'users' && (
@@ -1117,7 +1225,11 @@ const Admin = () => {
                 })}
                 onToggleAuthorization={handleToggleAuthorization}
                 onDeleteUser={handleDeleteUser}
-                onChangePassword={(userId, userName) => setPasswordModal({ open: true, userId, userName })}
+                onChangePassword={(userId, userName) => {
+                  setPasswordModalClosing(false);
+                  setShowPassword(false);
+                  setPasswordModal({ open: true, userId, userName });
+                }}
                 sortConfig={userSortConfig}
                 onSort={handleUserSort}
               />
@@ -1594,7 +1706,7 @@ const Admin = () => {
                           <img
                             src={blog.imageUrl}
                             alt={blog.title}
-                            className="w-full h-32 object-cover rounded-md"
+                            className="w-full h-48 object-cover rounded-md"
                             onError={(e) => {
                               e.target.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
                             }}
@@ -1910,6 +2022,113 @@ const Admin = () => {
           </div>
         )}
 
+        {activeTab === 'faqs' && (
+          <div 
+            className={`bg-white rounded-lg shadow-sm border border-primary/20 transition-all duration-300 ${
+              tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+            }`}
+          >
+            <div className="px-6 py-4 border-b border-primary/20">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-darkTeal">Gerenciar FAQs</h2>
+                  <p className="text-sm text-mediumTeal mt-1">Gerencie perguntas frequentes</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setFaqForm({
+                      question: '',
+                      answer: '',
+                      order: 0,
+                      active: true
+                    });
+                    setFaqModal({ open: true, faq: null, mode: 'create' });
+                  }}
+                  className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Nova FAQ
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              {faqsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4" />
+                  <p className="text-mediumTeal text-sm font-medium">Carregando FAQs...</p>
+                </div>
+              ) : faqs.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhuma FAQ encontrada</h3>
+                  <p className="text-sm text-mediumTeal">Comece criando sua primeira FAQ.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {faqs.map((faq) => (
+                    <div
+                      key={faq._id}
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md hover:bg-primary/10 transition-all"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <p className="font-semibold text-darkTeal">{faq.question}</p>
+                            {!faq.active && (
+                              <span className="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700">
+                                Inativo
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-mediumTeal mb-2">{faq.answer}</p>
+                          <div className="flex items-center gap-4 text-xs text-mediumTeal/70">
+                            <span>Ordem: {faq.order || 0}</span>
+                            <span>
+                              {new Date(faq.createdAt).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setFaqForm({
+                                question: faq.question || '',
+                                answer: faq.answer || '',
+                                order: faq.order || 0,
+                                active: faq.active !== false
+                              });
+                              setFaqModal({ open: true, faq, mode: 'edit' });
+                            }}
+                            className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeleteFaqModal({ open: true, faq });
+                            }}
+                            className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Deletar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Message Modal */}
         {messageModal.open && createPortal(
           <div
@@ -2158,15 +2377,28 @@ const Admin = () => {
 
         {passwordModal.open && createPortal(
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              passwordModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
             onClick={() => {
-              setPasswordModal({ open: false, userId: null, userName: '' });
-              setNewPassword('');
+              setPasswordModalClosing(true);
+              setTimeout(() => {
+                setPasswordModal({ open: false, userId: null, userName: '' });
+                setPasswordModalClosing(false);
+                setNewPassword('');
+              }, 300);
             }}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                passwordModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
               onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: passwordModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
             >
               <h2 className="text-xl font-semibold text-darkTeal mb-4">Alterar Senha</h2>
               <p className="text-sm text-mediumTeal mb-4">
@@ -2182,8 +2414,12 @@ const Admin = () => {
                   const response = await updateUserPasswordAdmin(passwordModal.userId, newPassword);
                   if (response.success) {
                     toast.success('Senha alterada com sucesso!');
-                    setPasswordModal({ open: false, userId: null, userName: '' });
-                    setNewPassword('');
+                    setPasswordModalClosing(true);
+                    setTimeout(() => {
+                      setPasswordModal({ open: false, userId: null, userName: '' });
+                      setPasswordModalClosing(false);
+                      setNewPassword('');
+                    }, 300);
                   }
                 } catch (err) {
                   toast.error(err.response?.data?.message || 'Erro ao alterar senha.');
@@ -2206,22 +2442,46 @@ const Admin = () => {
                   <label className="block text-sm font-medium text-darkTeal mb-2">
                     Nova Senha
                   </label>
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                    placeholder="Digite a nova senha (mínimo 6 caracteres)"
-                    required
-                    minLength={6}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 pr-10 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-300"
+                      placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-mediumTeal hover:text-darkTeal transition-colors"
+                      title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showPassword ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
                   <button
                     type="button"
                     onClick={() => {
-                      setPasswordModal({ open: false, userId: null, userName: '' });
-                      setNewPassword('');
+                      setPasswordModalClosing(true);
+                      setTimeout(() => {
+                        setPasswordModal({ open: false, userId: null, userName: '' });
+                        setPasswordModalClosing(false);
+                        setNewPassword('');
+                        setShowPassword(false);
+                      }, 300);
                     }}
                     className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
                   >
@@ -3177,6 +3437,200 @@ const Admin = () => {
                 </button>
                 <button
                   onClick={confirmDeleteFeedback}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* FAQ Modal */}
+        {faqModal.open && createPortal(
+          <div
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              faqModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setFaqModalClosing(true);
+              setTimeout(() => {
+                setFaqModal({ open: false, faq: null, mode: 'create' });
+                setFaqModalClosing(false);
+                setFaqForm({ question: '', answer: '', order: 0, active: true });
+              }, 300);
+            }}
+          >
+            <div
+              className={`bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+                faqModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: faqModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
+                  <h2 className="text-xl font-semibold text-darkTeal">
+                    {faqModal.mode === 'edit' ? 'Editar FAQ' : 'Nova FAQ'}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setFaqModalClosing(true);
+                      setTimeout(() => {
+                        setFaqModal({ open: false, faq: null, mode: 'create' });
+                        setFaqModalClosing(false);
+                        setFaqForm({ question: '', answer: '', order: 0, active: true });
+                      }, 300);
+                    }}
+                    className="text-mediumTeal hover:text-darkTeal transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <form onSubmit={faqModal.mode === 'edit' ? handleUpdateFaq : handleCreateFaq} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Pergunta *
+                    </label>
+                    <input
+                      type="text"
+                      value={faqForm.question}
+                      onChange={(e) => setFaqForm({ ...faqForm, question: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">
+                      Resposta *
+                    </label>
+                    <textarea
+                      value={faqForm.answer}
+                      onChange={(e) => setFaqForm({ ...faqForm, answer: e.target.value })}
+                      rows={6}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">
+                        Ordem
+                      </label>
+                      <input
+                        type="number"
+                        value={faqForm.order}
+                        onChange={(e) => setFaqForm({ ...faqForm, order: parseInt(e.target.value) || 0 })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        min="0"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 pt-8">
+                      <input
+                        type="checkbox"
+                        id="faqActive"
+                        checked={faqForm.active}
+                        onChange={(e) => setFaqForm({ ...faqForm, active: e.target.checked })}
+                        className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                      />
+                      <label htmlFor="faqActive" className="text-sm font-medium text-darkTeal">
+                        Ativo
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFaqModalClosing(true);
+                        setTimeout(() => {
+                          setFaqModal({ open: false, faq: null, mode: 'create' });
+                          setFaqModalClosing(false);
+                          setFaqForm({ question: '', answer: '', order: 0, active: true });
+                        }, 300);
+                      }}
+                      className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      {faqModal.mode === 'edit' ? 'Salvar Alterações' : 'Criar FAQ'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Delete FAQ Modal */}
+        {deleteFaqModal.open && createPortal(
+          <div
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              deleteFaqModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setDeleteFaqModalClosing(true);
+              setTimeout(() => {
+                setDeleteFaqModal({ open: false, faq: null });
+                setDeleteFaqModalClosing(false);
+              }, 300);
+            }}
+          >
+            <div
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+                deleteFaqModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: deleteFaqModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-darkTeal">Confirmar exclusão</h3>
+                  <p className="text-sm text-mediumTeal">Esta ação é irreversível</p>
+                </div>
+              </div>
+              <p className="text-mediumTeal mb-6">
+                Tem certeza que deseja deletar a FAQ <strong className="text-darkTeal">"{deleteFaqModal.faq?.question}"</strong>?
+                <br />
+                <br />
+                Esta ação não pode ser desfeita.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setDeleteFaqModalClosing(true);
+                    setTimeout(() => {
+                      setDeleteFaqModal({ open: false, faq: null });
+                      setDeleteFaqModalClosing(false);
+                    }, 300);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteFaq}
                   className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                 >
                   Deletar

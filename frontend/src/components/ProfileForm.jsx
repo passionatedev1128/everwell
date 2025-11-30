@@ -2,37 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { updateProfile, uploadUserPhoto, getCurrentUser } from '../utils/api';
 import { toast } from 'react-hot-toast';
 import { setUser } from '../utils/auth';
-
-// Countries list with dialing codes
-const getCountriesList = () => {
-  return [
-    { name: 'Brasil', code: 'BR', dialCode: '+55' },
-    { name: 'Estados Unidos', code: 'US', dialCode: '+1' },
-    { name: 'Argentina', code: 'AR', dialCode: '+54' },
-    { name: 'Chile', code: 'CL', dialCode: '+56' },
-    { name: 'Colômbia', code: 'CO', dialCode: '+57' },
-    { name: 'México', code: 'MX', dialCode: '+52' },
-    { name: 'Portugal', code: 'PT', dialCode: '+351' },
-    { name: 'Espanha', code: 'ES', dialCode: '+34' },
-    { name: 'França', code: 'FR', dialCode: '+33' },
-    { name: 'Alemanha', code: 'DE', dialCode: '+49' },
-    { name: 'Itália', code: 'IT', dialCode: '+39' },
-    { name: 'Reino Unido', code: 'GB', dialCode: '+44' },
-    { name: 'Canadá', code: 'CA', dialCode: '+1' },
-    { name: 'Austrália', code: 'AU', dialCode: '+61' },
-    { name: 'Japão', code: 'JP', dialCode: '+81' },
-    { name: 'China', code: 'CN', dialCode: '+86' },
-    { name: 'Índia', code: 'IN', dialCode: '+91' },
-    { name: 'Rússia', code: 'RU', dialCode: '+7' },
-    { name: 'África do Sul', code: 'ZA', dialCode: '+27' },
-    { name: 'Outro', code: 'XX', dialCode: '+' }
-  ];
-};
-
-const getCountryCode = (countryName) => {
-  const country = getCountriesList().find(c => c.name === countryName);
-  return country ? country.dialCode : null;
-};
+import { getCountriesList, getCountryCode } from '../utils/countries';
+import ElegantSelect from './ElegantSelect';
 
 const ProfileForm = ({ user, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
@@ -309,27 +280,27 @@ const ProfileForm = ({ user, onUpdateSuccess }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label htmlFor="address.country" className="form-label">País</label>
-                <select
-                  id="address.country"
-                  name="address.country"
+                <ElegantSelect
+                  label="País"
                   value={formData.address.country}
-                  onChange={(e) => {
-                    const countryCode = getCountryCode(e.target.value);
-                    handleChange(e);
-                    if (countryCode) {
-                      setFormData(prev => ({
-                        ...prev,
-                        phone: countryCode + (prev.phone || '').replace(/^\+\d{1,3}\s?/, '')
-                      }));
-                    }
+                  onChange={(value) => {
+                    const countryCode = getCountryCode(value);
+                    setFormData(prev => ({
+                      ...prev,
+                      address: {
+                        ...prev.address,
+                        country: value
+                      },
+                      phone: countryCode ? countryCode + (prev.phone || '').replace(/^\+\d{1,3}\s?/, '') : prev.phone
+                    }));
                   }}
-                  className="form-input"
-                >
-                  {getCountriesList().map(country => (
-                    <option key={country.code} value={country.name}>{country.name}</option>
-                  ))}
-                </select>
+                  options={getCountriesList().map(country => ({
+                    value: country.name,
+                    label: country.name
+                  }))}
+                  placeholder="Selecione o país"
+                  className="country-select-wrapper"
+                />
               </div>
               <div>
                 <label htmlFor="address.zipCode" className="form-label">CEP</label>

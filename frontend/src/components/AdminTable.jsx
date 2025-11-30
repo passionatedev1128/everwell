@@ -54,7 +54,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
             <tr>
               <th 
                 scope="col" 
-                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center">
@@ -64,7 +64,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
               </th>
               <th 
                 scope="col" 
-                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('email')}
               >
                 <div className="flex items-center">
@@ -74,7 +74,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
               </th>
               <th 
                 scope="col" 
-                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('role')}
               >
                 <div className="flex items-center">
@@ -84,7 +84,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
               </th>
               <th 
                 scope="col" 
-                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center">
@@ -94,7 +94,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
               </th>
               <th 
                 scope="col" 
-                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center">
@@ -121,7 +121,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                 onClick={() => navigate(`/admin/users/${user._id}`)}
                 style={{ transition: 'background-color 0.2s ease' }}
               >
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     {user.photo ? (
                       <img 
@@ -137,10 +137,10 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     <div className="text-xs font-medium text-darkTeal truncate max-w-[120px]">{user.name}</div>
                   </div>
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <div className="text-xs text-mediumTeal truncate max-w-[150px]">{user.email}</div>
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.role === 'admin'
@@ -151,7 +151,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     {user.role === 'admin' ? 'Admin' : 'Usuário'}
                   </span>
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.isAuthorized

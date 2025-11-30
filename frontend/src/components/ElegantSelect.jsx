@@ -11,7 +11,9 @@ const ElegantSelect = ({
   required = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [showAbove, setShowAbove] = useState(false);
   const selectRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -33,8 +35,12 @@ const ElegantSelect = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target)
       ) {
-        setIsOpen(false);
-        setHighlightedIndex(-1);
+        setIsClosing(true);
+        setTimeout(() => {
+          setIsOpen(false);
+          setIsClosing(false);
+          setHighlightedIndex(-1);
+        }, 200);
       }
     };
 
@@ -51,15 +57,23 @@ const ElegantSelect = ({
 
   const handleEscape = (e) => {
     if (e.key === 'Escape') {
-      setIsOpen(false);
-      setHighlightedIndex(-1);
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setIsClosing(false);
+        setHighlightedIndex(-1);
+      }, 200);
     }
   };
 
   const handleSelect = (optionValue, optionLabel) => {
     onChange(optionValue);
-    setIsOpen(false);
-    setHighlightedIndex(-1);
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+      setHighlightedIndex(-1);
+    }, 200);
   };
 
   const handleKeyDown = (e) => {
@@ -94,8 +108,12 @@ const ElegantSelect = ({
         }
         break;
       case 'Escape':
-        setIsOpen(false);
-        setHighlightedIndex(-1);
+        setIsClosing(true);
+        setTimeout(() => {
+          setIsOpen(false);
+          setIsClosing(false);
+          setHighlightedIndex(-1);
+        }, 200);
         break;
       default:
         break;
@@ -105,7 +123,7 @@ const ElegantSelect = ({
   return (
     <div className={`relative ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-darkTeal mb-1">
+        <label className="form-label block mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -113,19 +131,40 @@ const ElegantSelect = ({
       <div className="relative" ref={selectRef}>
         <button
           type="button"
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+          onClick={() => {
+            if (!disabled) {
+              if (isOpen) {
+                setIsClosing(true);
+                setTimeout(() => {
+                  setIsOpen(false);
+                  setIsClosing(false);
+                }, 200);
+              } else {
+                // Check if dropdown should show above
+                if (selectRef.current) {
+                  const rect = selectRef.current.getBoundingClientRect();
+                  const spaceBelow = window.innerHeight - rect.bottom;
+                  const spaceAbove = rect.top;
+                  const dropdownHeight = 240; // max-h-60 = 240px
+                  setShowAbove(spaceBelow < dropdownHeight && spaceAbove > spaceBelow);
+                }
+                setIsOpen(true);
+                setIsClosing(false);
+              }
+            }
+          }}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           className={`
-            w-full rounded-md border bg-white px-3 py-2 text-sm text-darkTeal
+            w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-darkTeal
             focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
             transition-all duration-300 ease-out
             ${disabled 
               ? 'opacity-50 cursor-not-allowed border-primary/20' 
-              : 'border-primary/30 cursor-pointer hover:border-primary/50 hover:shadow-md hover:-translate-y-0.5'
+              : 'border-primary/30 cursor-pointer hover:border-primary/50 hover:shadow-sm'
             }
             ${isOpen 
-              ? 'border-primary ring-2 ring-primary/20 shadow-lg -translate-y-0.5' 
+              ? 'border-primary ring-2 ring-primary/20 shadow-lg' 
               : ''
             }
           `}
@@ -160,10 +199,15 @@ const ElegantSelect = ({
           <div
             ref={dropdownRef}
             className={`
-              absolute z-50 w-full mt-1 bg-white rounded-md shadow-xl
+              absolute z-50 w-full bg-white rounded-xl shadow-xl
               border border-primary/20 overflow-hidden
-              animate-dropdownSlideIn
+              transition-all duration-200
+              ${showAbove ? 'bottom-full mb-1' : 'top-full mt-1'}
+              ${isClosing ? 'opacity-0 scale-95 translate-y-[-10px]' : 'opacity-100 scale-100 translate-y-0'}
             `}
+            style={{
+              animation: isClosing ? 'none' : 'dropdownSlideIn 0.2s ease-out'
+            }}
             role="listbox"
           >
             <div className="max-h-60 overflow-auto">

@@ -166,8 +166,13 @@ const NotificationBell = () => {
             <p className="text-sm font-semibold text-darkTeal">Notificações</p>
             {notifications.length > 0 && (
               <button
-                onClick={handleClearAll}
-                className="absolute top-3 right-4 p-1.5 text-xs font-medium text-mediumTeal hover:text-darkTeal hover:bg-primary/10 rounded-md transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClearAll();
+                }}
+                onMouseEnter={(e) => e.stopPropagation()}
+                onMouseLeave={(e) => e.stopPropagation()}
+                className="absolute top-3 right-4 p-1.5 text-xs font-medium text-mediumTeal hover:text-darkTeal hover:bg-primary/10 rounded-md transition-colors z-10"
                 title="Limpar todas"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

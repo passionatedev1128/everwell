@@ -612,12 +612,13 @@ const Home = () => {
             {differentiators.map((item, index) => (
               <div 
                 key={item.title} 
-                className="card space-y-4 overflow-hidden group relative"
+                className="card space-y-4 overflow-hidden group relative shadow-2xl"
                 style={{
                   backgroundImage: `url(/images/differentiator-${index + 1}.jpg)`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  minHeight: '300px'
+                  minHeight: '300px',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                 }}
               >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-90 transition-opacity duration-500"></div>

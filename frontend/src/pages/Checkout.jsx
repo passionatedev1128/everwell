@@ -4,37 +4,7 @@ import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
-
-// Countries list with dialing codes
-const getCountriesList = () => {
-  return [
-    { name: 'Brasil', code: 'BR', dialCode: '+55' },
-    { name: 'Estados Unidos', code: 'US', dialCode: '+1' },
-    { name: 'Argentina', code: 'AR', dialCode: '+54' },
-    { name: 'Chile', code: 'CL', dialCode: '+56' },
-    { name: 'Colômbia', code: 'CO', dialCode: '+57' },
-    { name: 'México', code: 'MX', dialCode: '+52' },
-    { name: 'Portugal', code: 'PT', dialCode: '+351' },
-    { name: 'Espanha', code: 'ES', dialCode: '+34' },
-    { name: 'França', code: 'FR', dialCode: '+33' },
-    { name: 'Alemanha', code: 'DE', dialCode: '+49' },
-    { name: 'Itália', code: 'IT', dialCode: '+39' },
-    { name: 'Reino Unido', code: 'GB', dialCode: '+44' },
-    { name: 'Canadá', code: 'CA', dialCode: '+1' },
-    { name: 'Austrália', code: 'AU', dialCode: '+61' },
-    { name: 'Japão', code: 'JP', dialCode: '+81' },
-    { name: 'China', code: 'CN', dialCode: '+86' },
-    { name: 'Índia', code: 'IN', dialCode: '+91' },
-    { name: 'Rússia', code: 'RU', dialCode: '+7' },
-    { name: 'África do Sul', code: 'ZA', dialCode: '+27' },
-    { name: 'Outro', code: 'XX', dialCode: '+' }
-  ];
-};
-
-const getCountryCode = (countryName) => {
-  const country = getCountriesList().find(c => c.name === countryName);
-  return country ? country.dialCode : null;
-};
+import { getCountriesList, getCountryCode } from '../utils/countries';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -196,7 +166,7 @@ const Checkout = () => {
                           }
                         }
                       }}
-                      className="form-input"
+                      className="form-input w-full rounded-xl border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-300 hover:border-primary/50 hover:shadow-sm"
                       required
                     >
                       {getCountriesList().map(country => (
