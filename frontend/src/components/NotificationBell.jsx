@@ -9,33 +9,140 @@ const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [notificationsCleared, setNotificationsCleared] = useState(false);
   const menuRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const closeTimeoutRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+  const checkHoverIntervalRef = useRef(null);
   const navigate = useNavigate();
+  
+  // Function to check if mouse is actually over notification area
+  const checkIsHovering = () => {
+    if (!isOpen) return false;
+    
+    const clearButton = document.querySelector('button[title="Limpar todas"]');
+    const isOverMenu = menuRef.current?.matches(':hover');
+    const isOverDropdown = dropdownRef.current?.matches(':hover');
+    const isOverClearButton = clearButton?.matches(':hover');
+    
+    return isOverMenu || isOverDropdown || isOverClearButton;
+  };
+
+  // Function to prevent closing - checks actual DOM state
+  const shouldPreventClosing = () => {
+    return checkIsHovering() || isHovering;
+  };
 
   useEffect(() => {
     fetchNotifications();
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
+    // Poll for new notifications every 30 seconds, but only if not cleared
+    const interval = setInterval(() => {
+      if (!notificationsCleared) {
+        fetchNotifications();
+      }
+    }, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [notificationsCleared]);
+
+  // Continuously check hover state when dropdown is open - PREVENT BLINKING
+  useEffect(() => {
+    if (isOpen) {
+      // Check hover state every 30ms to prevent blinking - more frequent
+      checkHoverIntervalRef.current = setInterval(() => {
+        const actuallyHovering = checkIsHovering();
+        if (actuallyHovering) {
+          // Always keep hover true and prevent closing
+          setIsHovering(true);
+          // Cancel any pending close immediately - CRITICAL
+          if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+          }
+          // Immediately stop closing animation if it's happening - CRITICAL
+          if (isClosing) {
+            setIsClosing(false);
+          }
+        }
+      }, 30); // More frequent checks
+      
+      return () => {
+        if (checkHoverIntervalRef.current) {
+          clearInterval(checkHoverIntervalRef.current);
+        }
+      };
+    }
+  }, [isOpen, isHovering, isClosing]);
+
+  // CRITICAL: Watch isClosing state and immediately reset if hovering
+  useEffect(() => {
+    if (isClosing && shouldPreventClosing()) {
+      // Immediately stop closing if we detect hovering
+      setIsClosing(false);
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    }
+  }, [isClosing, isHovering, isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      // Check if click is on Clear All button or any part of dropdown/menu - if so, don't close
+      const clearButton = event.target.closest('button[title="Limpar todas"]') || 
+                         event.target.closest('.clear-all-button');
+      const isInDropdown = dropdownRef.current?.contains(event.target);
+      const isInMenu = menuRef.current?.contains(event.target);
+      
+      if (clearButton || isInDropdown || isInMenu) {
+        return;
+      }
+      
+      // If clicking outside and dropdown is open, close it
+      if (
+        isOpen &&
+        menuRef.current && 
+        !menuRef.current.contains(event.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        // Close immediately when clicking outside (not hovering)
+        if (closeTimeoutRef.current) {
+          clearTimeout(closeTimeoutRef.current);
+        }
         setIsClosing(true);
-        setTimeout(() => {
+        setIsHovering(false);
+        closeTimeoutRef.current = setTimeout(() => {
           setIsOpen(false);
           setIsClosing(false);
+          closeTimeoutRef.current = null;
         }, 300);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    
+    if (isOpen) {
+      // Add listener immediately for click outside
+      document.addEventListener('mousedown', handleClickOutside);
+      
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        if (closeTimeoutRef.current) {
+          clearTimeout(closeTimeoutRef.current);
+        }
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+        }
+      };
+    }
+  }, [isOpen]);
 
   const fetchNotifications = async () => {
+    // Don't fetch if notifications were cleared
+    if (notificationsCleared) {
+      return;
+    }
+    
     try {
       setLoading(true);
       const response = await api.get('/notifications');
@@ -101,13 +208,17 @@ const NotificationBell = () => {
 
   const handleOpen = () => {
     if (isOpen) {
-      setIsClosing(true);
-      setTimeout(() => {
-        setIsOpen(false);
-        setIsClosing(false);
-      }, 300);
+      // Only close if not hovering
+      if (!isHovering) {
+        setIsClosing(true);
+        setTimeout(() => {
+          setIsOpen(false);
+          setIsClosing(false);
+        }, 300);
+      }
     } else {
       setIsOpen(true);
+      setIsHovering(false); // Reset hover state when opening
       if (unreadCount > 0) {
         // Mark all as read when opening
         notifications.filter(n => !n.read).forEach(async (notification) => {
@@ -126,15 +237,65 @@ const NotificationBell = () => {
   const handleClearAll = async () => {
     try {
       await markAllNotificationsAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      // Clear all notifications from the dropdown
+      setNotifications([]);
       setUnreadCount(0);
+      // Mark as cleared to prevent refetching
+      setNotificationsCleared(true);
     } catch (error) {
       console.error('Error clearing all notifications:', error);
     }
   };
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div 
+      className="relative" 
+      ref={menuRef}
+      onMouseEnter={() => {
+        setIsHovering(true);
+        // Cancel any pending timeouts
+        if (closeTimeoutRef.current) {
+          clearTimeout(closeTimeoutRef.current);
+          closeTimeoutRef.current = null;
+        }
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+          hoverTimeoutRef.current = null;
+        }
+        if (isClosing) {
+          setIsClosing(false);
+        }
+      }}
+      onMouseLeave={(e) => {
+        // Check if mouse moved to dropdown or clear button
+        const relatedTarget = e.relatedTarget;
+        const clearButton = document.querySelector('button[title="Limpar todas"]');
+        const movedToDropdown = relatedTarget && dropdownRef.current?.contains(relatedTarget);
+        const movedToClearButton = relatedTarget && (
+          relatedTarget === clearButton ||
+          clearButton?.contains(relatedTarget) ||
+          relatedTarget.closest?.('button[title="Limpar todas"]')
+        );
+        
+        if (movedToDropdown || movedToClearButton) {
+          // Mouse moved within notification area, keep hover true
+          setIsHovering(true);
+          return;
+        }
+        
+        // Use longer delay to prevent blinking
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+        }
+        hoverTimeoutRef.current = setTimeout(() => {
+          // Final check before clearing hover
+          if (!checkIsHovering()) {
+            setIsHovering(false);
+          }
+          hoverTimeoutRef.current = null;
+        }, 500);
+      }}
+    >
       <button
         onClick={handleOpen}
         className="notification-bell-btn relative p-2 rounded-full hover:bg-primary/10 transition-colors"
@@ -155,31 +316,138 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className={`absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm transition-all duration-300 ${
-          isClosing ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
-        }`}
-        style={{
-          animation: isClosing ? 'none' : 'slideDownFadeIn 0.3s ease-out'
-        }}>
+        <div 
+          ref={dropdownRef}
+          onMouseEnter={(e) => {
+            e.stopPropagation();
+            setIsHovering(true);
+            // Cancel any pending close or hover timeout
+            if (closeTimeoutRef.current) {
+              clearTimeout(closeTimeoutRef.current);
+              closeTimeoutRef.current = null;
+            }
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+              hoverTimeoutRef.current = null;
+            }
+            if (isClosing) {
+              setIsClosing(false);
+            }
+          }}
+          onMouseOver={(e) => {
+            // Keep hover active on any mouse movement within dropdown
+            setIsHovering(true);
+            // Immediately cancel any timeouts
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+              hoverTimeoutRef.current = null;
+            }
+            if (closeTimeoutRef.current) {
+              clearTimeout(closeTimeoutRef.current);
+              closeTimeoutRef.current = null;
+            }
+            // Immediately stop closing animation if it's happening
+            if (isClosing) {
+              setIsClosing(false);
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation();
+            // Check if mouse is moving to Clear All button or menu
+            const relatedTarget = e.relatedTarget;
+            const clearButton = document.querySelector('button[title="Limpar todas"]');
+            const isMovingToClearButton = relatedTarget && (
+              relatedTarget === clearButton ||
+              clearButton?.contains(relatedTarget) ||
+              relatedTarget.closest?.('button[title="Limpar todas"]') ||
+              relatedTarget.closest?.('.clear-all-button') ||
+              relatedTarget.matches?.('button[title="Limpar todas"]') ||
+              relatedTarget.matches?.('.clear-all-button')
+            );
+            const isMovingToMenu = relatedTarget && menuRef.current?.contains(relatedTarget);
+            
+            // If moving within notification area, keep hover true and prevent any closing
+            if (isMovingToClearButton || isMovingToMenu) {
+              setIsHovering(true);
+              if (isClosing) {
+                setIsClosing(false);
+              }
+              if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+                closeTimeoutRef.current = null;
+              }
+              return;
+            }
+            
+            // Only proceed if truly leaving the notification area
+            // Clear any existing hover timeout
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+            }
+            // Use a longer delay before setting isHovering to false
+            hoverTimeoutRef.current = setTimeout(() => {
+              // Final check - make sure mouse is still outside
+              if (!checkIsHovering()) {
+                setIsHovering(false);
+              } else {
+                // Mouse is still in notification area, keep hover true
+                setIsHovering(true);
+              }
+              hoverTimeoutRef.current = null;
+            }, 600);
+          }}
+          className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm"
+          style={{
+            animation: isClosing && !shouldPreventClosing() ? 'none' : 'slideDownFadeIn 0.3s ease-out',
+            pointerEvents: 'auto',
+            opacity: (isClosing && !shouldPreventClosing()) ? 0 : 1,
+            transform: (isClosing && !shouldPreventClosing()) ? 'scale(0.95) translateY(8px)' : 'scale(1) translateY(0)',
+            transition: shouldPreventClosing() ? 'none' : 'all 0.3s ease-out'
+          }}>
           <div className="absolute top-0 right-4 -mt-2 w-4 h-4 bg-white border-l border-t border-primary/20 transform rotate-45"></div>
-          <div className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent relative">
-            <p className="text-sm font-semibold text-darkTeal">Notificações</p>
-            {notifications.length > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleClearAll();
-                }}
-                onMouseEnter={(e) => e.stopPropagation()}
-                onMouseLeave={(e) => e.stopPropagation()}
-                className="absolute top-3 right-4 p-1.5 text-xs font-medium text-mediumTeal hover:text-darkTeal hover:bg-primary/10 rounded-md transition-colors z-10"
-                title="Limpar todas"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            )}
+          <div 
+            className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent relative"
+            onMouseEnter={() => {
+              setIsHovering(true);
+              if (isClosing) {
+                setIsClosing(false);
+              }
+              if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+                closeTimeoutRef.current = null;
+              }
+            }}
+            onMouseOver={() => {
+              setIsHovering(true);
+              if (isClosing) {
+                setIsClosing(false);
+              }
+              if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+                closeTimeoutRef.current = null;
+              }
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-darkTeal">Notificações</p>
+              {notifications.length > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleClearAll();
+                  }}
+                  className="p-1.5 text-xs font-medium text-mediumTeal hover:text-darkTeal hover:bg-primary/10 rounded-md transition-colors flex-shrink-0"
+                  title="Limpar todas"
+                  aria-label="Limpar todas as notificações"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
