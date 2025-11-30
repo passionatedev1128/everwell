@@ -17,17 +17,25 @@ const Dashboard = () => {
   const [tabTransition, setTabTransition] = useState(false);
 
   useEffect(() => {
+    // Start with content invisible for fade in
     setTabTransition(true);
-    const timer = setTimeout(() => {
+    
+    // Fetch data
+    fetchUserData();
+    if (activeTab === 'overview') {
+      fetchOrders();
+    } else if (activeTab === 'messages') {
+      fetchNotifications();
+    }
+    
+    // Fade in after a brief moment
+    const fadeInTimer = setTimeout(() => {
       setTabTransition(false);
-      fetchUserData();
-      if (activeTab === 'overview') {
-        fetchOrders();
-      } else if (activeTab === 'messages') {
-        fetchNotifications();
-      }
-    }, 150);
-    return () => clearTimeout(timer);
+    }, 50);
+    
+    return () => {
+      clearTimeout(fadeInTimer);
+    };
   }, [activeTab]);
 
   const fetchUserData = async () => {
@@ -68,14 +76,15 @@ const Dashboard = () => {
   };
 
   const getDocumentStatus = (documentType) => {
+  
     if (!user?.documents?.[documentType]) {
       return { status: 'missing', label: 'Não enviado', color: 'text-gray-500' };
     }
     const doc = user.documents[documentType];
     const statusMap = {
-      pending: { label: 'Pendente', color: 'text-warning' },
-      approved: { label: 'Aprovado', color: 'text-success' },
-      rejected: { label: 'Rejeitado', color: 'text-error' }
+      pending: { status: 'pending', label: 'Pendente', color: 'text-warning' },
+      approved: { status: 'approved', label: 'Aprovado', color: 'text-success' },
+      rejected: { status: 'rejected', label: 'Rejeitado', color: 'text-error' }
     };
     return statusMap[doc.status] || { label: 'Desconhecido', color: 'text-gray-500' };
   };
@@ -226,7 +235,14 @@ const Dashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <div className={`transition-all duration-300 ${tabTransition ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
+              <div 
+                key={activeTab}
+                className={`${tabTransition ? 'opacity-0' : 'opacity-100'}`} 
+                style={{ 
+                  transition: 'opacity 0.2s ease-in-out',
+                  minHeight: '200px'
+                }}
+              >
               {activeTab === 'overview' && (
                 <div>
                   <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Visão Geral</h2>
@@ -352,6 +368,7 @@ const Dashboard = () => {
                     <div className="space-y-2">
                       {['medicalPrescription', 'importAuthorization', 'proofOfResidence'].map((docType) => {
                         const docInfo = getDocumentStatus(docType);
+                        
                         const docLabels = {
                           medicalPrescription: 'Receita Médica',
                           importAuthorization: 'Autorização Anvisa',
@@ -361,10 +378,30 @@ const Dashboard = () => {
                           <div key={docType} className="flex justify-between items-center p-3 bg-bgSecondary rounded-md">
                             <span className="text-mediumTeal">{docLabels[docType]}</span>
                             <span 
-                              className={`badge ${getStatusBadge(docInfo.status)}`}
                               style={{
-                                backgroundColor: docInfo.status === 'approved' ? '#10b981' : docInfo.status === 'pending' ? '#f59e0b' : docInfo.status === 'rejected' ? '#ef4444' : '#6b7280',
-                                color: '#ffffff'
+                                backgroundColor: docInfo.status === 'approved' 
+                                  ? '#10b981' // Emerald green for "Aprovado"
+                                  : docInfo.status === 'pending' 
+                                  ? '#f97316' // Vibrant orange for "Pendente"
+                                  : docInfo.status === 'rejected' 
+                                  ? '#ef4444' // Red for "Rejeitado"
+                                  : '#3b82f6', // Blue for missing/not uploaded
+                                color: '#ffffff',
+                                fontWeight: '600',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '0.5rem',
+                                fontSize: '0.875rem',
+                                display: 'inline-block',
+                                minWidth: '90px',
+                                textAlign: 'center',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)',
+                                border: docInfo.status === 'approved' 
+                                  ? '1px solid #059669' 
+                                  : docInfo.status === 'pending' 
+                                  ? '1px solid #ea580c'
+                                  : docInfo.status === 'rejected'
+                                  ? '1px solid #dc2626'
+                                  : '1px solid #2563eb'
                               }}
                             >
                               {docInfo.label}
@@ -414,23 +451,54 @@ const Dashboard = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification._id}
-                          className={`bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-all ${
-                            !notification.read ? 'bg-primary/10 border-l-4 border-l-primary' : ''
-                          }`}
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <p className="font-semibold text-darkTeal">{notification.title || 'Notificação'}</p>
-                                {!notification.read && (
-                                  <span className="w-2 h-2 bg-primary rounded-full"></span>
-                                )}
+                      {notifications.map((notification) => {
+                        const getTypeIcon = (type) => {
+                          switch (type) {
+                            case 'success':
+                              return (
+                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              );
+                            case 'warning':
+                              return (
+                                <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                              );
+                            case 'error':
+                              return (
+                                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              );
+                            default:
+                              return (
+                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              );
+                          }
+                        };
+                        return (
+                          <div
+                            key={notification._id}
+                            className={`bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-all relative ${
+                              !notification.read ? 'bg-primary/10 border-l-4 border-l-primary' : ''
+                            }`}
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  {getTypeIcon(notification.type || 'info')}
+                                  <p className="font-semibold text-darkTeal">{notification.title || 'Notificação'}</p>
+                                  {!notification.read && (
+                                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-mediumTeal mb-2">{notification.message || notification.content || ''}</p>
                               </div>
-                              <p className="text-sm text-mediumTeal mb-2">{notification.message || notification.content || ''}</p>
-                              <p className="text-xs text-mediumTeal/70">
+                              <p className="text-xs text-mediumTeal/70 absolute top-4 right-4">
                                 {new Date(notification.createdAt).toLocaleDateString('pt-BR', {
                                   day: '2-digit',
                                   month: '2-digit',
@@ -441,8 +509,8 @@ const Dashboard = () => {
                               </p>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

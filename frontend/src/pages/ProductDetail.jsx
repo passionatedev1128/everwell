@@ -73,11 +73,12 @@ const ProductDetail = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-8">
           {product.images && product.images.length > 0 && (
-            <div className="mb-8">
+            <div className="mb-8 flex items-center justify-center">
               <img
                 src={product.images[0]}
                 alt={product.name}
-                className="w-full h-96 object-cover rounded-lg"
+                className="max-w-full max-h-[600px] w-auto h-auto object-contain rounded-lg"
+                style={{ width: '100%', height: 'auto', maxWidth: '800px' }}
               />
             </div>
           )}

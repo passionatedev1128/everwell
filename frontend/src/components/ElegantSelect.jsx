@@ -140,6 +140,7 @@ const ElegantSelect = ({
               className={`w-5 h-5 text-primary transition-transform duration-300 ${
                 isOpen ? 'transform rotate-180' : ''
               }`}
+              style={{ marginLeft: '7px' }}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

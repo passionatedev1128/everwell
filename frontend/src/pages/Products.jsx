@@ -4,6 +4,7 @@ import api from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/SkeletonLoader';
 import { EmptyProducts } from '../components/EmptyState';
+import Carousel from '../components/Carousel';
 import { trackViewItemList } from '../utils/analytics';
 // HubSpot: Removed view_category - GA4 handles category analytics
 import { trackViewItemList as gtmTrackViewItemList } from '../utils/gtm';
@@ -12,6 +13,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -85,8 +87,18 @@ const Products = () => {
     <div className="min-h-screen bg-bgSecondary py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-darkTeal mb-2">Produtos</h1>
-          <p className="text-mediumTeal text-sm sm:text-base">Nossos produtos exclusivos de cannabis medicinal</p>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-darkTeal mb-2">Produtos</h1>
+              <p className="text-mediumTeal text-sm sm:text-base">Nossos produtos exclusivos de cannabis medicinal</p>
+            </div>
+            {products.length > 0 && (
+              <div className="text-right">
+                <p className="text-sm text-mediumTeal">Total de produtos</p>
+                <p className="text-2xl font-bold text-primary">{products.length}</p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="bg-amber-50 border-l-4 border-amber-400 p-3 sm:p-4 mb-6 sm:mb-8 rounded-md">
@@ -107,6 +119,17 @@ const Products = () => {
 
         {products.length === 0 ? (
           <EmptyProducts />
+        ) : products.length > 3 ? (
+          <div className="relative">
+            <Carousel
+              items={products.map((product) => (
+                <div key={product._id} className="px-2">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+              itemsPerView={3}
+            />
+          </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (

@@ -202,6 +202,44 @@ export const sendToAllUsers = async (req, res, next) => {
   }
 };
 
+// Update notification (admin only)
+export const updateNotification = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, message, type, link } = req.body;
+
+    const notification = await Notification.findById(id);
+    
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: 'Notificação não encontrada.'
+      });
+    }
+
+    // Update fields if provided
+    if (title !== undefined) notification.title = title;
+    if (message !== undefined) notification.message = message;
+    if (type !== undefined) notification.type = type;
+    if (link !== undefined) notification.link = link;
+    
+    // Reset read status when updating (so user sees it as new)
+    notification.read = false;
+    notification.readAt = null;
+    notification.createdAt = new Date(); // Update timestamp to show as new message
+
+    await notification.save();
+
+    res.json({
+      success: true,
+      message: 'Notificação atualizada e reenviada com sucesso.',
+      notification
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Delete notification (admin - can delete any)
 export const deleteNotificationAdmin = async (req, res, next) => {
   try {

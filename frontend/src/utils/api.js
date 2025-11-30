@@ -310,8 +310,19 @@ export const sendNotificationToAllUsers = async (notificationData) => {
   return response.data;
 };
 
+export const updateNotificationAdmin = async (notificationId, notificationData) => {
+  const response = await api.patch(`/notifications/admin/${notificationId}`, notificationData);
+  return response.data;
+};
+
 export const deleteNotificationAdmin = async (notificationId) => {
   const response = await api.delete(`/notifications/admin/${notificationId}`);
+  return response.data;
+};
+
+// Admin user password update
+export const updateUserPasswordAdmin = async (userId, password) => {
+  const response = await api.patch(`/admin/users/${userId}/password`, { password });
   return response.data;
 };
 

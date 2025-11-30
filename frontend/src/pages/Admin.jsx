@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
-import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages, getAllBlogsAdmin, getBlogById, createBlog, updateBlog, deleteBlog, getAllFeedbacksAdmin, updateFeedbackStatus, deleteFeedback, getAllNotificationsAdmin, createNotificationAdmin, sendNotificationToAllUsers, deleteNotificationAdmin } from '../utils/api';
+import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages, getAllBlogsAdmin, getBlogById, createBlog, updateBlog, deleteBlog, getAllFeedbacksAdmin, updateFeedbackStatus, deleteFeedback, getAllNotificationsAdmin, createNotificationAdmin, sendNotificationToAllUsers, updateNotificationAdmin, deleteNotificationAdmin, updateUserPasswordAdmin } from '../utils/api';
 import AdminTable from '../components/AdminTable';
 import DatePicker from '../components/DatePicker';
 import ElegantSelect from '../components/ElegantSelect';
@@ -45,6 +45,8 @@ const Admin = () => {
   const [deleteBlogModal, setDeleteBlogModal] = useState({ open: false, blog: null });
   const [deleteFeedbackModal, setDeleteFeedbackModal] = useState({ open: false, feedback: null });
   const [deleteMessageModal, setDeleteMessageModal] = useState({ open: false, message: null });
+  const [passwordModal, setPasswordModal] = useState({ open: false, userId: null, userName: '' });
+  const [newPassword, setNewPassword] = useState('');
   const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
   const [blogs, setBlogs] = useState([]);
@@ -1115,6 +1117,7 @@ const Admin = () => {
                 })}
                 onToggleAuthorization={handleToggleAuthorization}
                 onDeleteUser={handleDeleteUser}
+                onChangePassword={(userId, userName) => setPasswordModal({ open: true, userId, userName })}
                 sortConfig={userSortConfig}
                 onSort={handleUserSort}
               />
@@ -1576,8 +1579,16 @@ const Admin = () => {
                   {blogs.map((blog) => (
                     <div
                       key={blog._id}
-                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow flex flex-col h-full"
+                      className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-shadow flex flex-col h-full relative min-h-[400px]"
                     >
+                      {!blog.published && (
+                        <span className="absolute top-2 right-2 px-3 py-1.5 text-xs font-bold rounded-md bg-gray-800 text-white flex items-center gap-1.5 z-10 shadow-lg border-2 border-gray-900">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                          </svg>
+                          Invisível
+                        </span>
+                      )}
                       {blog.imageUrl && (
                         <div className="mb-3">
                           <img
@@ -1595,6 +1606,15 @@ const Admin = () => {
                         <p className="text-sm text-mediumTeal mb-3 line-clamp-2">{blog.excerpt}</p>
                       )}
                       <div className="flex items-center gap-2 mb-3">
+                        {blog.published && (
+                          <span className="px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-700 flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Visível
+                          </span>
+                        )}
                         <span className={`px-2 py-1 text-xs font-medium rounded ${
                           blog.published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                         }`}>
@@ -1839,11 +1859,6 @@ const Admin = () => {
                             }`}>
                               {message.type}
                             </span>
-                            {message.read && (
-                              <span className="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700">
-                                Lida
-                              </span>
-                            )}
                           </div>
                           <p className="text-sm text-mediumTeal mb-2">{message.message}</p>
                           <div className="flex items-center gap-4 text-xs text-mediumTeal/70">
@@ -1974,29 +1989,57 @@ const Admin = () => {
                         toast.error('Selecione um usuário ou marque "Enviar para todos".');
                         return;
                       }
-                      const response = await createNotificationAdmin({
-                        userId: messageForm.userId,
-                        title: messageForm.title,
-                        message: messageForm.message,
-                        type: messageForm.type,
-                        link: null
-                      });
-                      if (response.success) {
-                        toast.success(isEditing ? 'Mensagem editada e reenviada com sucesso!' : 'Mensagem enviada com sucesso!');
-                        setMessageModalClosing(true);
-                        setTimeout(() => {
-                          setMessageModal({ open: false, mode: 'single', editingMessage: null });
-                          setMessageModalClosing(false);
-                        }, 300);
-                        setMessageForm({
-                          userId: '',
-                          sendToAll: false,
-                          title: '',
-                          message: '',
-                          type: 'info',
-                          link: ''
+                      if (isEditing && messageModal.editingMessage) {
+                        // Update existing message instead of creating new one
+                        const response = await updateNotificationAdmin(messageModal.editingMessage._id, {
+                          title: messageForm.title,
+                          message: messageForm.message,
+                          type: messageForm.type,
+                          link: null
                         });
-                        fetchMessages();
+                        if (response.success) {
+                          toast.success('Mensagem editada e reenviada com sucesso!');
+                          setMessageModalClosing(true);
+                          setTimeout(() => {
+                            setMessageModal({ open: false, mode: 'single', editingMessage: null });
+                            setMessageModalClosing(false);
+                          }, 300);
+                          setMessageForm({
+                            userId: '',
+                            sendToAll: false,
+                            title: '',
+                            message: '',
+                            type: 'info',
+                            link: ''
+                          });
+                          fetchMessages();
+                        }
+                      } else {
+                        // Create new message
+                        const response = await createNotificationAdmin({
+                          userId: messageForm.userId,
+                          title: messageForm.title,
+                          message: messageForm.message,
+                          type: messageForm.type,
+                          link: null
+                        });
+                        if (response.success) {
+                          toast.success('Mensagem enviada com sucesso!');
+                          setMessageModalClosing(true);
+                          setTimeout(() => {
+                            setMessageModal({ open: false, mode: 'single', editingMessage: null });
+                            setMessageModalClosing(false);
+                          }, 300);
+                          setMessageForm({
+                            userId: '',
+                            sendToAll: false,
+                            title: '',
+                            message: '',
+                            type: 'info',
+                            link: ''
+                          });
+                          fetchMessages();
+                        }
                       }
                     }
                   } catch (err) {
@@ -2108,6 +2151,90 @@ const Admin = () => {
                   </div>
                 </form>
               </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {passwordModal.open && createPortal(
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setPasswordModal({ open: false, userId: null, userName: '' });
+              setNewPassword('');
+            }}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-semibold text-darkTeal mb-4">Alterar Senha</h2>
+              <p className="text-sm text-mediumTeal mb-4">
+                Alterar senha para: <strong>{passwordModal.userName}</strong>
+              </p>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  if (!newPassword || newPassword.length < 6) {
+                    toast.error('A senha deve ter no mínimo 6 caracteres.');
+                    return;
+                  }
+                  const response = await updateUserPasswordAdmin(passwordModal.userId, newPassword);
+                  if (response.success) {
+                    toast.success('Senha alterada com sucesso!');
+                    setPasswordModal({ open: false, userId: null, userName: '' });
+                    setNewPassword('');
+                  }
+                } catch (err) {
+                  toast.error(err.response?.data?.message || 'Erro ao alterar senha.');
+                }
+              }}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-darkTeal mb-2">
+                    Senha Atual
+                  </label>
+                  <input
+                    type="text"
+                    value="••••••••"
+                    disabled
+                    className="w-full rounded-md border border-primary/30 bg-gray-50 px-3 py-2 text-sm text-mediumTeal cursor-not-allowed"
+                    placeholder="Senha atual (oculta por segurança)"
+                  />
+                  <p className="text-xs text-mediumTeal/70 mt-1">A senha atual não pode ser exibida por motivos de segurança</p>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-darkTeal mb-2">
+                    Nova Senha
+                  </label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                    placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPasswordModal({ open: false, userId: null, userName: '' });
+                      setNewPassword('');
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                  >
+                    Alterar Senha
+                  </button>
+                </div>
+              </form>
             </div>
           </div>,
           document.body

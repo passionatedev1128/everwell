@@ -7,7 +7,7 @@ const ScrollToTopButton = () => {
     const toggleVisibility = () => {
       // Show button only when scrolled down more than 100px, hide when at top
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      // Hide button when at the top of the page (scrollTop === 0 or very close to 0)
+      // Hide button when at the top of the page (scrollTop === 0 or very close to 0, within 10px)
       setIsVisible(scrollTop > 100);
     };
 
@@ -31,17 +31,15 @@ const ScrollToTopButton = () => {
     });
   };
 
-  // Don't render the button at all when at the top
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <button
       onClick={scrollToTop}
       className="scroll-to-top-btn fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-primary text-white shadow-lg hover:bg-primary-dark flex items-center justify-center"
       style={{
-        transition: 'background-color 0.2s ease-in-out, opacity 0.3s ease-in-out'
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)',
+        pointerEvents: isVisible ? 'auto' : 'none',
+        animation: isVisible ? 'fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
       }}
       aria-label="Voltar ao topo"
     >

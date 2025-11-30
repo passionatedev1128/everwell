@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, onSort }) => {
+const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePassword, sortConfig, onSort }) => {
   const navigate = useNavigate();
   const authorizedCount = users.filter(u => u.isAuthorized).length;
   const pendingCount = users.filter(u => !u.isAuthorized).length;
@@ -48,13 +48,13 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto border border-primary/20 rounded-lg">
-        <table className="min-w-full divide-y divide-primary/20">
+      <div className="border border-primary/20 rounded-lg">
+        <table className="w-full divide-y divide-primary/20 table-auto">
           <thead className="bg-primary/5">
             <tr>
               <th 
                 scope="col" 
-                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center">
@@ -64,7 +64,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
               </th>
               <th 
                 scope="col" 
-                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('email')}
               >
                 <div className="flex items-center">
@@ -74,7 +74,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
               </th>
               <th 
                 scope="col" 
-                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('role')}
               >
                 <div className="flex items-center">
@@ -84,7 +84,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
               </th>
               <th 
                 scope="col" 
-                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center">
@@ -94,18 +94,21 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
               </th>
               <th 
                 scope="col" 
-                className="px-6 py-3 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
+                className="px-3 py-2 text-left text-xs font-medium text-mediumTeal uppercase tracking-wider cursor-pointer hover:bg-primary/10 transition-colors duration-200 group"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center">
-                  Data de Cadastro
+                  Cadastro
                   {getSortIcon('createdAt')}
                 </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-mediumTeal uppercase tracking-wider">
+              <th scope="col" className="px-3 py-2 text-center text-xs font-medium text-mediumTeal uppercase tracking-wider">
+                Senha
+              </th>
+              <th scope="col" className="px-3 py-2 text-center text-xs font-medium text-mediumTeal uppercase tracking-wider">
                 Autorização
               </th>
-              <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-mediumTeal uppercase tracking-wider">
+              <th scope="col" className="px-3 py-2 text-center text-xs font-medium text-mediumTeal uppercase tracking-wider">
                 Ações
               </th>
             </tr>
@@ -118,28 +121,28 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                 onClick={() => navigate(`/admin/users/${user._id}`)}
                 style={{ transition: 'background-color 0.2s ease' }}
               >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
                     {user.photo ? (
                       <img 
                         src={user.photo} 
                         alt={user.name} 
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium">
                         {user.name?.charAt(0)?.toUpperCase() || 'U'}
                       </div>
                     )}
-                    <div className="text-sm font-medium text-darkTeal">{user.name}</div>
+                    <div className="text-xs font-medium text-darkTeal truncate max-w-[120px]">{user.name}</div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-mediumTeal">{user.email}</div>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <div className="text-xs text-mediumTeal truncate max-w-[150px]">{user.email}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-2 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.role === 'admin'
                         ? 'bg-purple-100 text-purple-800'
                         : 'bg-blue-100 text-blue-800'
@@ -148,9 +151,9 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                     {user.role === 'admin' ? 'Admin' : 'Usuário'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-2 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.isAuthorized
                         ? 'bg-green-100 text-green-800'
                         : 'bg-amber-100 text-amber-800'
@@ -159,20 +162,37 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                     {user.isAuthorized ? 'Autorizado' : 'Pendente'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-mediumTeal">
+                <td className="px-3 py-2 whitespace-nowrap text-xs text-mediumTeal">
                   {new Date(user.createdAt).toLocaleDateString('pt-BR', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
                   })}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
+                <td className="px-3 py-2 whitespace-nowrap text-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onChangePassword) {
+                        onChangePassword(user._id, user.name);
+                      }
+                    }}
+                    className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                    title="Alterar senha"
+                  >
+                    <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    Alterar
+                  </button>
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap text-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onToggleAuthorization(user._id);
                     }}
-                    className={`inline-flex items-center justify-center px-4 py-2 text-xs font-medium rounded-md transition-all min-w-[100px] ${
+                    className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                       user.isAuthorized
                         ? 'bg-red-50 text-red-700 hover:bg-red-100'
                         : 'bg-primary text-white hover:bg-primary/90'
@@ -181,17 +201,17 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, sortConfig, on
                     {user.isAuthorized ? 'Revogar' : 'Autorizar'}
                   </button>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
+                <td className="px-3 py-2 whitespace-nowrap text-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteUser(user._id, user.name);
                     }}
-                    className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                     title="Deletar usuário"
                   >
                     <svg
-                      className="w-4 h-4"
+                      className="w-3.5 h-3.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

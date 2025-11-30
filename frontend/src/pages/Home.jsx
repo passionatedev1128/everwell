@@ -515,8 +515,51 @@ const Home = () => {
               Resultados sustentáveis, suporte contínuo e uma comunidade que vive bem-estar todos os dias.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            {testimonials.map((testimonial) => (
+          {testimonials.length > 3 ? (
+            <Carousel
+              items={testimonials.map((testimonial) => (
+                <div key={testimonial.name} className="px-2">
+                  <div 
+                    className="card text-left flex flex-col gap-4 scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group"
+                    style={{
+                      transform: 'perspective(1000px) rotateX(0deg)',
+                      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'perspective(1000px) rotateX(2deg) translateY(-8px)';
+                      e.currentTarget.style.boxShadow = '0 20px 60px -15px rgba(79, 179, 168, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(0px)';
+                      e.currentTarget.style.boxShadow = '';
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40"
+                      />
+                      <div>
+                        <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary">{testimonial.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="text-darkTeal/80 leading-relaxed mt-2">"{testimonial.quote}"</p>
+                  </div>
+                </div>
+              ))}
+              itemsPerView={3}
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              {testimonials.map((testimonial) => (
               <div 
                 key={testimonial.name} 
                 className="card text-left flex flex-col gap-4 scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group"
@@ -553,7 +596,8 @@ const Home = () => {
                 <p className="text-darkTeal/80 leading-relaxed mt-2">"{testimonial.quote}"</p>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -576,7 +620,7 @@ const Home = () => {
                   minHeight: '300px'
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 via-primary/90 to-primary-dark/95 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-90 transition-opacity duration-500"></div>
                 <div className="relative z-10 space-y-4">
                   <span className="text-4xl block">{item.icon}</span>
                   <h3 className="text-xl font-semibold transition-colors duration-300" style={{ color: 'rgb(79 179 168 / var(--tw-bg-opacity, 1))' }}>{item.title}</h3>

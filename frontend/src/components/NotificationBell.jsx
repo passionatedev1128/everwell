@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { markAllNotificationsAsRead } from '../utils/api';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,11 @@ const NotificationBell = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsOpen(false);
+        setIsClosing(true);
+        setTimeout(() => {
+          setIsOpen(false);
+          setIsClosing(false);
+        }, 300);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -94,18 +100,36 @@ const NotificationBell = () => {
   };
 
   const handleOpen = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen && unreadCount > 0) {
-      // Mark all as read when opening
-      notifications.filter(n => !n.read).forEach(async (notification) => {
-        try {
-          await api.patch(`/notifications/${notification._id}/read`);
-        } catch (error) {
-          console.error('Error marking notification as read:', error);
-        }
-      });
+    if (isOpen) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setIsClosing(false);
+      }, 300);
+    } else {
+      setIsOpen(true);
+      if (unreadCount > 0) {
+        // Mark all as read when opening
+        notifications.filter(n => !n.read).forEach(async (notification) => {
+          try {
+            await api.patch(`/notifications/${notification._id}/read`);
+          } catch (error) {
+            console.error('Error marking notification as read:', error);
+          }
+        });
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        setUnreadCount(0);
+      }
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await markAllNotificationsAsRead();
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
+    } catch (error) {
+      console.error('Error clearing all notifications:', error);
     }
   };
 
@@ -131,10 +155,26 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm animate-scale-in">
+        <div className={`absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-primary/20 py-2 z-50 backdrop-blur-sm transition-all duration-300 ${
+          isClosing ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+        }`}
+        style={{
+          animation: isClosing ? 'none' : 'slideDownFadeIn 0.3s ease-out'
+        }}>
           <div className="absolute top-0 right-4 -mt-2 w-4 h-4 bg-white border-l border-t border-primary/20 transform rotate-45"></div>
-          <div className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="px-4 py-3 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-transparent relative">
             <p className="text-sm font-semibold text-darkTeal">Notificações</p>
+            {notifications.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="absolute top-3 right-4 p-1.5 text-xs font-medium text-mediumTeal hover:text-darkTeal hover:bg-primary/10 rounded-md transition-colors"
+                title="Limpar todas"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
           </div>
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
@@ -150,7 +190,7 @@ const NotificationBell = () => {
                 <div key={notification._id}>
                   <div
                     onClick={() => handleNotificationClick(notification)}
-                    className={`px-4 py-3 transition-colors cursor-pointer ${
+                    className={`px-4 py-3 transition-colors cursor-pointer relative ${
                       !notification.read 
                         ? 'bg-primary/15 hover:bg-primary/25 border-l-4 border-l-primary' 
                         : 'hover:bg-primary/10'
@@ -167,12 +207,7 @@ const NotificationBell = () => {
                             {notification.title || 'Notificação'}
                           </p>
                         </div>
-                      </div>
-                      <div className="ml-4 space-y-1">
-                        <p className="text-xs text-mediumTeal leading-relaxed">
-                          {notification.message || notification.content || ''}
-                        </p>
-                        <p className="text-xs text-mediumTeal/70 pt-1">
+                        <p className="text-xs text-mediumTeal/70 absolute top-3 right-4">
                           {new Date(notification.createdAt).toLocaleDateString('pt-BR', {
                             day: '2-digit',
                             month: '2-digit',
@@ -182,17 +217,26 @@ const NotificationBell = () => {
                           })}
                         </p>
                       </div>
+                      <div className="ml-4 space-y-1">
+                        <p className="text-xs text-mediumTeal leading-relaxed pr-16">
+                          {notification.message || notification.content || ''}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               ))
             )}
           </div>
-          <div className="px-4 py-3 border-t border-primary/10">
+          <div className="px-4 py-3 border-t border-primary/10 space-y-2">
             <button
               onClick={() => {
-                setIsOpen(false);
-                navigate('/dashboard', { state: { tab: 'messages' } });
+                setIsClosing(true);
+                setTimeout(() => {
+                  setIsOpen(false);
+                  setIsClosing(false);
+                  navigate('/dashboard', { state: { tab: 'messages' } });
+                }, 300);
               }}
               className="w-full text-left px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-md transition-colors flex items-center gap-2"
             >

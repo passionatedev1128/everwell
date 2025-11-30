@@ -465,6 +465,17 @@ div[data-react-hot-toast] {
   }
 }
 
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes modalOpen {
   from {
     opacity: 0;
@@ -554,22 +565,28 @@ button, a, input, select, textarea {
   transition: all 0.2s ease-in-out;
 }
 
-/* Scroll to top button - prevent blinking by only transitioning background-color */
+/* Scroll to top button - with smooth animations */
 .scroll-to-top-btn {
-  transition: background-color 0.2s ease-in-out, opacity 0.3s ease-in-out !important;
-  transform: none !important;
-  animation: none !important;
+  transition: background-color 0.2s ease-in-out, opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: fixed !important;
   bottom: 1.5rem !important;
   right: 1.5rem !important;
   z-index: 50 !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
 }
 
 .scroll-to-top-btn:hover {
-  transform: none !important;
-  animation: none !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Notification bell button - prevent badge from moving on hover */

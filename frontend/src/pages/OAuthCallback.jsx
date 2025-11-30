@@ -29,36 +29,75 @@ const OAuthCallback = () => {
 
     if (success && token) {
       // Decode token to get user info
-      try {
-        processedRef.current = true;
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        
-        // Set token and user
-        setToken(token);
-        setUser({
-          id: payload.id,
-          email: payload.email,
-          role: payload.role
-        });
+      const processOAuth = async () => {
+        try {
+          processedRef.current = true;
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          
+          // Set token and user
+          setToken(token);
+          // Fetch full user data to get name
+          try {
+            const userResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/me`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (userResponse.ok) {
+              const userData = await userResponse.json();
+              if (userData.success && userData.user) {
+                setUser({
+                  id: userData.user._id || payload.id,
+                  email: userData.user.email || payload.email,
+                  role: userData.user.role || payload.role,
+                  name: userData.user.name
+                });
+                // Dispatch event to update user in Header
+                window.dispatchEvent(new CustomEvent('userUpdated'));
+              } else {
+                setUser({
+                  id: payload.id,
+                  email: payload.email,
+                  role: payload.role
+                });
+              }
+            } else {
+              setUser({
+                id: payload.id,
+                email: payload.email,
+                role: payload.role
+              });
+            }
+          } catch (fetchError) {
+            console.error('Error fetching user data:', fetchError);
+            setUser({
+              id: payload.id,
+              email: payload.email,
+              role: payload.role
+            });
+          }
 
-        // Track Google OAuth login (check if it's a new user by checking creation time)
-        // For simplicity, we'll track as login. In production, you might want to check if user is new
-        trackLogin('google');
-        gtmTrackLogin('google');
+          // Track Google OAuth login (check if it's a new user by checking creation time)
+          // For simplicity, we'll track as login. In production, you might want to check if user is new
+          trackLogin('google');
+          gtmTrackLogin('google');
 
-        // Show email error if verification email couldn't be sent
-        if (emailError === 'true') {
-          toast.error('The verification link can\'t be sent to your email.');
-        } else {
-          toast.success('Login realizado com sucesso!');
+          // Show email error if verification email couldn't be sent
+          if (emailError === 'true') {
+            toast.error('The verification link can\'t be sent to your email.');
+          } else {
+            toast.success('Login realizado com sucesso!');
+          }
+          navigate('/');
+        } catch (err) {
+          console.error('Error processing OAuth callback:', err);
+          processedRef.current = true;
+          toast.error('Erro ao processar autenticação.');
+          navigate('/login');
         }
-        navigate('/');
-      } catch (err) {
-        console.error('Error processing OAuth callback:', err);
-        processedRef.current = true;
-        toast.error('Erro ao processar autenticação.');
-        navigate('/login');
-      }
+      };
+      
+      processOAuth();
     } else {
       processedRef.current = true;
       navigate('/login');

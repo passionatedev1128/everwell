@@ -4,6 +4,7 @@ import Product from '../models/Product.js';
 import AuditLog from '../models/AuditLog.js';
 import { sendEmail } from '../config/email.js';
 import { getFileUrl } from '../config/upload.js';
+import bcrypt from 'bcrypt';
 import { 
   authorizationEmailTemplate,
   documentApprovedEmailTemplate 
@@ -170,6 +171,56 @@ export const getAuditLogs = async (req, res, next) => {
       success: true,
       count: logs.length,
       logs
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserPassword = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Senha deve ter no mínimo 6 caracteres.'
+      });
+    }
+
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado.'
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Update password
+    user.passwordHash = passwordHash;
+    await user.save();
+
+    // Create audit log
+    await AuditLog.create({
+      action: 'password_updated',
+      adminId: req.user._id,
+      details: {
+        userId: user._id,
+        userName: user.name
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    res.json({
+      success: true,
+      message: 'Senha atualizada com sucesso.'
     });
   } catch (error) {
     next(error);
