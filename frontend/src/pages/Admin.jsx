@@ -45,10 +45,12 @@ const Admin = () => {
   const [deleteBlogModal, setDeleteBlogModal] = useState({ open: false, blog: null });
   const [deleteFeedbackModal, setDeleteFeedbackModal] = useState({ open: false, feedback: null });
   const [deleteMessageModal, setDeleteMessageModal] = useState({ open: false, message: null });
-  const [passwordModal, setPasswordModal] = useState({ open: false, userId: null, userName: '' });
+  const [passwordModal, setPasswordModal] = useState({ open: false, userId: null, userName: '', lastSetPassword: '' });
   const [passwordModalClosing, setPasswordModalClosing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordSetSuccess, setPasswordSetSuccess] = useState(false);
+  const passwordModalAnimatedRef = useRef(false);
   const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
   const [blogs, setBlogs] = useState([]);
@@ -1228,7 +1230,8 @@ const Admin = () => {
                 onChangePassword={(userId, userName) => {
                   setPasswordModalClosing(false);
                   setShowPassword(false);
-                  setPasswordModal({ open: true, userId, userName });
+                  setPasswordSetSuccess(false);
+                  setPasswordModal({ open: true, userId, userName, lastSetPassword: '' });
                 }}
                 sortConfig={userSortConfig}
                 onSort={handleUserSort}
@@ -2377,27 +2380,39 @@ const Admin = () => {
 
         {passwordModal.open && createPortal(
           <div
-            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 ${
               passwordModalClosing ? 'opacity-0' : 'opacity-100'
             }`}
+            style={{
+              transition: passwordModalClosing ? 'opacity 0.3s ease-out' : 'none',
+              willChange: passwordModalClosing ? 'opacity' : 'auto'
+            }}
             onClick={() => {
               setPasswordModalClosing(true);
               setTimeout(() => {
                 setPasswordModal({ open: false, userId: null, userName: '' });
                 setPasswordModalClosing(false);
                 setNewPassword('');
+                passwordModalAnimatedRef.current = false;
               }, 300);
             }}
           >
             <div
-              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transition-all duration-300 ${
+              className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-6 ${
                 passwordModalClosing 
                   ? 'opacity-0 scale-95 translate-y-4' 
                   : 'opacity-100 scale-100 translate-y-0'
               }`}
               onClick={(e) => e.stopPropagation()}
               style={{
-                animation: passwordModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                transition: passwordModalClosing ? 'opacity 0.3s ease-out, transform 0.3s ease-out' : 'none',
+                animation: passwordModalClosing || passwordModalAnimatedRef.current ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                animationFillMode: 'forwards',
+                willChange: passwordModalClosing ? 'opacity, transform' : 'auto',
+                contain: 'layout style paint'
+              }}
+              onAnimationEnd={() => {
+                passwordModalAnimatedRef.current = true;
               }}
             >
               <h2 className="text-xl font-semibold text-darkTeal mb-4">Alterar Senha</h2>
@@ -2414,85 +2429,172 @@ const Admin = () => {
                   const response = await updateUserPasswordAdmin(passwordModal.userId, newPassword);
                   if (response.success) {
                     toast.success('Senha alterada com sucesso!');
-                    setPasswordModalClosing(true);
-                    setTimeout(() => {
-                      setPasswordModal({ open: false, userId: null, userName: '' });
-                      setPasswordModalClosing(false);
-                      setNewPassword('');
-                    }, 300);
+                    // Store the password that was set so admin can see it
+                    setPasswordModal(prev => ({ ...prev, lastSetPassword: newPassword }));
+                    setPasswordSetSuccess(true);
+                    setShowPassword(true); // Show the password
+                    // Don't close modal immediately - let admin see the password
                   }
                 } catch (err) {
                   toast.error(err.response?.data?.message || 'Erro ao alterar senha.');
                 }
               }}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-darkTeal mb-2">
-                    Senha Atual
-                  </label>
-                  <input
-                    type="text"
-                    value="••••••••"
-                    disabled
-                    className="w-full rounded-md border border-primary/30 bg-gray-50 px-3 py-2 text-sm text-mediumTeal cursor-not-allowed"
-                    placeholder="Senha atual (oculta por segurança)"
-                  />
-                  <p className="text-xs text-mediumTeal/70 mt-1">A senha atual não pode ser exibida por motivos de segurança</p>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-darkTeal mb-2">
-                    Nova Senha
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 pr-10 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-300"
-                      placeholder="Digite a nova senha (mínimo 6 caracteres)"
-                      required
-                      minLength={6}
-                    />
+                {passwordSetSuccess ? (
+                  <div className="mb-4">
+                    <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm font-medium text-green-800">Senha alterada com sucesso!</p>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-darkTeal mb-2">
+                        Senha Definida
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={passwordModal.lastSetPassword}
+                          readOnly
+                          className="w-full rounded-md border border-primary/30 bg-green-50 px-3 py-2 pr-10 text-sm text-darkTeal font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-mediumTeal hover:text-darkTeal transition-colors"
+                          title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        >
+                          {showPassword ? (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-xs text-mediumTeal/70 mt-1">Esta é a senha que foi definida para o usuário</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-darkTeal mb-2">
+                        Senha Atual
+                      </label>
+                      <input
+                        type="text"
+                        value="••••••••"
+                        disabled
+                        className="w-full rounded-md border border-primary/30 bg-gray-50 px-3 py-2 text-sm text-mediumTeal cursor-not-allowed"
+                        placeholder="Senha atual (oculta por segurança)"
+                      />
+                      <p className="text-xs text-mediumTeal/70 mt-1">A senha atual não pode ser exibida por motivos de segurança</p>
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-darkTeal mb-2">
+                        Nova Senha
+                      </label>
+                      <div className="relative" style={{ isolation: 'isolate' }}>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 pr-10 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                          required
+                          minLength={6}
+                        />
+                        <div 
+                          style={{ 
+                            position: 'absolute',
+                            right: '0.5rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            isolation: 'isolate',
+                            contain: 'layout style paint'
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowPassword(!showPassword);
+                            }}
+                            className="p-1 text-mediumTeal cursor-pointer"
+                            style={{ 
+                              display: 'block',
+                              background: 'transparent',
+                              border: 'none',
+                              outline: 'none'
+                            }}
+                            title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                          >
+                            {showPassword ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: 'block', pointerEvents: 'none' }}>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: 'block', pointerEvents: 'none' }}>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                  {passwordSetSuccess ? (
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-mediumTeal hover:text-darkTeal transition-colors"
-                      title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      onClick={() => {
+                        setPasswordModalClosing(true);
+                        setTimeout(() => {
+                          setPasswordModal({ open: false, userId: null, userName: '', lastSetPassword: '' });
+                          setPasswordModalClosing(false);
+                          setNewPassword('');
+                          setShowPassword(false);
+                          setPasswordSetSuccess(false);
+                        }, 300);
+                      }}
+                      className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
                     >
-                      {showPassword ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                        </svg>
-                      ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      )}
+                      Fechar
                     </button>
-                  </div>
-                </div>
-                <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPasswordModalClosing(true);
-                      setTimeout(() => {
-                        setPasswordModal({ open: false, userId: null, userName: '' });
-                        setPasswordModalClosing(false);
-                        setNewPassword('');
-                        setShowPassword(false);
-                      }, 300);
-                    }}
-                    className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    Alterar Senha
-                  </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPasswordModalClosing(true);
+                          setTimeout(() => {
+                            setPasswordModal({ open: false, userId: null, userName: '', lastSetPassword: '' });
+                            setPasswordModalClosing(false);
+                            setNewPassword('');
+                            setShowPassword(false);
+                            setPasswordSetSuccess(false);
+                          }, 300);
+                        }}
+                        className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                      >
+                        Alterar Senha
+                      </button>
+                    </>
+                  )}
                 </div>
               </form>
             </div>
