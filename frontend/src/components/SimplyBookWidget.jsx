@@ -14,15 +14,16 @@ const cleanupDuplicateIframes = () => {
   try {
     const widgetElement = document.getElementById('simplybook_widget');
     if (widgetElement) {
-      // Get ALL iframes in the widget container
+      // Get ALL iframes in the widget container (including nested ones)
       const iframes = widgetElement.querySelectorAll('iframe');
+      
+      // If we have more than one iframe, keep only the first one
       if (iframes.length > 1) {
-        // Keep ONLY the first iframe, remove ALL others immediately
+        // Keep the first iframe, remove all others
         for (let i = 1; i < iframes.length; i++) {
           try {
             const duplicateIframe = iframes[i];
-            if (duplicateIframe) {
-              // Remove immediately without checking parent (safer)
+            if (duplicateIframe && duplicateIframe.parentNode) {
               duplicateIframe.remove();
             }
           } catch (e) {
@@ -33,20 +34,36 @@ const cleanupDuplicateIframes = () => {
       
       // Also check for iframes that might be direct children
       const directChildren = Array.from(widgetElement.childNodes);
-      let iframeCount = 0;
+      let firstIframeFound = false;
       directChildren.forEach(child => {
         if (child && child.tagName === 'IFRAME') {
-          iframeCount++;
-          // If we already have one iframe from querySelectorAll, remove this duplicate
-          if (iframeCount > 1) {
+          if (firstIframeFound) {
+            // This is a duplicate, remove it
             try {
               child.remove();
             } catch (e) {
               // Ignore errors
             }
+          } else {
+            firstIframeFound = true;
           }
         }
       });
+      
+      // Final check: ensure we only have one iframe total
+      const finalCheck = widgetElement.querySelectorAll('iframe');
+      if (finalCheck.length > 1) {
+        // Keep only the first one, remove all others
+        for (let i = 1; i < finalCheck.length; i++) {
+          try {
+            if (finalCheck[i] && finalCheck[i].parentNode) {
+              finalCheck[i].remove();
+            }
+          } catch (e) {
+            // Ignore errors
+          }
+        }
+      }
     }
   } catch (e) {
     // Ignore all errors - element may be unmounting
@@ -201,6 +218,21 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
     let initTimeout;
     let iframeCheckInterval;
 
+    // CRITICAL: Check if iframe already exists before even starting initialization
+    const preCheckElement = document.getElementById('simplybook_widget');
+    if (preCheckElement) {
+      const preCheckIframes = preCheckElement.querySelectorAll('iframe');
+      if (preCheckIframes.length > 0) {
+        // Iframe already exists, don't initialize at all
+        console.log('SimplyBook widget iframe already exists, skipping initialization');
+        isWidgetInitializing = false;
+        widgetInitialized = true;
+        setStatus('ready');
+        startDuplicateMonitoring();
+        return;
+      }
+    }
+    
     // Mark as initializing - use a lock to prevent race conditions
     if (isWidgetInitializing) {
       return; // Another instance is already initializing

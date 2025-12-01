@@ -647,9 +647,9 @@ const Home = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:gap-4 md:text-right">
-                <Link to="/agendar" className="btn-primary w-full md:w-auto text-center">
+                <a href="/agendar" target="_blank" rel="noopener noreferrer" className="btn-primary w-full md:w-auto text-center">
                   Agendar consulta
-                </Link>
+                </a>
                 <Link to="/duvidas" className="btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20 inline-flex items-center justify-center gap-2 w-full md:w-auto">
                   Fale com especialistas
                   <span aria-hidden>→</span>

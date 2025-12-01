@@ -198,8 +198,10 @@ const Header = () => {
                       <p className="text-sm font-semibold text-darkTeal">{user?.name}</p>
                     </div>
                     <div className="py-1">
-                      <Link
-                        to="/agendar"
+                      <a
+                        href="/agendar"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors rounded-md mx-1"
                         onClick={() => setIsAccountMenuOpen(false)}
                       >
@@ -207,7 +209,7 @@ const Header = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         Agendar consulta
-                      </Link>
+                      </a>
                       <Link
                         to="/dashboard"
                         className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-darkTeal hover:bg-primary/10 transition-colors rounded-md mx-1"
@@ -388,13 +390,15 @@ const Header = () => {
                 </Link>
               )}
 
-              <Link
-                to="/agendar"
+              <a
+                href="/agendar"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsMenuOpen(false)}
                 className="btn-primary text-center w-full"
               >
                 Agendar consulta
-              </Link>
+              </a>
             </div>
           </div>
         </div>

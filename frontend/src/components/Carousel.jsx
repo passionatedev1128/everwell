@@ -32,12 +32,16 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} style={{ isolation: 'isolate', contain: 'layout style', paddingLeft: '3rem', paddingRight: '3rem' }}>
       <div className="overflow-hidden">
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex"
           style={{
-            transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
+            transform: `translateX(-${currentIndex * (100 / itemsPerView)}%) translateZ(0)`,
+            transition: 'transform 0.5s ease-in-out',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
           }}
         >
           {items.map((item, index) => (
@@ -52,26 +56,102 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
         </div>
       </div>
 
-      {/* Navigation Buttons */}
-      <button
-        onClick={goToPrev}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300 hover:scale-110 hidden md:flex"
-        aria-label="Previous"
+      {/* Navigation Buttons - Isolated containers to prevent cross-button interference */}
+      <div 
+        style={{ 
+          position: 'absolute',
+          left: '1.5rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          pointerEvents: 'none',
+          isolation: 'isolate',
+          contain: 'layout style paint',
+          zIndex: 50
+        }}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            goToPrev();
+          }}
+          onMouseEnter={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseOver={(e) => {
+            e.stopPropagation();
+          }}
+          className="w-12 h-12 rounded-full bg-white border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white hidden md:flex"
+          style={{ 
+            isolation: 'isolate', 
+            contain: 'layout style paint',
+            transform: 'translateZ(0)',
+            willChange: 'background-color, color',
+            transition: 'background-color 0.3s ease, color 0.3s ease',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            pointerEvents: 'auto',
+            zIndex: 50
+          }}
+          aria-label="Previous"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ pointerEvents: 'none', display: 'block' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
 
-      <button
-        onClick={goToNext}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-white shadow-lg border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300 hover:scale-110 hidden md:flex"
-        aria-label="Next"
+      <div 
+        style={{ 
+          position: 'absolute',
+          right: '1.5rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          pointerEvents: 'none',
+          isolation: 'isolate',
+          contain: 'layout style paint',
+          zIndex: 50
+        }}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            goToNext();
+          }}
+          onMouseEnter={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseOver={(e) => {
+            e.stopPropagation();
+          }}
+          className="w-12 h-12 rounded-full bg-white border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white hidden md:flex"
+          style={{ 
+            isolation: 'isolate', 
+            contain: 'layout style paint',
+            transform: 'translateZ(0)',
+            willChange: 'background-color, color',
+            transition: 'background-color 0.3s ease, color 0.3s ease',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            pointerEvents: 'auto',
+            zIndex: 50
+          }}
+          aria-label="Next"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ pointerEvents: 'none', display: 'block' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
 
       {/* Dots Indicator */}
       <div className="flex justify-center gap-2 mt-6">
@@ -82,11 +162,12 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
               setCurrentIndex(index);
               setIsAutoPlaying(false);
             }}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`w-2 h-2 rounded-full transition-colors duration-300 ${
               currentIndex === index
                 ? 'bg-primary w-8'
                 : 'bg-primary/30 hover:bg-primary/50'
             }`}
+            style={currentIndex === index ? { width: '2rem', transition: 'width 0.3s ease, background-color 0.3s ease' } : { transition: 'width 0.3s ease, background-color 0.3s ease' }}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
