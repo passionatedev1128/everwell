@@ -63,7 +63,7 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
       className={`relative py-4 ${className}`} 
       style={{ isolation: 'isolate', contain: 'layout style', paddingLeft: '2rem', paddingRight: '2rem' }}
     >
-      <div className="overflow-hidden">
+      <div className="overflow-hidden" style = {{ paddingTop: '15px', paddingBottom: '15px' }}>
         <div
           className="flex items-stretch"
           style={{

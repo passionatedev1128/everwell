@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import { isAuthenticated, getUser, removeToken } from '../utils/auth';
+import { isAuthenticated, getUser, removeToken, setUser } from '../utils/auth';
+import { getCurrentUser } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import FeedbackModal from './FeedbackModal';
 import NotificationBell from './NotificationBell';
@@ -25,6 +26,27 @@ const Header = () => {
            user.photo !== 'null' && 
            user.photo !== 'undefined';
   };
+
+  // Fetch fresh user data from API when component mounts and user is authenticated
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (authenticated) {
+        try {
+          const response = await getCurrentUser();
+          if (response.success && response.user) {
+            // Update localStorage with fresh user data (including photo)
+            setUser(response.user);
+            setUserState(response.user);
+          }
+        } catch (error) {
+          // Silently fail - use localStorage data as fallback
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [authenticated]);
 
   // Listen for user updates
   useEffect(() => {

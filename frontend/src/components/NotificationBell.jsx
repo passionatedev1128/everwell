@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { markAllNotificationsAsRead } from '../utils/api';
+import { markAllNotificationsAsRead, deleteNotification } from '../utils/api';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -137,6 +137,29 @@ const NotificationBell = () => {
     }
   }, [isOpen]);
 
+  // Get deleted notification IDs from localStorage
+  const getDeletedNotificationIds = () => {
+    try {
+      const deleted = localStorage.getItem('deletedNotifications');
+      return deleted ? JSON.parse(deleted) : [];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  // Save deleted notification ID to localStorage
+  const saveDeletedNotificationId = (notificationId) => {
+    try {
+      const deleted = getDeletedNotificationIds();
+      if (!deleted.includes(notificationId)) {
+        deleted.push(notificationId);
+        localStorage.setItem('deletedNotifications', JSON.stringify(deleted));
+      }
+    } catch (error) {
+      console.error('Error saving deleted notification ID:', error);
+    }
+  };
+
   const fetchNotifications = async () => {
     // Don't fetch if notifications were cleared
     if (notificationsCleared) {
@@ -152,8 +175,13 @@ const NotificationBell = () => {
         const allNotifications = response.data.notifications || [];
         // Only show notifications that exist (not null/undefined) - deleted ones won't be in response
         const validNotifications = allNotifications.filter(n => n && n._id);
-        setNotifications(validNotifications);
-        const unread = validNotifications.filter(n => !n.read).length;
+        
+        // Filter out notifications that were deleted by user (stored in localStorage)
+        const deletedIds = getDeletedNotificationIds();
+        const filteredNotifications = validNotifications.filter(n => !deletedIds.includes(n._id));
+        
+        setNotifications(filteredNotifications);
+        const unread = filteredNotifications.filter(n => !n.read).length;
         setUnreadCount(unread);
       }
     } catch (error) {
@@ -177,6 +205,26 @@ const NotificationBell = () => {
       } catch (error) {
         console.error('Error marking notification as read:', error);
       }
+    }
+  };
+
+  const handleDeleteNotification = async (notificationId, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    try {
+      await deleteNotification(notificationId);
+      // Remove from state
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      // Save to localStorage to persist across refreshes
+      saveDeletedNotificationId(notificationId);
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      // Even if API call fails, remove from UI and save to localStorage
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      saveDeletedNotificationId(notificationId);
     }
   };
 
@@ -241,7 +289,22 @@ const NotificationBell = () => {
 
   const handleClearAll = async () => {
     try {
-      await markAllNotificationsAsRead();
+      // Delete all notifications individually
+      const deletePromises = notifications.map(notification => 
+        deleteNotification(notification._id).catch(error => {
+          // If deletion fails, still save to localStorage to hide it
+          console.error(`Error deleting notification ${notification._id}:`, error);
+          return null;
+        })
+      );
+      
+      await Promise.all(deletePromises);
+      
+      // Save all deleted notification IDs to localStorage to persist across refreshes
+      notifications.forEach(notification => {
+        saveDeletedNotificationId(notification._id);
+      });
+      
       // Clear all notifications from the dropdown
       setNotifications([]);
       setUnreadCount(0);
@@ -249,6 +312,13 @@ const NotificationBell = () => {
       setNotificationsCleared(true);
     } catch (error) {
       console.error('Error clearing all notifications:', error);
+      // Even if there's an error, save IDs to localStorage and clear UI
+      notifications.forEach(notification => {
+        saveDeletedNotificationId(notification._id);
+      });
+      setNotifications([]);
+      setUnreadCount(0);
+      setNotificationsCleared(true);
     }
   };
 
@@ -485,15 +555,27 @@ const NotificationBell = () => {
                             {notification.title || 'Notificação'}
                           </p>
                         </div>
-                        <p className="text-xs text-mediumTeal/70 absolute top-3 right-4">
-                          {new Date(notification.createdAt).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
+                        <div className="absolute top-3 right-4 flex items-center gap-2">
+                          <button
+                            onClick={(e) => handleDeleteNotification(notification._id, e)}
+                            className="p-1 text-mediumTeal/70 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                            title="Deletar notificação"
+                            aria-label="Deletar notificação"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                          <p className="text-xs text-mediumTeal/70">
+                            {new Date(notification.createdAt).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
                       </div>
                       <div className="ml-4 space-y-1">
                         <p className="text-xs text-mediumTeal leading-relaxed pr-16">

@@ -291,6 +291,11 @@ export const markAllNotificationsAsRead = async () => {
   return response.data;
 };
 
+export const deleteNotification = async (notificationId) => {
+  const response = await api.delete(`/notifications/${notificationId}`);
+  return response.data;
+};
+
 // Admin notification/message functions
 export const getAllNotificationsAdmin = async (userId = null, read = null) => {
   const params = {};

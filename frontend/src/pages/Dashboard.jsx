@@ -64,11 +64,25 @@ const Dashboard = () => {
     }
   };
 
+  // Get deleted notification IDs from localStorage
+  const getDeletedNotificationIds = () => {
+    try {
+      const deleted = localStorage.getItem('deletedNotifications');
+      return deleted ? JSON.parse(deleted) : [];
+    } catch (error) {
+      return [];
+    }
+  };
+
   const fetchNotifications = async () => {
     try {
       const response = await getNotifications();
       if (response.success) {
-        setNotifications(response.notifications || []);
+        const allNotifications = response.notifications || [];
+        // Filter out notifications that were deleted by user (stored in localStorage)
+        const deletedIds = getDeletedNotificationIds();
+        const filteredNotifications = allNotifications.filter(n => n && n._id && !deletedIds.includes(n._id));
+        setNotifications(filteredNotifications);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
