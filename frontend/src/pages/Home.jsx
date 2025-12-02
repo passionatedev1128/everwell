@@ -145,15 +145,15 @@ const Home = () => {
       try {
         const response = await api.get('/products');
         const products = response.data.products || [];
-        // Get first 3 visible products with images
+        // Get all visible products with images (not just first 3)
         const highlights = products
           .filter(p => p.visible && p.images && p.images.length > 0)
-          .slice(0, 3)
           .map(p => ({
             name: p.name,
             description: p.description || p.subtitle || '',
             image: p.images[0] || '',
-            slug: p.slug || ''
+            slug: p.slug || '',
+            price: p.price || 0
           }));
         setProductHighlights(highlights);
       } catch (error) {
@@ -446,31 +446,73 @@ const Home = () => {
               Ver catálogo completo
             </Link>
           </div>
-          {productHighlights.length > 3 ? (
+          {productHighlights.length >= 3 ? (
             <Carousel
-              items={productHighlights.map((product) => (
-                <div key={product.name} className="product-card mx-2 relative flex flex-col">
-                  <div className="relative -mt-8 -mx-4 mb-4 flex items-center justify-center bg-primary/5 rounded-lg" style={{ minHeight: '200px', maxHeight: '300px' }}>
-                    <img 
-                      src={product.image} 
-                      alt={product.name} 
-                      className="w-full h-full object-contain rounded-lg shadow-lg"
-                      style={{ maxHeight: '300px' }}
-                      onError={(e) => {
-                        // Fallback to a placeholder if image fails to load
-                        e.target.src = '';
-                      }}
-                    />
+              items={productHighlights.map((product, index) => (
+                <Link 
+                  key={product.name} 
+                  to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
+                  className={`product-card mx-2 relative flex flex-col bg-gradient-to-br from-white to-primary/5 rounded-3xl overflow-hidden transition-all duration-500 ease-out hover:scale-105 cursor-pointer group ${index === 0 ? 'first-card-wider' : ''}`} 
+                  style={{ 
+                    minHeight: '420px', 
+                    height: '420px', 
+                    width: '100%', 
+                    textDecoration: 'none',
+                    border: '2px solid transparent',
+                    backgroundImage: 'linear-gradient(white, rgba(79, 179, 168, 0.05)), linear-gradient(135deg, rgba(79, 179, 168, 0.2), rgba(79, 179, 168, 0.05), rgba(79, 179, 168, 0.1))',
+                    backgroundOrigin: 'border-box',
+                    backgroundClip: 'padding-box, border-box',
+                    boxShadow: '0 10px 30px -10px rgba(79, 179, 168, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 0 0 1px rgba(79, 179, 168, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundImage = 'linear-gradient(white, rgba(79, 179, 168, 0.05)), linear-gradient(135deg, rgba(79, 179, 168, 0.4), rgba(79, 179, 168, 0.15), rgba(79, 179, 168, 0.25))';
+                    e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(79, 179, 168, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 2px rgba(79, 179, 168, 0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundImage = 'linear-gradient(white, rgba(79, 179, 168, 0.05)), linear-gradient(135deg, rgba(79, 179, 168, 0.2), rgba(79, 179, 168, 0.05), rgba(79, 179, 168, 0.1))';
+                    e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(79, 179, 168, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 0 0 1px rgba(79, 179, 168, 0.1)';
+                  }}
+                >
+                  {/* Decorative top accent */}
+                  <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60"></div>
+                  
+                  {/* Image section with elegant frame */}
+                  <div className="relative mt-8 mx-6 mb-6 flex items-center justify-center flex-shrink-0" style={{ height: '220px', minHeight: '220px' }}>
+                    <div className="absolute inset-0 bg-white rounded-2xl shadow-lg transform rotate-1 group-hover:rotate-0 transition-transform duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl shadow-inner"></div>
+                    <div className="relative w-full h-full flex items-center justify-center p-6">
+                      <img 
+                        src={product.image} 
+                        alt={product.name} 
+                        className="w-full h-full object-contain relative z-10 transition-all duration-500 group-hover:scale-110"
+                        style={{ maxWidth: '100%', maxHeight: '220px', filter: 'drop-shadow(0 8px 16px rgba(79, 179, 168, 0.25))' }}
+                        onError={(e) => {
+                          e.target.src = '';
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex flex-col h-full space-y-3 sm:space-y-4">
-                    <h3 className="text-lg sm:text-xl font-semibold text-darkTeal">{product.name}</h3>
-                    <p className="text-mediumTeal text-sm sm:text-base flex-grow">{product.description}</p>
-                    <Link to={product.slug ? `/produtos/${product.slug}` : "/produtos"} className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary inline-flex items-center gap-2 mt-auto">
-                      Detalhes
-                      <span aria-hidden>→</span>
-                    </Link>
+                  
+                  {/* Content section */}
+                  <div className="px-6 pb-6 flex flex-col flex-grow justify-center">
+                    <h3 className="text-lg font-bold mb-3 flex-shrink-0" style={{ 
+                      height: '28px', 
+                      minHeight: '28px', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                      whiteSpace: 'nowrap', 
+                      color: 'rgb(79 179 168 / var(--tw-text-opacity, 1))',
+                      letterSpacing: '-0.02em'
+                    }}>
+                      {product.name}
+                    </h3>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-extrabold text-primary" style={{ lineHeight: '1' }}>
+                        R$ {product.price ? product.price.toFixed(2) : '0.00'}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
               itemsPerView={3}
             />

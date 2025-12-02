@@ -123,7 +123,7 @@ const Products = () => {
           <div className="relative">
             <Carousel
               items={products.map((product) => (
-                <div key={product._id} className="px-2">
+                <div key={product._id} className="px-2" style={{ display: 'flex', width: '100%' }}>
                   <ProductCard product={product} />
                 </div>
               ))}

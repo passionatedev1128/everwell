@@ -147,8 +147,13 @@ const NotificationBell = () => {
       setLoading(true);
       const response = await api.get('/notifications');
       if (response.data.success) {
-        setNotifications(response.data.notifications || []);
-        const unread = (response.data.notifications || []).filter(n => !n.read).length;
+        // Filter out any notifications that might have been deleted (defensive check)
+        // Since backend deletes them, they shouldn't appear, but we filter just in case
+        const allNotifications = response.data.notifications || [];
+        // Only show notifications that exist (not null/undefined) - deleted ones won't be in response
+        const validNotifications = allNotifications.filter(n => n && n._id);
+        setNotifications(validNotifications);
+        const unread = validNotifications.filter(n => !n.read).length;
         setUnreadCount(unread);
       }
     } catch (error) {

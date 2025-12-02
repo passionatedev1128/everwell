@@ -1,20 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [itemWidth, setItemWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef(null);
 
   const maxIndex = Math.max(0, items.length - itemsPerView);
 
+  // Calculate fixed item width based on container width
   useEffect(() => {
-    if (!isAutoPlaying || items.length <= itemsPerView) return;
+    const calculateWidth = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+        setContainerWidth(width);
+        const padding = 64; // 2rem on each side = 4rem total = 64px
+        const availableWidth = width - padding;
+        // mx-2 adds 0.5rem (8px) margin on each side = 16px total per item
+        // For itemsPerView items, we have (itemsPerView - 1) gaps of 32px (16px from each adjacent item)
+        const marginPerItem = 16; // 0.5rem * 2 = 1rem = 16px total margin per item
+        const totalMargins = itemsPerView * marginPerItem;
+        const calculatedWidth = (availableWidth - totalMargins) / itemsPerView;
+        setItemWidth(calculatedWidth);
+      }
+    };
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-    }, 4000); // Auto-advance every 4 seconds
+    calculateWidth();
+    window.addEventListener('resize', calculateWidth);
+    return () => window.removeEventListener('resize', calculateWidth);
+  }, [itemsPerView]);
 
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, maxIndex, items.length, itemsPerView]);
+  // Auto-play disabled - carousel only moves when user clicks navigation buttons
+  // useEffect(() => {
+  //   if (!isAutoPlaying || items.length <= itemsPerView) return;
+
+  //   const interval = setInterval(() => {
+  //     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  //   }, 4000); // Auto-advance every 4 seconds
+
+  //   return () => clearInterval(interval);
+  // }, [isAutoPlaying, maxIndex, items.length, itemsPerView]);
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -32,27 +58,63 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
   }
 
   return (
-    <div className={`relative ${className}`} style={{ isolation: 'isolate', contain: 'layout style', paddingLeft: '3rem', paddingRight: '3rem' }}>
+    <div 
+      ref={containerRef}
+      className={`relative py-4 ${className}`} 
+      style={{ isolation: 'isolate', contain: 'layout style', paddingLeft: '2rem', paddingRight: '2rem' }}
+    >
       <div className="overflow-hidden">
         <div
-          className="flex"
+          className="flex items-stretch"
           style={{
-            transform: `translateX(-${currentIndex * (100 / itemsPerView)}%) translateZ(0)`,
+            transform: itemWidth > 0 && containerWidth > 0 ? (() => {
+              // First card is 25% wider
+              const firstCardWidth = itemWidth * 1.09;
+              const regularCardWidth = itemWidth;
+              
+              // Calculate total width of all items (first is wider)
+              const totalItemsWidth = (firstCardWidth) + (items.length - 1) * (regularCardWidth);
+              // Calculate visible width (container - left padding only, no right padding for last item)
+              const visibleWidth = containerWidth - 32; // Only left padding (2rem = 32px)
+              
+              // Calculate transform based on current index
+              let transformX = 0;
+              if (currentIndex === 0) {
+                transformX = 0;
+              } else {
+                // Start with first card width, then add regular cards
+                transformX = (firstCardWidth) + (currentIndex - 1) * (regularCardWidth);
+              }
+              
+              // When at maxIndex, align last item to right edge (no right padding)
+              if (currentIndex === maxIndex && maxIndex > 0) {
+                const lastItemPosition = totalItemsWidth - visibleWidth;
+                return `translateX(-${lastItemPosition}px) translateZ(0)`;
+              }
+              
+              return `translateX(-${transformX}px) translateZ(0)`;
+            })() : 'translateX(0) translateZ(0)',
             transition: 'transform 0.5s ease-in-out',
             willChange: 'transform',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden'
           }}
         >
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="flex-shrink-0"
-              style={{ width: `${100 / itemsPerView}%` }}
-            >
-              {item}
-            </div>
-          ))}
+          {items.map((item, index) => {
+            // Make first card wider (25% more)
+            const isFirstCard = index === 0;
+            const cardWidth = itemWidth > 0 ? (isFirstCard ? itemWidth : itemWidth) : 'auto';
+            
+            return (
+              <div
+                key={index}
+                className="flex-shrink-0"
+                style={{ width: typeof cardWidth === 'number' ? `${cardWidth}px` : cardWidth, display: 'flex', height: '100%' }}
+              >
+                {item}
+              </div>
+            );
+          })}
         </div>
       </div>
 

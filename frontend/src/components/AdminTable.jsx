@@ -121,7 +121,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                 onClick={() => navigate(`/admin/users/${user._id}`)}
                 style={{ transition: 'background-color 0.2s ease' }}
               >
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     {user.photo ? (
                       <img 
@@ -137,10 +137,10 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     <div className="text-xs font-medium text-darkTeal truncate max-w-[120px]">{user.name}</div>
                   </div>
                 </td>
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-4 whitespace-nowrap">
                   <div className="text-xs text-mediumTeal truncate max-w-[150px]">{user.email}</div>
                 </td>
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.role === 'admin'
@@ -151,7 +151,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     {user.role === 'admin' ? 'Admin' : 'Usuário'}
                   </span>
                 </td>
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.isAuthorized
@@ -162,14 +162,14 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     {user.isAuthorized ? 'Autorizado' : 'Pendente'}
                   </span>
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap text-xs text-mediumTeal">
+                <td className="px-3 py-4 whitespace-nowrap text-xs text-mediumTeal">
                   {new Date(user.createdAt).toLocaleDateString('pt-BR', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
                   })}
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap text-center">
+                <td className="px-3 py-4 whitespace-nowrap text-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -186,7 +186,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     Alterar
                   </button>
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap text-center">
+                <td className="px-3 py-4 whitespace-nowrap text-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -201,7 +201,7 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                     {user.isAuthorized ? 'Revogar' : 'Autorizar'}
                   </button>
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap text-center">
+                <td className="px-3 py-4 whitespace-nowrap text-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

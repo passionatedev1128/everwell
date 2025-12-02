@@ -10,6 +10,7 @@
     "create-admin": "node scripts/create-admin.js",
     "test-email": "node scripts/test-gmail.js",
     "seed-blogs": "node scripts/seed-blogs.js",
+    "seed-testimonials": "node scripts/seed-testimonials.js",
     "setup-db": "node run-database-setup.js"
   },
   "keywords": [],

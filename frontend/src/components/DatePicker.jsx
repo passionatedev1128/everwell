@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const DatePicker = ({ value, onChange, placeholder = 'Selecione uma data', className = '', ...props }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
   const wrapperRef = useRef(null);
 
   // Convert string value (YYYY-MM-DD) to Date object
@@ -14,6 +15,19 @@ const DatePicker = ({ value, onChange, placeholder = 'Selecione uma data', class
     const parsed = parse(value, 'yyyy-MM-dd', new Date());
     return isValid(parsed) ? parsed : null;
   })() : null;
+
+  // Handle opening animation
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      // Trigger animation after render
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Animation will be handled by CSS
+        });
+      });
+    }
+  }, [isOpen]);
 
   // Handle date change
   const handleDateChange = (date) => {
@@ -32,7 +46,14 @@ const DatePicker = ({ value, onChange, placeholder = 'Selecione uma data', class
         }
       });
     }
+    // Animate close
     setIsOpen(false);
+    setTimeout(() => setShouldRender(false), 300);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setTimeout(() => setShouldRender(false), 300);
   };
 
   // Format display value
@@ -45,6 +66,7 @@ const DatePicker = ({ value, onChange, placeholder = 'Selecione uma data', class
     const handleClickOutside = (event) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setIsOpen(false);
+        setTimeout(() => setShouldRender(false), 300);
       }
     };
 
@@ -61,13 +83,25 @@ const DatePicker = ({ value, onChange, placeholder = 'Selecione uma data', class
     <div className="relative" ref={wrapperRef}>
       <div
         className={`input-field cursor-pointer flex items-center justify-between ${className}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (isOpen) {
+            handleClose();
+          } else {
+            setIsOpen(true);
+            setShouldRender(true);
+          }
+        }}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setIsOpen(!isOpen);
+            if (isOpen) {
+              handleClose();
+            } else {
+              setIsOpen(true);
+              setShouldRender(true);
+            }
           }
         }}
       >
@@ -89,8 +123,14 @@ const DatePicker = ({ value, onChange, placeholder = 'Selecione uma data', class
         </svg>
       </div>
       
-      {isOpen && (
-        <div className="absolute z-[9999] mt-1 left-0 sm:left-auto sm:right-0">
+      {shouldRender && (
+        <div 
+          className={`absolute z-[9999] mt-1 left-0 sm:left-auto sm:right-0 datepicker-popup ${
+            isOpen 
+              ? 'datepicker-enter' 
+              : 'datepicker-exit'
+          }`}
+        >
           <DatePickerLib
             selected={dateValue}
             onChange={handleDateChange}
