@@ -34,11 +34,9 @@ const testimonialUsers = [
 
 const createTestimonialUsers = async () => {
   try {
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/everwell', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    // Connect to MongoDB - use same connection string format as other scripts
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/everwell';
+    await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB');
 
     // Create a default password for all testimonial users

@@ -219,6 +219,16 @@ export const createFeedback = async (feedbackData) => {
   return response.data;
 };
 
+export const getMyFeedbacks = async () => {
+  const response = await api.get('/feedback/me');
+  return response.data;
+};
+
+export const getResolvedFeedbacks = async (limit = 10) => {
+  const response = await api.get('/feedback/resolved', { params: { limit } });
+  return response.data;
+};
+
 // User photo upload
 export const uploadUserPhoto = async (file) => {
   const formData = new FormData();

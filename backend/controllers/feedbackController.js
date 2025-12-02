@@ -136,3 +136,42 @@ export const deleteFeedback = async (req, res, next) => {
   }
 };
 
+// Get current user's feedbacks
+export const getMyFeedbacks = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    
+    const feedbacks = await Feedback.find({ userId })
+      .populate('userId', 'name email photo')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: feedbacks.length,
+      feedbacks
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get resolved feedbacks for public display (homepage testimonials)
+export const getResolvedFeedbacks = async (req, res, next) => {
+  try {
+    const { limit = 10 } = req.query;
+    
+    const feedbacks = await Feedback.find({ status: 'resolved' })
+      .populate('userId', 'name email photo')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    res.json({
+      success: true,
+      count: feedbacks.length,
+      feedbacks
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

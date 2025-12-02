@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { getCurrentUser, getOrders, getNotifications } from '../utils/api';
+import { getCurrentUser, getOrders, getNotifications, getMyFeedbacks } from '../utils/api';
 import DocumentUpload from '../components/DocumentUpload';
 import ProfileForm from '../components/ProfileForm';
 import { DashboardCardSkeleton } from '../components/SkeletonLoader';
@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tabTransition, setTabTransition] = useState(false);
@@ -26,6 +27,8 @@ const Dashboard = () => {
       fetchOrders();
     } else if (activeTab === 'messages') {
       fetchNotifications();
+    } else if (activeTab === 'feedbacks') {
+      fetchFeedbacks();
     }
     
     // Fade in after a brief moment
@@ -86,6 +89,17 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      const response = await getMyFeedbacks();
+      if (response.success) {
+        setFeedbacks(response.feedbacks || []);
+      }
+    } catch (error) {
+      console.error('Error fetching feedbacks:', error);
     }
   };
 
@@ -239,6 +253,22 @@ const Dashboard = () => {
                 >
                   <span className="relative z-10">Mensagens</span>
                   {activeTab === 'messages' && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('feedbacks')}
+                  className={`w-full text-left px-4 py-2 rounded-md transition-all duration-300 relative overflow-hidden ${
+                    activeTab === 'feedbacks'
+                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                      : 'text-darkTeal hover:bg-bgSecondary hover:translate-x-1'
+                  }`}
+                  style={{
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  <span className="relative z-10">Feedbacks</span>
+                  {activeTab === 'feedbacks' && (
                     <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-dark opacity-90"></span>
                   )}
                 </button>
@@ -525,6 +555,77 @@ const Dashboard = () => {
                           </div>
                         );
                       })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'feedbacks' && (
+                <div>
+                  <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Meus Feedbacks</h2>
+                  {feedbacks.length === 0 ? (
+                    <div className="text-center py-12">
+                      <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                      </svg>
+                      <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhum feedback</h3>
+                      <p className="text-sm text-mediumTeal">Você ainda não enviou nenhum feedback.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {feedbacks.map((feedback) => (
+                        <div
+                          key={feedback._id}
+                          className="bg-primary/5 rounded-lg border border-primary/20 p-4 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <p className="font-semibold text-darkTeal">{feedback.name}</p>
+                                <div className="flex items-center gap-1">
+                                  {[...Array(5)].map((_, i) => (
+                                    <svg
+                                      key={i}
+                                      className={`w-4 h-4 ${i < feedback.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                  ))}
+                                </div>
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                  feedback.status === 'resolved' ? 'bg-green-100 text-green-700' :
+                                  feedback.status === 'reviewed' ? 'bg-blue-100 text-blue-700' :
+                                  feedback.status === 'archived' ? 'bg-gray-100 text-gray-700' :
+                                  'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                  {feedback.status === 'resolved' ? 'Resolvido' :
+                                   feedback.status === 'reviewed' ? 'Revisado' :
+                                   feedback.status === 'archived' ? 'Arquivado' :
+                                   'Pendente'}
+                                </span>
+                              </div>
+                              <p className="text-sm text-mediumTeal mb-2">{feedback.message}</p>
+                              {feedback.response && (
+                                <div className="mt-3 p-3 bg-white rounded border border-primary/10">
+                                  <p className="text-xs font-semibold text-darkTeal mb-1">Resposta:</p>
+                                  <p className="text-sm text-mediumTeal">{feedback.response}</p>
+                                </div>
+                              )}
+                              <p className="text-xs text-mediumTeal/70 mt-2">
+                                {new Date(feedback.createdAt).toLocaleDateString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

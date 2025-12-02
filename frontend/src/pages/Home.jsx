@@ -8,6 +8,7 @@ import { initScrollAnimations } from '../utils/scrollAnimations';
 import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
 import { trackEvent as trackGtmEvent } from '../utils/gtm';
 import api from '../utils/api';
+import { getResolvedFeedbacks } from '../utils/api';
 
 const trustBadges = [
   {
@@ -55,27 +56,7 @@ const processSteps = [
 ];
 
 // productHighlights will be fetched from API
-
-const testimonials = [
-  {
-    quote: 'Experiência impecável do início ao fim. Performance elevada, sono equilibrado e suporte de alto nível.',
-    name: 'Joana Fontes',
-    title: 'Executiva de Marketing',
-    avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80'
-  },
-  {
-    quote: 'Os protocolos personalizados transformaram minha rotina esportiva. Recuperação mais rápida e foco absoluto.',
-    name: 'Maria Silva',
-    title: 'Atleta Profissional',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80'
-  },
-  {
-    quote: 'Nunca tive um acompanhamento tão humanizado. A EverWell entrega ciência, sofisticação e resultado.',
-    name: 'Antônio Santos',
-    title: 'Empreendedor',
-    avatar: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=200&q=80'
-  }
-];
+// testimonials will be fetched from API (resolved feedbacks)
 
 const differentiators = [
   {
@@ -111,6 +92,7 @@ const Home = () => {
   const [showJotForm, setShowJotForm] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [productHighlights, setProductHighlights] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const backgroundSectionRef = useRef(null);
 
   const handleCloseModal = () => {
@@ -163,7 +145,29 @@ const Home = () => {
       }
     };
 
+    // Fetch resolved feedbacks for testimonials
+    const fetchTestimonials = async () => {
+      try {
+        const response = await getResolvedFeedbacks(10);
+        if (response.success && response.feedbacks) {
+          // Map feedbacks to testimonial format
+          const mappedTestimonials = response.feedbacks.map(feedback => ({
+            quote: feedback.message,
+            name: feedback.userId?.name || feedback.name,
+            title: feedback.userId?.email ? feedback.userId.email.split('@')[0] : 'Cliente',
+            avatar: feedback.userId?.photo || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
+          }));
+          setTestimonials(mappedTestimonials);
+        }
+      } catch (error) {
+        // Silently fail and use empty array
+        console.error('Error fetching testimonials:', error);
+        setTestimonials([]);
+      }
+    };
+
     fetchProducts();
+    fetchTestimonials();
 
     return () => {
       if (backgroundSectionRef.current) {
@@ -560,12 +564,16 @@ const Home = () => {
           {testimonials.length > 3 ? (
             <Carousel
               items={testimonials.map((testimonial) => (
-                <div key={testimonial.name} className="px-2">
+                <div key={testimonial.name} className="px-2 h-full" style={{ width: '100%' }}>
                   <div 
-                    className="card text-left flex flex-col gap-4 scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group"
+                    className="card text-left flex flex-col scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full"
                     style={{
                       transform: 'perspective(1000px) rotateX(0deg)',
-                      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                      minHeight: '280px',
+                      height: '280px',
+                      padding: '1.5rem',
+                      width: '100%'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'perspective(1000px) rotateX(2deg) translateY(-8px)';
@@ -576,24 +584,35 @@ const Home = () => {
                       e.currentTarget.style.boxShadow = '';
                     }}
                   >
-                    <div className="flex items-center gap-4">
+                    {/* Avatar and Name Section - Fixed Height */}
+                    <div className="flex items-center gap-4 mb-4" style={{ minHeight: '56px', height: '56px' }}>
                       <img
                         src={testimonial.avatar}
                         alt={testimonial.name}
-                        className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40"
+                        className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40 flex-shrink-0"
                       />
-                      <div>
-                        <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary">{testimonial.name}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary truncate">{testimonial.name}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    {/* Stars Section - Fixed Height */}
+                    <div className="flex items-center gap-1 mb-4" style={{ minHeight: '24px', height: '24px' }}>
                       {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
+                        <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110 flex-shrink-0" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
                       ))}
                     </div>
-                    <p className="text-darkTeal/80 leading-relaxed mt-2">"{testimonial.quote}"</p>
+                    {/* Quote Section - Fixed Height with Overflow */}
+                    <div className="flex-1 overflow-hidden" style={{ minHeight: '120px', maxHeight: '120px' }}>
+                      <p className="text-darkTeal/80 leading-relaxed" style={{ 
+                        display: '-webkit-box',
+                        WebkitLineClamp: 5,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>"{testimonial.quote}"</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -604,10 +623,13 @@ const Home = () => {
               {testimonials.map((testimonial) => (
               <div 
                 key={testimonial.name} 
-                className="card text-left flex flex-col gap-4 scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group"
+                className="card text-left flex flex-col scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full"
                 style={{
                   transform: 'perspective(1000px) rotateX(0deg)',
-                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                  minHeight: '280px',
+                  height: '280px',
+                  padding: '1.5rem'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'perspective(1000px) rotateX(2deg) translateY(-8px)';
@@ -618,24 +640,35 @@ const Home = () => {
                   e.currentTarget.style.boxShadow = '';
                 }}
               >
-                <div className="flex items-center gap-4">
+                {/* Avatar and Name Section - Fixed Height */}
+                <div className="flex items-center gap-4 mb-4" style={{ minHeight: '56px', height: '56px' }}>
                   <img
                     src={testimonial.avatar}
                     alt={testimonial.name}
-                    className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40"
+                    className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40 flex-shrink-0"
                   />
-                  <div>
-                    <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary">{testimonial.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary truncate">{testimonial.name}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
+                {/* Stars Section - Fixed Height */}
+                <div className="flex items-center gap-1 mb-4" style={{ minHeight: '24px', height: '24px' }}>
                   {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
+                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110 flex-shrink-0" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
-                <p className="text-darkTeal/80 leading-relaxed mt-2">"{testimonial.quote}"</p>
+                {/* Quote Section - Fixed Height with Overflow */}
+                <div className="flex-1 overflow-hidden" style={{ minHeight: '120px', maxHeight: '120px' }}>
+                  <p className="text-darkTeal/80 leading-relaxed" style={{ 
+                    display: '-webkit-box',
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>"{testimonial.quote}"</p>
+                </div>
               </div>
             ))}
             </div>

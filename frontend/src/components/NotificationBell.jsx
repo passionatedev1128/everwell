@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { markAllNotificationsAsRead, deleteNotification } from '../utils/api';
+import { markAllNotificationsAsRead } from '../utils/api';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -212,20 +212,13 @@ const NotificationBell = () => {
     e.stopPropagation();
     e.preventDefault();
     
-    try {
-      await deleteNotification(notificationId);
-      // Remove from state
-      setNotifications(prev => prev.filter(n => n._id !== notificationId));
-      setUnreadCount(prev => Math.max(0, prev - 1));
-      // Save to localStorage to persist across refreshes
-      saveDeletedNotificationId(notificationId);
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-      // Even if API call fails, remove from UI and save to localStorage
-      setNotifications(prev => prev.filter(n => n._id !== notificationId));
-      setUnreadCount(prev => Math.max(0, prev - 1));
-      saveDeletedNotificationId(notificationId);
-    }
+    // Don't actually delete from database - just hide from dropdown
+    // This way it still appears in the dashboard messages section
+    // Remove from state
+    setNotifications(prev => prev.filter(n => n._id !== notificationId));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+    // Save to localStorage to persist across refreshes
+    saveDeletedNotificationId(notificationId);
   };
 
   const getTypeIcon = (type) => {
@@ -288,38 +281,18 @@ const NotificationBell = () => {
   };
 
   const handleClearAll = async () => {
-    try {
-      // Delete all notifications individually
-      const deletePromises = notifications.map(notification => 
-        deleteNotification(notification._id).catch(error => {
-          // If deletion fails, still save to localStorage to hide it
-          console.error(`Error deleting notification ${notification._id}:`, error);
-          return null;
-        })
-      );
-      
-      await Promise.all(deletePromises);
-      
-      // Save all deleted notification IDs to localStorage to persist across refreshes
-      notifications.forEach(notification => {
-        saveDeletedNotificationId(notification._id);
-      });
-      
-      // Clear all notifications from the dropdown
-      setNotifications([]);
-      setUnreadCount(0);
-      // Mark as cleared to prevent refetching
-      setNotificationsCleared(true);
-    } catch (error) {
-      console.error('Error clearing all notifications:', error);
-      // Even if there's an error, save IDs to localStorage and clear UI
-      notifications.forEach(notification => {
-        saveDeletedNotificationId(notification._id);
-      });
-      setNotifications([]);
-      setUnreadCount(0);
-      setNotificationsCleared(true);
-    }
+    // Don't actually delete from database - just hide from dropdown
+    // This way they still appear in the dashboard messages section
+    // Save all deleted notification IDs to localStorage to persist across refreshes
+    notifications.forEach(notification => {
+      saveDeletedNotificationId(notification._id);
+    });
+    
+    // Clear all notifications from the dropdown
+    setNotifications([]);
+    setUnreadCount(0);
+    // Mark as cleared to prevent refetching
+    setNotificationsCleared(true);
   };
 
   return (
