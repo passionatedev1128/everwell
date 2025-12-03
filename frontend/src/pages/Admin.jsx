@@ -158,6 +158,32 @@ const Admin = () => {
     filterAndSortOrders();
   }, [orders, statusFilter, searchQuery, dateFilter, userFilter, sortBy]);
 
+  // Listen for feedback creation events to refresh feedbacks list
+  useEffect(() => {
+    const handleFeedbackCreated = () => {
+      // Refresh feedbacks if we're on the feedbacks tab
+      if (activeTab === 'feedbacks') {
+        fetchFeedbacks();
+      }
+    };
+
+    // Also refresh when window regains focus and we're on feedbacks tab
+    const handleWindowFocus = () => {
+      if (activeTab === 'feedbacks') {
+        fetchFeedbacks();
+      }
+    };
+
+    window.addEventListener('feedbackCreated', handleFeedbackCreated);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      window.removeEventListener('feedbackCreated', handleFeedbackCreated);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, feedbackStatusFilter]);
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -1841,6 +1867,17 @@ const Admin = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
+                            {feedback.userId?.photo ? (
+                              <img
+                                src={feedback.userId.photo}
+                                alt={feedback.name}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                                {feedback.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
                             <p className="font-semibold text-darkTeal">{feedback.name}</p>
                             <p className="text-sm text-mediumTeal">{feedback.email}</p>
                             <div className="flex items-center gap-1">

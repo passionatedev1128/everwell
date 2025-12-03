@@ -45,7 +45,8 @@ const FeedbackModal = ({ isOpen, onClose }) => {
     try {
       const response = await createFeedback({
         ...formData,
-        rating
+        rating,
+        userId: user?._id || null
       });
 
       if (response.success) {
@@ -56,6 +57,8 @@ const FeedbackModal = ({ isOpen, onClose }) => {
           email: user?.email || '',
           message: ''
         });
+        // Dispatch custom event to notify admin panel to refresh feedbacks
+        window.dispatchEvent(new CustomEvent('feedbackCreated'));
         onClose();
       }
     } catch (err) {

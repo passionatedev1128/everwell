@@ -2,8 +2,8 @@ import Feedback from '../models/Feedback.js';
 
 export const createFeedback = async (req, res, next) => {
   try {
-    const { name, email, rating, message } = req.body;
-    const userId = req.user?._id || null;
+    const { name, email, rating, message, userId: bodyUserId } = req.body;
+    const userId = req.user?._id || bodyUserId || null;
 
     // Validate required fields
     if (!name || !email || !rating || !message) {
@@ -30,6 +30,11 @@ export const createFeedback = async (req, res, next) => {
       message
     });
 
+    // Populate userId if it exists
+    if (userId) {
+      await feedback.populate('userId', 'name email photo');
+    }
+
     res.status(201).json({
       success: true,
       message: 'Feedback enviado com sucesso! Obrigado pela sua opinião.',
@@ -52,7 +57,7 @@ export const getAllFeedback = async (req, res, next) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const feedbacks = await Feedback.find(query)
-      .populate('userId', 'name email')
+      .populate('userId', 'name email photo')
       .populate('respondedBy', 'name email')
       .sort({ createdAt: -1 })
       .skip(skip)
