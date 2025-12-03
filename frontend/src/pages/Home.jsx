@@ -94,6 +94,12 @@ const Home = () => {
   const [productHighlights, setProductHighlights] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const backgroundSectionRef = useRef(null);
+  const testimonialsFetchedRef = useRef(false);
+
+  // Monitor testimonials state for debugging
+  useEffect(() => {
+    console.log('Testimonials state updated:', testimonials.length, testimonials);
+  }, [testimonials]);
 
   const handleCloseModal = () => {
     setIsClosing(true);
@@ -147,22 +153,46 @@ const Home = () => {
 
     // Fetch resolved feedbacks for testimonials
     const fetchTestimonials = async () => {
+      // Prevent duplicate fetches in the same session
+      if (testimonialsFetchedRef.current) {
+        console.log('Testimonials already fetched, skipping...');
+        return;
+      }
+      
+      testimonialsFetchedRef.current = true;
+      console.log('Fetching testimonials...');
+      
       try {
         const response = await getResolvedFeedbacks(10);
-        if (response.success && response.feedbacks) {
-          // Map feedbacks to testimonial format
-          const mappedTestimonials = response.feedbacks.map(feedback => ({
+        console.log('Testimonials API response:', response); // Debug log
+        
+        // Handle different response structures
+        const feedbacks = response?.feedbacks || response?.data?.feedbacks || [];
+        console.log('Extracted feedbacks:', feedbacks.length);
+        
+        if (feedbacks && Array.isArray(feedbacks) && feedbacks.length > 0) {
+          // Map feedbacks to testimonial format with unique IDs
+          const mappedTestimonials = feedbacks.map((feedback, index) => ({
+            id: feedback._id || `testimonial-${index}-${Date.now()}`,
             quote: feedback.message,
             name: feedback.userId?.name || feedback.name,
             title: feedback.userId?.email ? feedback.userId.email.split('@')[0] : 'Cliente',
             avatar: feedback.userId?.photo || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
           }));
+          console.log('Mapped testimonials:', mappedTestimonials); // Debug log
+          console.log('Setting testimonials state, count:', mappedTestimonials.length); // Debug log
           setTestimonials(mappedTestimonials);
+        } else {
+          console.log('No testimonials found. Response:', response); // Debug log
+          console.log('Feedbacks array:', feedbacks);
+          setTestimonials([]);
+          testimonialsFetchedRef.current = false; // Reset to allow retry
         }
       } catch (error) {
-        // Silently fail and use empty array
         console.error('Error fetching testimonials:', error);
+        console.error('Error details:', error.response?.data || error.message);
         setTestimonials([]);
+        testimonialsFetchedRef.current = false; // Reset on error to allow retry
       }
     };
 
@@ -173,6 +203,8 @@ const Home = () => {
       if (backgroundSectionRef.current) {
         observer.unobserve(backgroundSectionRef.current);
       }
+      // Reset fetch flag on unmount to allow refetch on remount
+      testimonialsFetchedRef.current = false;
     };
   }, []);
 
@@ -551,8 +583,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-12 sm:py-16 md:py-24">
+      {/* Testimonials - Only show if there are resolved feedbacks */}
+      {testimonials && testimonials.length > 0 && (
+      <section className="py-12 sm:py-16 md:py-24" data-testimonials-count={testimonials.length}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-14">
             <p className="section-heading text-xs sm:text-sm">Satisfied customers</p>
@@ -564,9 +597,9 @@ const Home = () => {
           {testimonials.length > 3 ? (
             <Carousel
               items={testimonials.map((testimonial) => (
-                <div key={testimonial.name} className="px-2 h-full" style={{ width: '100%' }}>
+                <div key={testimonial.id || testimonial.name} className="px-2 h-full" style={{ width: '100%' }}>
                   <div 
-                    className="card text-left flex flex-col scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full"
+                    className="card text-left flex flex-col transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full"
                     style={{
                       transform: 'perspective(1000px) rotateX(0deg)',
                       transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -619,11 +652,11 @@ const Home = () => {
               itemsPerView={3}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 justify-items-center">
               {testimonials.map((testimonial) => (
               <div 
-                key={testimonial.name} 
-                className="card text-left flex flex-col scroll-animate transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full"
+                key={testimonial.id || testimonial.name} 
+                className="card text-left flex flex-col transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full w-full max-w-sm mx-auto"
                 style={{
                   transform: 'perspective(1000px) rotateX(0deg)',
                   transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -675,6 +708,7 @@ const Home = () => {
           )}
         </div>
       </section>
+      )}
 
       {/* Differentials */}
       <section className="py-12 sm:py-16 md:py-24 bg-white">

@@ -95,7 +95,18 @@ export const updateFeedbackStatus = async (req, res, next) => {
       });
     }
 
-    if (status) feedback.status = status;
+    if (status) {
+      feedback.status = status;
+      // If status is being set to 'resolved', automatically set respondedBy if not already set
+      if (status === 'resolved' && !feedback.respondedBy) {
+        feedback.respondedBy = req.user._id;
+        feedback.respondedAt = new Date();
+        // Set a default response if none provided
+        if (!feedback.response) {
+          feedback.response = 'Feedback resolvido pelo administrador.';
+        }
+      }
+    }
     if (response !== undefined) {
       feedback.response = response;
       feedback.respondedAt = new Date();
@@ -156,12 +167,20 @@ export const getMyFeedbacks = async (req, res, next) => {
 };
 
 // Get resolved feedbacks for public display (homepage testimonials)
+// Only show feedbacks that have status 'resolved' (as shown in admin page) 
+// AND have been responded to by an admin (have respondedBy field)
 export const getResolvedFeedbacks = async (req, res, next) => {
   try {
     const { limit = 10 } = req.query;
     
-    const feedbacks = await Feedback.find({ status: 'resolved' })
+    // Only return feedbacks with status 'resolved' (matching admin page filter)
+    // and that have been responded to by an admin
+    const feedbacks = await Feedback.find({ 
+      status: 'resolved', // Must match the "Resolvido" status from admin page
+      respondedBy: { $ne: null } // Must have been responded to by an admin
+    })
       .populate('userId', 'name email photo')
+      .populate('respondedBy', 'name email')
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
 

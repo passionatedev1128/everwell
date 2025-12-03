@@ -54,7 +54,7 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
 
   if (items.length <= itemsPerView) {
     const gridCols = itemsPerView === 3 ? 'md:grid-cols-3' : itemsPerView === 2 ? 'md:grid-cols-2' : 'md:grid-cols-4';
-    return <div className={`grid grid-cols-1 ${gridCols} gap-8 ${className}`}>{items}</div>;
+    return <div className={`grid grid-cols-1 ${gridCols} gap-8 justify-items-center ${className}`}>{items}</div>;
   }
 
   return (
@@ -63,7 +63,7 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
       className={`relative py-4 ${className}`} 
       style={{ isolation: 'isolate', contain: 'layout style', paddingLeft: '2rem', paddingRight: '2rem' }}
     >
-      <div className="overflow-hidden" style = {{ paddingTop: '15px', paddingBottom: '15px' }}>
+      <div className="overflow-hidden" style = {{ paddingTop: '47px', paddingBottom: '52px' }}>
         <div
           className="flex items-stretch"
           style={{

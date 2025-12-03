@@ -214,11 +214,11 @@ const NotificationBell = () => {
     
     // Don't actually delete from database - just hide from dropdown
     // This way it still appears in the dashboard messages section
-    // Remove from state
-    setNotifications(prev => prev.filter(n => n._id !== notificationId));
-    setUnreadCount(prev => Math.max(0, prev - 1));
-    // Save to localStorage to persist across refreshes
-    saveDeletedNotificationId(notificationId);
+      // Remove from state
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      // Save to localStorage to persist across refreshes
+      saveDeletedNotificationId(notificationId);
   };
 
   const getTypeIcon = (type) => {
@@ -288,11 +288,11 @@ const NotificationBell = () => {
       saveDeletedNotificationId(notification._id);
     });
     
-    // Clear all notifications from the dropdown
-    setNotifications([]);
-    setUnreadCount(0);
-    // Mark as cleared to prevent refetching
-    setNotificationsCleared(true);
+      // Clear all notifications from the dropdown
+      setNotifications([]);
+      setUnreadCount(0);
+      // Mark as cleared to prevent refetching
+      setNotificationsCleared(true);
   };
 
   return (
