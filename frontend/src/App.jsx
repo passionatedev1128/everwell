@@ -65,10 +65,24 @@ function App() {
       }
     }
     
+    // Listen for storage changes to sync authentication state across tabs
+    const handleStorageChange = (e) => {
+      if (e.key === 'token' || e.key === 'user') {
+        // Reload the page to reflect the new authentication state
+        window.location.reload();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
     // Show loading animation
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   if (isLoading) {

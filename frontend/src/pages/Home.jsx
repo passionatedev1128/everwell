@@ -652,7 +652,7 @@ const Home = () => {
               itemsPerView={3}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 justify-items-center">
+            <div className={`${testimonials.length <= 2 ? 'flex flex-wrap justify-center' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3'} gap-4 sm:gap-6 md:gap-8 justify-items-center`}>
               {testimonials.map((testimonial) => (
               <div 
                 key={testimonial.id || testimonial.name} 

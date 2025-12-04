@@ -613,16 +613,16 @@ const Dashboard = () => {
                                   <p className="text-sm text-mediumTeal">{feedback.response}</p>
                                 </div>
                               )}
-                              <p className="text-xs text-mediumTeal/70 mt-2">
-                                {new Date(feedback.createdAt).toLocaleDateString('pt-BR', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </p>
                             </div>
+                            <p className="text-xs text-mediumTeal/70 ml-4 flex-shrink-0">
+                              {new Date(feedback.createdAt).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
                           </div>
                         </div>
                       ))}

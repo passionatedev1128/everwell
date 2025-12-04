@@ -15,7 +15,8 @@ const AuditLogSchema = new mongoose.Schema({
       'admin_login',
       'order_created',
       'payment_proof_uploaded',
-      'order_status_updated'
+      'order_status_updated',
+      'password_updated'
     ]
   },
   userId: {
