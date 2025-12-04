@@ -4,6 +4,7 @@ import { setToken, setUser } from '../utils/auth';
 import { toast } from 'react-hot-toast';
 import { trackLogin } from '../utils/analytics';
 import { trackLogin as gtmTrackLogin } from '../utils/gtm';
+import { identifyContact } from '../utils/hubspot';
 
 const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
@@ -46,35 +47,49 @@ const OAuthCallback = () => {
             if (userResponse.ok) {
               const userData = await userResponse.json();
               if (userData.success && userData.user) {
-                setUser({
+                const user = {
                   id: userData.user._id || payload.id,
+                  _id: userData.user._id || payload.id,
                   email: userData.user.email || payload.email,
                   role: userData.user.role || payload.role,
-                  name: userData.user.name
-                });
+                  name: userData.user.name,
+                  isAuthorized: userData.user.isAuthorized
+                };
+                setUser(user);
+                // Identify contact in HubSpot (essential CRM function)
+                identifyContact(user);
                 // Dispatch event to update user in Header
                 window.dispatchEvent(new CustomEvent('userUpdated'));
               } else {
-                setUser({
+                const user = {
                   id: payload.id,
+                  _id: payload.id,
                   email: payload.email,
                   role: payload.role
-                });
+                };
+                setUser(user);
+                identifyContact(user);
               }
             } else {
-              setUser({
+              const user = {
                 id: payload.id,
+                _id: payload.id,
                 email: payload.email,
                 role: payload.role
-              });
+              };
+              setUser(user);
+              identifyContact(user);
             }
           } catch (fetchError) {
             console.error('Error fetching user data:', fetchError);
-            setUser({
+            const user = {
               id: payload.id,
+              _id: payload.id,
               email: payload.email,
               role: payload.role
-            });
+            };
+            setUser(user);
+            identifyContact(user);
           }
 
           // Track Google OAuth login (check if it's a new user by checking creation time)

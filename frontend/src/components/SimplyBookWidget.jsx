@@ -1,33 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { trackEvent } from '../utils/analytics';
+import { trackEvent as gtmTrackEvent } from '../utils/gtm';
 
-const injectHubspotBookingHandler = () => {
+const injectBookingHandler = () => {
   window.onSimplyBookBookingComplete = function onSimplyBookBookingComplete(booking) {
     try {
-      if (window._hsq) {
-        window._hsq.push([
-          'trackCustomBehavioralEvent',
-          {
-            name: 'booking_completed',
-            properties: {
-              email: booking.customerEmail,
-              service: booking.serviceName,
-              date: booking.date,
-            },
-          },
-        ]);
-      }
-
-      if (window.HubSpotConversations?.trackEvent) {
-        window.HubSpotConversations.trackEvent({
-          id: 'booking_completed',
-          email: booking.customerEmail,
-          service: booking.serviceName,
-          date: booking.date,
-        });
-      }
+      // Track booking completion in GA4 (per free tier strategy - use GA4 for all custom events)
+      trackEvent('booking_completed', {
+        service: booking.serviceName,
+        date: booking.date,
+        customer_email: booking.customerEmail,
+      });
+      
+      // Also track in GTM if needed
+      gtmTrackEvent('booking_completed', {
+        service: booking.serviceName,
+        date: booking.date,
+        customer_email: booking.customerEmail,
+      });
     } catch (error) {
-      console.warn('HubSpot booking tracking failed:', error);
+      console.warn('Booking tracking failed:', error);
     }
   };
 };
@@ -57,7 +50,7 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
     
     script.onload = () => {
       clearTimeout(loadTimeout); // Clear timeout when script loads successfully
-      injectHubspotBookingHandler();
+      injectBookingHandler();
       
       if (window.SimplybookWidget) {
         try {
