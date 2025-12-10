@@ -6,7 +6,8 @@ const ensureQueue = () => {
   // Ensure HubSpot queue is separate from GA4 dataLayer
   // HubSpot uses _hsq, GA4 uses dataLayer - they should not interfere
   if (!window._hsq) {
-    window._hsq = [];
+    // window._hsq = [];
+    window._hsq = window._hsq || [];
   }
   
   // Make sure we're not accidentally using dataLayer

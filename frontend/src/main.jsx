@@ -37,107 +37,114 @@ if (ga4MeasurementId) {
 }
 
 // Initialize HubSpot Tracking
-// Wait for marketing cookie consent before loading HubSpot
-const hubspotPortalId = import.meta.env.VITE_HUBSPOT_PORTAL_ID;
-if (hubspotPortalId) {
-  // Initialize queue immediately (needed for identifyContact to work)
-  if (typeof window !== 'undefined') {
-    window._hsq = window._hsq || [];
-  }
+// Note: HubSpot script is loaded from index.html
+// This code ensures the queue is initialized and handles cookie consent if needed
+if (typeof window !== 'undefined') {
+  // Ensure queue is initialized (already done in HTML, but this is safe)
+  window._hsq = window._hsq || [];
   
-  // Check if marketing cookies are accepted
-  const checkConsentAndLoad = () => {
-    // Check for common cookie consent tools
-    let hasConsent = false;
-    
-    // CookieYes
-    if (window.CookieYes) {
-      const consent = window.CookieYes.getConsent?.();
-      hasConsent = consent?.marketing === true;
+  // Check if HubSpot script already exists in HTML
+  const existingScript = document.getElementById('hs-script-loader');
+  
+  if (existingScript) {
+    // Script is already in HTML, no need to load dynamically
+    // The script will load automatically (respecting cookie consent if data-cookieyes is set)
+    if (import.meta.env.DEV) {
+      console.log('HubSpot: Script detected in HTML, will load automatically');
     }
-    
-    // Cookiebot
-    if (window.Cookiebot && !hasConsent) {
-      hasConsent = window.Cookiebot.consent?.marketing === true;
-    }
-    
-    // OneTrust
-    if (window.OneTrust && !hasConsent) {
-      const domainData = window.OneTrust.GetDomainData?.();
-      hasConsent = domainData?.GroupsConsent?.includes('C0004');
-    }
-    
-    // Check consent cookies as fallback
-    if (!hasConsent) {
-      const cookies = document.cookie.split(';');
-      hasConsent = cookies.some(cookie => {
-        const [name, value] = cookie.trim().split('=');
-        return (
-          (name.includes('consent') && value?.includes('marketing')) ||
-          (name.includes('cookieyes') && value?.includes('marketing')) ||
-          (name.includes('cookiebot') && value?.includes('marketing'))
-        );
-      });
-    }
-    
-    // In development, assume consent if no tool detected
-    if (!hasConsent && import.meta.env.DEV) {
-      const hasConsentTool = !!(window.CookieYes || window.Cookiebot || window.OneTrust);
-      if (!hasConsentTool) {
-        hasConsent = true; // Assume consent in dev if no tool
-      }
-    }
-    
-    if (hasConsent) {
-      if (import.meta.env.DEV) {
-        console.log('HubSpot: Marketing cookies accepted, loading HubSpot...');
-      }
-      // Delay slightly to avoid conflicts with GA4/GTM
-      setTimeout(() => {
-        initHubspot(hubspotPortalId);
-      }, 500);
-    } else {
-      // Listen for consent events
-      const loadOnConsent = () => {
-        if (import.meta.env.DEV) {
-          console.log('HubSpot: Marketing cookies accepted, loading HubSpot...');
+  } else {
+    // Script not in HTML, check if we should load it dynamically
+    // This handles the case where VITE_HUBSPOT_PORTAL_ID is set but script not in HTML
+    const hubspotPortalId = import.meta.env.VITE_HUBSPOT_PORTAL_ID;
+    if (hubspotPortalId) {
+      // Check if marketing cookies are accepted
+      const checkConsentAndLoad = () => {
+        // Check for common cookie consent tools
+        let hasConsent = false;
+        
+        // CookieYes
+        if (window.CookieYes) {
+          const consent = window.CookieYes.getConsent?.();
+          hasConsent = consent?.marketing === true;
         }
-        setTimeout(() => {
-          initHubspot(hubspotPortalId);
-        }, 500);
+        
+        // Cookiebot
+        if (window.Cookiebot && !hasConsent) {
+          hasConsent = window.Cookiebot.consent?.marketing === true;
+        }
+        
+        // OneTrust
+        if (window.OneTrust && !hasConsent) {
+          const domainData = window.OneTrust.GetDomainData?.();
+          hasConsent = domainData?.GroupsConsent?.includes('C0004');
+        }
+        
+        // Check consent cookies as fallback
+        if (!hasConsent) {
+          const cookies = document.cookie.split(';');
+          hasConsent = cookies.some(cookie => {
+            const [name, value] = cookie.trim().split('=');
+            return (
+              (name.includes('consent') && value?.includes('marketing')) ||
+              (name.includes('cookieyes') && value?.includes('marketing')) ||
+              (name.includes('cookiebot') && value?.includes('marketing'))
+            );
+          });
+        }
+        
+        // In development, assume consent if no tool detected
+        if (!hasConsent && import.meta.env.DEV) {
+          const hasConsentTool = !!(window.CookieYes || window.Cookiebot || window.OneTrust);
+          if (!hasConsentTool) {
+            hasConsent = true; // Assume consent in dev if no tool
+          }
+        }
+        
+        if (hasConsent) {
+          if (import.meta.env.DEV) {
+            console.log('HubSpot: Marketing cookies accepted, loading HubSpot dynamically...');
+          }
+          // Delay slightly to avoid conflicts with GA4/GTM
+          setTimeout(() => {
+            initHubspot(hubspotPortalId);
+          }, 500);
+        } else {
+          // Listen for consent events
+          const loadOnConsent = () => {
+            if (import.meta.env.DEV) {
+              console.log('HubSpot: Marketing cookies accepted, loading HubSpot dynamically...');
+            }
+            setTimeout(() => {
+              initHubspot(hubspotPortalId);
+            }, 500);
+          };
+          
+          // CookieYes events
+          if (window.CookieYes) {
+            window.addEventListener('CookieYes', loadOnConsent);
+          }
+          
+          // Cookiebot events
+          if (window.Cookiebot) {
+            window.addEventListener('CookiebotOnConsentReady', loadOnConsent);
+            window.addEventListener('CookiebotOnAccept', loadOnConsent);
+          }
+          
+          // OneTrust events
+          if (window.OneTrust) {
+            window.addEventListener('OneTrustGroupsUpdated', loadOnConsent);
+          }
+          
+          if (import.meta.env.DEV) {
+            console.warn('HubSpot: Waiting for marketing cookie consent...');
+            console.warn('   HubSpot will load automatically when user accepts marketing cookies');
+          }
+        }
       };
       
-      // CookieYes events
-      if (window.CookieYes) {
-        window.addEventListener('CookieYes', loadOnConsent);
-      }
-      
-      // Cookiebot events
-      if (window.Cookiebot) {
-        window.addEventListener('CookiebotOnConsentReady', loadOnConsent);
-        window.addEventListener('CookiebotOnAccept', loadOnConsent);
-      }
-      
-      // OneTrust events
-      if (window.OneTrust) {
-        window.addEventListener('OneTrustGroupsUpdated', loadOnConsent);
-      }
-      
-      if (import.meta.env.DEV) {
-        console.warn('HubSpot: Waiting for marketing cookie consent...');
-        console.warn('   HubSpot will load automatically when user accepts marketing cookies');
-      }
+      // Wait a bit for consent tools to initialize, then check
+      setTimeout(checkConsentAndLoad, 1000);
     }
-  };
-  
-  // Wait a bit for consent tools to initialize, then check
-  setTimeout(checkConsentAndLoad, 1000);
-} else {
-  console.warn('HubSpot: VITE_HUBSPOT_PORTAL_ID not set in environment variables');
-  // Even without Portal ID in env, static script in HTML will still work
-  // Just initialize the queue for identifyContact to work
-  if (typeof window !== 'undefined') {
-    window._hsq = window._hsq || [];
   }
 }
 

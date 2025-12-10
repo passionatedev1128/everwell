@@ -8,9 +8,9 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import FloatingCartButton from './components/FloatingCartButton';
 import LoadingBar from './components/LoadingBar';
 import PageTransition from './components/PageTransition';
+import HubspotTracker from './components/HubspotTracker';
 import { CartProvider } from './context/CartContext';
 import { trackPageView } from './utils/analytics';
-import { trackPageView as hubspotTrackPageView } from './utils/hubspot';
 import { trackPageView as gtmTrackPageView } from './utils/gtm';
 
 // Pages
@@ -40,7 +40,7 @@ function PageViewTracker() {
   useEffect(() => {
     // Track page view on route change
     trackPageView(location.pathname + location.search, document.title);
-    hubspotTrackPageView(location.pathname + location.search, document.title);
+    // HubSpot tracking is handled by HubspotTracker component
     gtmTrackPageView(location.pathname + location.search, document.title);
   }, [location]);
 
@@ -106,6 +106,7 @@ function App() {
 
   return (
     <Router>
+      <HubspotTracker />
       <CartProvider>
         <LoadingBar />
         <ScrollToTop />

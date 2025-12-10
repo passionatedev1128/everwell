@@ -5,6 +5,7 @@ import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
 import { getCountriesList, getCountryCode } from '../utils/countries';
+import ElegantSelect from '../components/ElegantSelect';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -151,13 +152,15 @@ const Checkout = () => {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">País</label>
-                    <select
-                      name="country"
+                    <ElegantSelect
+                      label="País"
                       value={formData.country}
-                      onChange={(e) => {
-                        handleChange(e);
-                        const countryCode = getCountryCode(e.target.value);
+                      onChange={(value) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          country: value
+                        }));
+                        const countryCode = getCountryCode(value);
                         if (countryCode) {
                           // Auto-fill telephone with country code if empty
                           const phoneInput = document.querySelector('input[name="phone"]');
@@ -166,13 +169,14 @@ const Checkout = () => {
                           }
                         }
                       }}
-                      className="form-input w-full rounded-xl border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-300 hover:border-primary/50 hover:shadow-sm"
+                      options={getCountriesList().map(country => ({
+                        value: country.name,
+                        label: country.name
+                      }))}
+                      placeholder="Selecione o país"
+                      className="country-select-wrapper"
                       required
-                    >
-                      {getCountriesList().map(country => (
-                        <option key={country.code} value={country.name}>{country.name}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
                 </div>
               </div>
