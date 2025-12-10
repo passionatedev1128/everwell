@@ -18,7 +18,7 @@ const Cart = () => {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <div key={item.id} className="bg-white rounded-lg shadow-md p-6 animate-fade-in">
+                <div key={item.productId} className="bg-white rounded-lg shadow-md p-6 animate-fade-in">
                   <div className="flex gap-4">
                     <div className="w-24 h-24 bg-bgTertiary rounded-md flex items-center justify-center">
                       <span className="text-mediumTeal">Imagem</span>
