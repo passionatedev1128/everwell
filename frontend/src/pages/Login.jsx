@@ -115,7 +115,10 @@ const Login = () => {
           // Normal login flow
           setToken(response.data.token);
           setUser(response.data.user);
-          identifyContact(response.data.user);
+          // Identify contact in HubSpot (async, but don't wait for it)
+          identifyContact(response.data.user).catch(err => {
+            console.warn('HubSpot: Failed to identify contact after login', err);
+          });
           trackLogin('email');
           gtmTrackLogin('email');
           toast.success('Login realizado com sucesso!');

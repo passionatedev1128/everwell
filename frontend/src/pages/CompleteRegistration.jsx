@@ -117,7 +117,10 @@ const CompleteRegistration = () => {
       if (response.success) {
         setToken(response.token);
         setUser(response.user);
-        identifyContact(response.user);
+        // Identify contact in HubSpot (async, but don't wait for it)
+        identifyContact(response.user).catch(err => {
+          console.warn('HubSpot: Failed to identify contact after registration', err);
+        });
         trackSignUp('email');
         gtmTrackSignUp('email');
         toast.success('Cadastro completado com sucesso!');

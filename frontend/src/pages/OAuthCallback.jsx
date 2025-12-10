@@ -57,7 +57,9 @@ const OAuthCallback = () => {
                 };
                 setUser(user);
                 // Identify contact in HubSpot (essential CRM function)
-                identifyContact(user);
+                identifyContact(user).catch(err => {
+                  console.warn('HubSpot: Failed to identify contact after OAuth', err);
+                });
                 // Dispatch event to update user in Header
                 window.dispatchEvent(new CustomEvent('userUpdated'));
               } else {
@@ -68,7 +70,9 @@ const OAuthCallback = () => {
                   role: payload.role
                 };
                 setUser(user);
-                identifyContact(user);
+                identifyContact(user).catch(err => {
+                  console.warn('HubSpot: Failed to identify contact after OAuth', err);
+                });
               }
             } else {
               const user = {
@@ -78,7 +82,9 @@ const OAuthCallback = () => {
                 role: payload.role
               };
               setUser(user);
-              identifyContact(user);
+              identifyContact(user).catch(err => {
+                console.warn('HubSpot: Failed to identify contact after OAuth', err);
+              });
             }
           } catch (fetchError) {
             console.error('Error fetching user data:', fetchError);
@@ -89,7 +95,9 @@ const OAuthCallback = () => {
               role: payload.role
             };
             setUser(user);
-            identifyContact(user);
+            identifyContact(user).catch(err => {
+              console.warn('HubSpot: Failed to identify contact after OAuth', err);
+            });
           }
 
           // Track Google OAuth login (check if it's a new user by checking creation time)

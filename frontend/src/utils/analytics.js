@@ -21,6 +21,9 @@ export const initGA4 = (measurementId) => {
     const script1 = document.createElement('script');
     script1.async = true;
     script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    script1.onerror = () => {
+      console.warn('GA4: Script blocked by ad blocker or browser extension. This is normal if you have privacy extensions enabled.');
+    };
     document.head.appendChild(script1);
   }
 
