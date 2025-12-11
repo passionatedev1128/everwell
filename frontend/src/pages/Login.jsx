@@ -100,18 +100,6 @@ const Login = () => {
         // Login flow
         const response = await api.post('/auth/login', data);
         if (response.data.success) {
-          // Check if user needs verification (non-registered user)
-          if (response.data.requiresVerification && response.data.verificationToken) {
-            if (response.data.emailSent) {
-              toast.success('Link de verificação enviado para seu email! Redirecionando...');
-              // Redirect to verification/registration completion page
-              navigate(`/complete-registration/${response.data.verificationToken}`);
-            } else {
-              toast.error('The verification link can\'t be sent to your email.');
-            }
-            return;
-          }
-          
           // Normal login flow
           setToken(response.data.token);
           setUser(response.data.user);

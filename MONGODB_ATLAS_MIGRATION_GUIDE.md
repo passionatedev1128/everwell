@@ -198,12 +198,19 @@ node scripts/migrate-to-atlas.js
 After successful migration, your `backend/.env` should have:
 
 ```env
-# MongoDB Atlas Connection (Production)
+# MongoDB Atlas Connection (REQUIRED - This is the ONLY database used)
 MONGO_URI=mongodb+srv://everwell-admin:YourPassword123@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
 
-# You can remove LOCAL_MONGO_URI after migration
+# Remove these after migration (they're only for one-time migration):
 # LOCAL_MONGO_URI=mongodb://localhost:27017/everwell
+# ATLAS_MONGO_URI=mongodb+srv://everwell-admin:YourPassword123@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
 ```
+
+**Important:** 
+- After migration, the project uses **ONLY MongoDB Atlas**
+- Remove `LOCAL_MONGO_URI` and `ATLAS_MONGO_URI` from `.env`
+- Keep only `MONGO_URI` pointing to Atlas
+- Local MongoDB is no longer used
 
 ### 7.2 Restart Backend Server
 
@@ -211,6 +218,10 @@ MONGO_URI=mongodb+srv://everwell-admin:YourPassword123@cluster0.xxxxx.mongodb.ne
 cd backend
 npm run dev
 ```
+
+**Verify connection:**
+- Check console output: Should show `✅ MongoDB Atlas Connected: cluster0-xxxxx.mongodb.net`
+- If you see `localhost`, check your `MONGO_URI` in `.env`
 
 ---
 
@@ -254,11 +265,13 @@ npm run dev
 - [ ] Database user created with password
 - [ ] Network access configured (IP whitelist)
 - [ ] Connection string obtained and updated
-- [ ] `ATLAS_MONGO_URI` added to `.env`
+- [ ] `ATLAS_MONGO_URI` added to `.env` (for migration)
 - [ ] Migration script run successfully
 - [ ] Data verified in Atlas dashboard
 - [ ] `MONGO_URI` updated to Atlas connection string
+- [ ] `LOCAL_MONGO_URI` and `ATLAS_MONGO_URI` removed from `.env`
 - [ ] Backend server restarted and connected
+- [ ] Verified connection shows Atlas hostname (not localhost)
 - [ ] Application tested and working
 
 ---

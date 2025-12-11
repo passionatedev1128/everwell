@@ -30,29 +30,28 @@ mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/everwell?retryWrites=
 Add to `backend/.env`:
 
 ```env
-# MongoDB Atlas Connection
-ATLAS_MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
+# MongoDB Atlas Connection (REQUIRED - This is the main database)
+MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
 
-# Local MongoDB (for migration)
-LOCAL_MONGO_URI=mongodb://localhost:27017/everwell
+# Optional: Only needed if migrating from local MongoDB (one-time use)
+# LOCAL_MONGO_URI=mongodb://localhost:27017/everwell
+# ATLAS_MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
 ```
 
-### 5. Run Migration
+**Note:** After migration, you only need `MONGO_URI` pointing to Atlas.
+
+### 5. (Optional) Run Migration (If migrating from local MongoDB)
+
+If you have data in a local MongoDB database:
 
 ```bash
 cd backend
 npm run migrate-to-atlas
 ```
 
-### 6. Switch to Atlas
+**After migration:** Remove `LOCAL_MONGO_URI` and `ATLAS_MONGO_URI` from `.env` - only keep `MONGO_URI`.
 
-After successful migration, update `MONGO_URI` in `.env`:
-
-```env
-MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
-```
-
-### 7. Restart Server
+### 6. Restart Server
 
 ```bash
 npm run dev

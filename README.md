@@ -6,7 +6,7 @@ Modern, compliant MERN web application for medical cannabis wellness platform.
 
 - **Frontend**: React + Vite + Tailwind CSS
 - **Backend**: Node.js + Express
-- **Database**: MongoDB (Mongoose)
+- **Database**: MongoDB Atlas (Cloud - Mongoose)
 - **Authentication**: JWT
 - **Deployment**: Vercel (Frontend) + Render/Heroku (Backend)
 
@@ -45,15 +45,17 @@ cd backend
 npm install
 ```
 
-3. Create `.env` file (copy from `.env.example`):
+3. Create `.env` file:
 ```env
 PORT=5000
-MONGO_URI=your_mongodb_atlas_connection_string
+MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/everwell?retryWrites=true&w=majority
 JWT_SECRET=super_secret_key_here_change_in_production
 JWT_EXPIRES_IN=7d
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
+
+**Important:** This project uses **MongoDB Atlas** (cloud database) exclusively. See `backend/DATABASE_CONFIGURATION.md` for setup instructions.
 
 4. Start development server:
 ```bash

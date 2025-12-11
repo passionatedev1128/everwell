@@ -181,50 +181,18 @@ export const login = async (req, res, next) => {
     // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      // User doesn't exist - create pending registration and send verification email
-      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
-      const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-      // Create pending user (no password yet, no name - will be collected during registration)
-      const userData = {
-        name: email.split('@')[0], // Temporary name from email
-        email: email.toLowerCase(),
-        isAuthorized: false,
-        emailVerified: false,
-        emailVerificationToken,
-        emailVerificationTokenExpires,
-        registrationPending: true // Flag to indicate registration is incomplete
-      };
-
-      const newUser = await User.create(userData);
-
-      // Send verification email and wait for result (with timeout)
-      const verificationTemplate = emailVerificationTemplate(newUser.name, emailVerificationToken, true);
-      const emailResult = await sendEmail({
-        to: newUser.email,
-        subject: verificationTemplate.subject,
-        html: verificationTemplate.html,
-        text: verificationTemplate.text
+      // User doesn't exist - return error (don't create user or send verification email)
+      return res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos.'
       });
+    }
 
-      if (!emailResult || !emailResult.success) {
-        // Don't delete the user - they can try logging in again later
-        // Just return an error message
-        return res.status(500).json({
-          success: false,
-          message: emailResult?.message || 'The verification link can\'t be sent to your email.',
-          emailSent: false
-        });
-      }
-
-      console.log(`✅ Verification email sent to ${newUser.email}`);
-      // Return verification token so frontend can redirect
-      return res.status(200).json({
-        success: true,
-        message: 'Link de verificação enviado para seu email. Clique no link para completar seu cadastro.',
-        requiresVerification: true,
-        verificationToken: emailVerificationToken,
-        emailSent: true
+    // Check if user has a password (OAuth users or pending registrations might not have one)
+    if (!user.passwordHash) {
+      return res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos.'
       });
     }
 

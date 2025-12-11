@@ -24,6 +24,7 @@ const createAdmin = async () => {
       console.log(`📧 Email: ${adminEmail}`);
       console.log(`🔑 Password: ${adminPassword}`);
       console.log('\nTo reset password, delete the user first or update manually in MongoDB.');
+      await mongoose.connection.close();
       process.exit(0);
     }
 
@@ -37,7 +38,9 @@ const createAdmin = async () => {
       email: adminEmail,
       passwordHash,
       role: 'admin',
-      isAuthorized: true
+      isAuthorized: true,
+      emailVerified: true,
+      registrationPending: false
     });
 
     console.log('\n✅ Admin user created successfully!');
@@ -47,13 +50,20 @@ const createAdmin = async () => {
     console.log('👤 Name:     ' + adminName);
     console.log('🔐 Role:     admin');
     console.log('✅ Authorized: true');
+    console.log('✅ Email Verified: true');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('\n💡 You can now login with these credentials!');
     console.log('🚀 Start the server and login at: http://localhost:5173/login\n');
 
+    // Close database connection
+    await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
     console.error('❌ Error creating admin user:', error);
+    // Close database connection on error
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.close();
+    }
     process.exit(1);
   }
 };
