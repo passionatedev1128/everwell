@@ -11,7 +11,8 @@
     "test-email": "node scripts/test-gmail.js",
     "seed-blogs": "node scripts/seed-blogs.js",
     "seed-testimonials": "node scripts/seed-testimonials.js",
-    "setup-db": "node run-database-setup.js"
+    "setup-db": "node run-database-setup.js",
+    "migrate-to-atlas": "node scripts/migrate-to-atlas.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.0.0",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
