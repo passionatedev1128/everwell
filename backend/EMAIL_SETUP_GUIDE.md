@@ -2,18 +2,34 @@
 
 ## 📧 Email Service Configuration
 
-The EverWell application supports multiple email providers: Gmail, Outlook, Yahoo, and custom SMTP servers.
+The EverWell application supports **two email service types**:
+1. **SMTP** - Traditional email via SMTP servers (Gmail, Outlook, Yahoo, custom SMTP)
+2. **SendGrid** - Cloud-based email service (recommended for production)
 
 ---
 
 ## 🔧 Configuration
 
-### Step 1: Add Email Settings to `.env`
+### Step 1: Choose Email Service Type
 
-Add these variables to your `backend/.env` file:
+Add `EMAIL_SERVICE_TYPE` to your `backend/.env` file:
 
 ```env
-# Email Configuration
+# Email Service Type: 'smtp' or 'sendgrid'
+EMAIL_SERVICE_TYPE=smtp                 # Options: smtp, sendgrid
+```
+
+---
+
+## 📮 Option 1: SMTP Configuration
+
+### Step 1: Add SMTP Settings to `.env`
+
+```env
+# Email Service Type
+EMAIL_SERVICE_TYPE=smtp
+
+# Email Provider (for SMTP)
 EMAIL_PROVIDER=gmail                    # Options: gmail, outlook, hotmail, yahoo, custom
 EMAIL_USER=your-email@gmail.com         # Your email address
 EMAIL_PASSWORD=your-app-password        # Your email password or app password
@@ -30,7 +46,61 @@ FRONTEND_URL=http://localhost:5173
 
 ---
 
-## 📮 Provider-Specific Setup
+## 📮 Option 2: SendGrid Configuration
+
+### Step 1: Create SendGrid Account
+
+1. Go to [SendGrid](https://sendgrid.com/) and sign up for a free account
+2. Verify your email address
+3. Complete the account setup
+
+### Step 2: Create API Key                           
+
+1. Go to **Settings** → **API Keys** in SendGrid dashboard
+2. Click **Create API Key**
+3. Choose **Full Access** or **Restricted Access** (with Mail Send permissions)
+4. Copy the API key (you can only see it once!)
+
+### Step 3: Verify Sender Identity
+
+1. Go to **Settings** → **Sender Authentication**
+2. Choose one of:
+   - **Single Sender Verification** (for testing/development)
+   - **Domain Authentication** (for production - recommended)
+
+**For Single Sender:**
+- Click **Verify a Single Sender**
+- Enter your email address
+- Verify via email link                            
+
+**For Domain (Production):**
+- Add DNS records (SPF, DKIM, DMARC) to your domain
+- Wait for verification (can take up to 48 hours)
+
+### Step 4: Configure `.env`
+
+```env
+# Email Service Type
+EMAIL_SERVICE_TYPE=sendgrid
+
+# SendGrid Configuration
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com    # Verified sender email
+# OR use EMAIL_USER as fallback
+EMAIL_USER=noreply@yourdomain.com
+
+# Frontend URL (for email links)
+FRONTEND_URL=http://localhost:5173
+```
+
+**Important Notes:**
+- `SENDGRID_FROM_EMAIL` must be a verified sender in SendGrid
+- Free tier: 100 emails/day
+- Paid plans: Higher limits and better deliverability
+
+---
+
+## 📮 SMTP Provider-Specific Setup
 
 ### Gmail Setup
 
@@ -192,8 +262,11 @@ The system includes these email templates:
 
 ## 📋 Environment Variables Summary
 
+### For SMTP:
+
 ```env
 # Required
+EMAIL_SERVICE_TYPE=smtp
 EMAIL_PROVIDER=gmail                    # or outlook, yahoo, custom
 EMAIL_USER=your-email@example.com
 EMAIL_PASSWORD=your-password
@@ -210,15 +283,42 @@ SMTP_SECURE=false
 FRONTEND_URL=http://localhost:5173      # or production URL
 ```
 
+### For SendGrid:
+
+```env
+# Required
+EMAIL_SERVICE_TYPE=sendgrid
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com    # Verified sender email
+# OR
+EMAIL_USER=noreply@yourdomain.com             # Fallback if SENDGRID_FROM_EMAIL not set
+
+# Required for email links
+FRONTEND_URL=http://localhost:5173      # or production URL
+```
+
 ---
 
 ## ✅ Verification Checklist
 
+### For SMTP:
+- [ ] `EMAIL_SERVICE_TYPE=smtp` in `.env`
 - [ ] Email provider configured in `.env`
 - [ ] Email credentials set correctly
 - [ ] App password generated (for Gmail)
 - [ ] Server starts without email errors
 - [ ] Welcome email received on registration
+
+### For SendGrid:
+- [ ] `EMAIL_SERVICE_TYPE=sendgrid` in `.env`
+- [ ] SendGrid account created and verified
+- [ ] API key generated and added to `.env`
+- [ ] Sender email verified in SendGrid
+- [ ] `SENDGRID_FROM_EMAIL` matches verified sender
+- [ ] Server starts without email errors
+- [ ] Welcome email received on registration
+
+### Common:
 - [ ] Authorization email received when authorized
 - [ ] Document upload email received
 
