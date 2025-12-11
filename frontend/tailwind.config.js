@@ -7,40 +7,40 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary Colors - Bright & Elegant (from design system)
-        primary: '#4fb3a8',           // Bright teal/mint
-        'primary-dark': '#3a9d92',     // Darker for hover
-        'primary-light': '#6bc4b9',    // Lighter variant
-        'primary-lighter': '#87d5cc',   // Very light
-        'primary-soft': '#e8f7f5',     // Soft background tint
+        // Primary Colors - Brand Identity (from brandbook)
+        // #C0DF16 - Main color: Energy and modernity, visual signature
+        primary: '#C0DF16',           // Lime green - Main brand color
+        'primary-dark': '#A8C512',    // Darker for hover states
+        'primary-light': '#D4E83A',    // Lighter variant
+        'primary-lighter': '#E8F15C',  // Very light variant
+        'primary-soft': '#F5F9D8',     // Soft background tint
         
-        // Alternative Greens
-        'medical-green': '#52b788',    // Brighter medical green
-        'sage-green': '#95c5a0',       // Lighter sage green
-        'lime-green': '#32cd32',       // Vibrant lime green
-        'lime-green-dark': '#28a828',  // Darker lime green
+        // Brand Identity Colors
+        brandBlack: '#000000',         // Black - Main color, energy and modernity
+        brandGray: '#C7C7C7',          // Light gray - Readability, contrast, stability
+        brandWhite: '#FFFFFF',          // White - Neutral base, visual cleanliness
         
-        // Background Colors - Bright & Clean
-        bgPrimary: '#ffffff',
-        bgSecondary: '#f8fdfc',      // Very light mint tint
-        bgTertiary: '#fafafa',
-        bgSection: '#f0f9f7',       // Soft mint background
+        // Background Colors - Based on brandbook
+        bgPrimary: '#FFFFFF',          // White - Neutral base
+        bgSecondary: '#FAFAFA',         // Very light gray for subtle backgrounds
+        bgTertiary: '#F5F5F5',         // Light gray background
+        bgSection: '#F9F9F9',          // Section background
         
-        // Text Colors - Softer & Brighter
-        darkTeal: '#1a3d3a',        // Darker teal (primary text)
-        mediumTeal: '#4a6b68',      // Medium teal-gray (secondary text)
-        lightTeal: '#7a9a97',       // Light teal-gray (light text)
+        // Text Colors - Based on brandbook
+        darkTeal: '#000000',           // Black - Primary text (energy and modernity)
+        mediumTeal: '#4A4A4A',         // Dark gray - Secondary text
+        lightTeal: '#C7C7C7',          // Brand gray - Light text (readability, contrast)
         
-        // Status Colors - Brighter & Softer
-        success: '#52c41a',           // Brighter success green
-        warning: '#ffa940',            // Softer orange
-        error: '#ff7875',              // Softer red
-        info: '#40a9ff',               // Brighter blue
+        // Status Colors - Maintained for functionality
+        success: '#52c41a',            // Success green
+        warning: '#ffa940',            // Warning orange
+        error: '#ff7875',              // Error red
+        info: '#40a9ff',               // Info blue
         
-        // Border Colors
-        borderLight: '#e6f3f1',     // Very light teal tint
-        borderMedium: '#d1e8e5',
-        borderDark: '#b8d6d2',
+        // Border Colors - Based on brandbook gray
+        borderLight: '#E5E5E5',        // Very light gray
+        borderMedium: '#C7C7C7',       // Brand gray
+        borderDark: '#999999',         // Darker gray
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
