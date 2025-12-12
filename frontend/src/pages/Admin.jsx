@@ -747,29 +747,33 @@ const Admin = () => {
 
 
   const handleAddImageField = () => {
-    setProductForm({
-      ...productForm,
-      images: [...productForm.images, '']
-    });
+    setProductForm(prevForm => ({
+      ...prevForm,
+      images: [...prevForm.images, '']
+    }));
   };
 
   const handleRemoveImageField = (index) => {
-    const newImages = productForm.images.filter((_, i) => i !== index);
-    if (newImages.length === 0) {
-      newImages.push('');
-    }
-    setProductForm({
-      ...productForm,
-      images: newImages
+    setProductForm(prevForm => {
+      const newImages = prevForm.images.filter((_, i) => i !== index);
+      if (newImages.length === 0) {
+        newImages.push('');
+      }
+      return {
+        ...prevForm,
+        images: newImages
+      };
     });
   };
 
   const handleImageChange = (index, value) => {
-    const newImages = [...productForm.images];
-    newImages[index] = value;
-    setProductForm({
-      ...productForm,
-      images: newImages
+    setProductForm(prevForm => {
+      const newImages = [...prevForm.images];
+      newImages[index] = value;
+      return {
+        ...prevForm,
+        images: newImages
+      };
     });
   };
 
@@ -817,10 +821,11 @@ const Admin = () => {
         const filteredImages = newImages.filter(img => img && img.trim() !== '');
         const finalImages = filteredImages.length > 0 ? filteredImages : [''];
         
-        setProductForm({
-          ...productForm,
+        // Use functional update to ensure we have the latest state
+        setProductForm(prevForm => ({
+          ...prevForm,
           images: finalImages
-        });
+        }));
         toast.success(`${response.images.length} imagem(ns) enviada(s) com sucesso!`);
       }
     } catch (err) {
@@ -2939,79 +2944,97 @@ const Admin = () => {
                       </label>
                     </div>
                     {productForm.images.map((image, index) => (
-                      <div key={index} className="flex gap-2 mb-2 items-center">
-                        {image && (
-                          <div className="w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0">
-                            <img
-                              src={image}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/128?text=Erro';
-                              }}
-                            />
-                          </div>
-                        )}
+                      <div key={`product-image-${index}`} className="flex gap-2 mb-2 items-center">
+                        <div className={`w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0 ${image ? '' : 'hidden'}`}>
+                          <img
+                            src={image || 'https://via.placeholder.com/128?text=Sem+Imagem'}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/128?text=Erro';
+                            }}
+                          />
+                        </div>
                         <input
                           type="url"
-                          value={image}
+                          value={image || ''}
                           onChange={(e) => handleImageChange(index, e.target.value)}
                           placeholder="URL da imagem ou faça upload acima"
                           className="flex-1 rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
                         />
-                        {image && (
-                          <div className="flex gap-1 flex-shrink-0">
-                            <label className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700 transition-colors cursor-pointer">
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept="image/jpeg,image/jpg,image/png,image/webp"
-                                multiple={false}
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
-                                  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-                                  const maxSize = 5 * 1024 * 1024;
-                                  if (!allowedTypes.includes(file.type)) {
-                                    toast.error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
-                                    return;
-                                  }
-                                  if (file.size > maxSize) {
-                                    toast.error('Tamanho máximo é 5MB.');
-                                    return;
-                                  }
-                                  try {
-                                    setUploadingImages(true);
-                                    const response = await uploadProductImages([file]);
-                                    if (response.success && response.images && response.images.length > 0) {
-                                      const newImages = [...productForm.images];
-                                      newImages[index] = response.images[0];
-                                      setProductForm({ ...productForm, images: newImages });
-                                      toast.success('Imagem atualizada com sucesso!');
-                                    }
-                                  } catch (err) {
-                                    toast.error(err.response?.data?.message || 'Erro ao enviar imagem.');
-                                  } finally {
-                                    setUploadingImages(false);
-                                    e.target.value = '';
-                                  }
-                                }}
-                                disabled={uploadingImages}
-                              />
-                              Atualizar
-                            </label>
-                            {productForm.images.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveImageField(index)}
-                                className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
-                                title="Remover imagem"
-                              >
-                                Remover
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        <div className={`flex gap-1 flex-shrink-0 ${image ? '' : 'hidden'}`}>
+                          <input
+                            type="file"
+                            id={`file-input-${index}`}
+                            className="hidden"
+                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                            multiple={false}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              
+                              // Store the current index in a const to avoid closure issues
+                              const currentIndex = index;
+                              const fileInput = e.target;
+                              
+                              const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                              const maxSize = 5 * 1024 * 1024;
+                              if (!allowedTypes.includes(file.type)) {
+                                fileInput.value = '';
+                                toast.error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+                                return;
+                              }
+                              if (file.size > maxSize) {
+                                fileInput.value = '';
+                                toast.error('Tamanho máximo é 5MB.');
+                                return;
+                              }
+                              
+                              try {
+                                setUploadingImages(true);
+                                const response = await uploadProductImages([file]);
+                                if (response.success && response.images && response.images.length > 0) {
+                                  const newImageUrl = response.images[0];
+                                  // Update state
+                                  setProductForm(prevForm => {
+                                    // Create a new array to ensure React detects the change
+                                    const newImages = prevForm.images.map((img, i) => 
+                                      i === currentIndex ? newImageUrl : img
+                                    );
+                                    return { ...prevForm, images: newImages };
+                                  });
+                                  // Reset file input after state update
+                                  setTimeout(() => {
+                                    fileInput.value = '';
+                                    toast.success('Imagem atualizada com sucesso!');
+                                  }, 0);
+                                }
+                              } catch (err) {
+                                fileInput.value = '';
+                                toast.error(err.response?.data?.message || 'Erro ao enviar imagem.');
+                              } finally {
+                                setUploadingImages(false);
+                              }
+                            }}
+                            disabled={uploadingImages}
+                          />
+                          <label
+                            htmlFor={`file-input-${index}`}
+                            className="px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700 transition-colors cursor-pointer"
+                          >
+                            Atualizar
+                          </label>
+                          {productForm.images.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImageField(index)}
+                              className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
+                              title="Remover imagem"
+                            >
+                              Remover
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                     <p className="mt-2 text-xs text-mediumTeal">

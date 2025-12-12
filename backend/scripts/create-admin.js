@@ -27,7 +27,7 @@ const createAdmin = async () => {
       await mongoose.connection.close();
       process.exit(0);
     }
-
+                               
     // Hash password
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
