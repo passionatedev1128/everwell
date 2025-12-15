@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,44 +71,65 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve uploaded files statically with CORS headers
+// Serve uploaded files statically with CORS headers (custom handler for ORB compliance)
 const uploadsPath = path.join(__dirname, 'uploads');
+// Custom route handler for uploads to ensure proper headers for ORB compliance
 app.use('/uploads', (req, res, next) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  res.header('Access-Control-Allow-Origin', frontendUrl);
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-  next();
-}, express.static(uploadsPath, {
-  setHeaders: (res, filePath) => {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    
-    // Set CORS headers
+  
+  // Handle OPTIONS request first
+  if (req.method === 'OPTIONS') {
     res.set('Access-Control-Allow-Origin', frontendUrl);
     res.set('Access-Control-Allow-Credentials', 'true');
-    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    
-    // Ensure proper Content-Type for images to prevent ORB (Opaque Response Blocking)
-    const ext = path.extname(filePath).toLowerCase();
-    const imageTypes = {
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.gif': 'image/gif',
-      '.webp': 'image/webp',
-      '.svg': 'image/svg+xml'
-    };
-    
-    if (imageTypes[ext]) {
-      res.set('Content-Type', imageTypes[ext]);
-    }
-    
-    // Allow caching for images
-    if (imageTypes[ext]) {
-      res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    }
+    res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(200).end();
   }
-}));
+  
+  // Get file extension to determine Content-Type (from req.path)
+  const ext = path.extname(req.path).toLowerCase();
+  const imageTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.svg': 'image/svg+xml',
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  };
+  
+  // Set CORS headers FIRST (critical for ORB)
+  res.set('Access-Control-Allow-Origin', frontendUrl);
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // Set Content-Type (critical for ORB - must be set before sending)
+  if (imageTypes[ext]) {
+    res.set('Content-Type', imageTypes[ext]);
+  } else {
+    // Default Content-Type for other files
+    res.set('Content-Type', 'application/octet-stream');
+  }
+  
+  // Set cache headers for images
+  if (imageTypes[ext] && ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(imageTypes[ext])) {
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+  
+  // Send file using root option (safer, prevents directory traversal)
+  res.sendFile(req.path, { root: uploadsPath }, (err) => {
+    if (err) {
+      console.error('Error sending file:', err);
+      if (!res.headersSent) {
+        res.status(404).json({ error: 'File not found' });
+      }
+    }
+  });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
