@@ -90,13 +90,15 @@ router.get('/google/callback',
 );
 
 // Regular Auth Routes
-// Step 1: Initial registration (email and name only)
+// Registration (email and password only)
 const initialRegisterValidation = [
-  body('name').trim().notEmpty().withMessage('Nome é obrigatório'),
   body('email')
     .isEmail()
     .normalizeEmail()
-    .withMessage('Email inválido. Use um endereço de email válido de qualquer provedor (Gmail, Outlook, Yahoo, etc.)')
+    .withMessage('Email inválido. Use um endereço de email válido de qualquer provedor (Gmail, Outlook, Yahoo, etc.)'),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Senha deve ter no mínimo 6 caracteres')
 ];
 
 router.post('/register', initialRegisterValidation, register);
