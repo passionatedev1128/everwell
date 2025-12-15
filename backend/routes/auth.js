@@ -1,5 +1,5 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import passport from 'passport';
 import { 
   register, 
@@ -16,6 +16,19 @@ import { protect } from '../middleware/auth.js';
 import { registerGoogleStrategy } from '../config/passport.js';
 
 const router = express.Router();
+
+// Validation error handler middleware
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(err => err.msg).join(', ');
+    return res.status(400).json({
+      success: false,
+      message: errorMessages
+    });
+  }
+  next();
+};
 
 // Validation middleware
 // Note: Accepts emails from ANY provider (Gmail, Outlook, Yahoo, custom domains, etc.)
@@ -101,12 +114,12 @@ const initialRegisterValidation = [
     .withMessage('Senha deve ter no mínimo 6 caracteres')
 ];
 
-router.post('/register', initialRegisterValidation, register);
+router.post('/register', initialRegisterValidation, handleValidationErrors, register);
 // Step 2: Complete registration after email verification
 router.post('/complete-registration/:token', [
   body('password').isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres')
 ], completeRegistration);
-router.post('/login', loginValidation, login);
+router.post('/login', loginValidation, handleValidationErrors, login);
 router.get('/me', protect, getMe);
 router.get('/verify-email/:token', verifyEmail);
 router.post('/resend-verification', protect, resendVerification);
