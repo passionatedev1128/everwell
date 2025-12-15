@@ -10,27 +10,13 @@
     <title>EverWell - Cannabis Medicinal, Saúde e Bem-estar</title>
     <meta name="description" content="EverWell oferece produtos à base de CBD para bem-estar e alta performance, com suporte médico especializado e conformidade com Anvisa.">
 
-    <!-- Google Tag Manager -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-05TH31T6CK"></script>
+    <!-- Initialize dataLayer for GTM and GA4 (both initialized in main.jsx) -->
     <script>
+      // Initialize dataLayer early for GTM and GA4
+      // Both will be initialized in main.jsx with IDs from environment variables
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-05TH31T6CK');
     </script>
-    
-    <!-- <script>
-      // Initialize dataLayer for GTM and GA4
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag('js', new Date());
-      
-      // GTM will be initialized in main.jsx with container ID from environment variable
-      // GA4 will be initialized in main.jsx with measurement ID from environment variable
-      // This allows for conditional loading based on environment
-    </script> -->
-  </head>                           
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
