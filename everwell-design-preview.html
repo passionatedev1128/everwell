@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EverWell - Design Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="everwell-design-system.css">
+    <style>
+        /* Additional styles for preview */
+        .preview-section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            border: 2px dashed #e6f3f1;
+            border-radius: 12px;
+        }
+        
+        .preview-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4fb3a8;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4fb3a8;
+        }
+        
+        .color-swatch {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            margin: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .color-swatch::after {
+            content: attr(data-color);
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 1400px; padding: 2rem;">
+        <h1 style="text-align: center; margin-bottom: 3rem; color: #4fb3a8;">
+            EverWell - Design System Preview (Bright & Elegant)
+        </h1>
+        <p style="text-align: center; margin-bottom: 4rem; color: #5a6c7d; font-size: 1.125rem;">
+            Combined design elements from Click Cannabis, Blis Brasil, and Cannect Life
+        </p>
+
+        <!-- Color Palette -->
+        <div class="preview-section">
+            <div class="preview-title">Color Palette</div>
+            <div>
+                <h3 style="margin-bottom: 1rem;">Primary Colors - Bright & Elegant</h3>
+                <div class="color-swatch" style="background: #4fb3a8;" data-color="#4fb3a8"></div>
+                <div class="color-swatch" style="background: #52b788;" data-color="#52b788"></div>
+                <div class="color-swatch" style="background: #95c5a0;" data-color="#95c5a0"></div>
+                <div class="color-swatch" style="background: #6bc4b9;" data-color="#6bc4b9"></div>
+            </div>
+            <div style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem;">Background Colors - Bright & Clean</h3>
+                <div class="color-swatch" style="background: #ffffff; border: 2px solid #e6f3f1;" data-color="#ffffff"></div>
+                <div class="color-swatch" style="background: #f8fdfc;" data-color="#f8fdfc"></div>
+                <div class="color-swatch" style="background: #f0f9f7;" data-color="#f0f9f7"></div>
+                <div class="color-swatch" style="background: #e8f7f5;" data-color="#e8f7f5"></div>
+            </div>
+            <div style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem;">Accent & Status Colors - Brighter</h3>
+                <div class="color-swatch" style="background: #f4c430;" data-color="#f4c430"></div>
+                <div class="color-swatch" style="background: #52c41a;" data-color="#52c41a"></div>
+                <div class="color-swatch" style="background: #ffa940;" data-color="#ffa940"></div>
+                <div class="color-swatch" style="background: #40a9ff;" data-color="#40a9ff"></div>
+            </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="preview-section">
+            <div class="preview-title">Typography</div>
+            <div>
+                <h1>Heading 1 - Inter/Poppins Bold 48px</h1>
+                <h2>Heading 2 - Inter/Poppins Bold 36px</h2>
+                <h3>Heading 3 - Inter/Poppins Bold 30px</h3>
+                <h4>Heading 4 - Inter/Poppins Bold 24px</h4>
+                <p style="font-size: 1rem; color: #5a6c7d;">Body text - Inter Regular 16px. This is the main body text used throughout the site. It should be readable and professional.</p>
+                <p style="font-size: 0.875rem; color: #8a9ba8;">Small text - Inter Regular 14px. Used for captions, labels, and secondary information.</p>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="preview-section">
+            <div class="preview-title">Buttons</div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <button class="btn btn-primary">Primary Button</button>
+                <button class="btn btn-secondary">Secondary Button</button>
+                <button class="btn btn-outline">Outline Button</button>
+                <button class="btn btn-success">Success Button</button>
+                <button class="btn btn-warning">Warning Button</button>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="preview-section">
+            <div class="preview-title">Cards</div>
+            <div class="component-grid">
+                <div class="card">
+                    <div class="card-title">Product Card</div>
+                    <div style="width: 100%; height: 150px; background: #f8fdfc; border-radius: 8px; margin-bottom: 1rem;"></div>
+                    <h4 style="margin-bottom: 0.5rem;">Product Name</h4>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: #4fb3a8; margin-bottom: 1rem;">R$ 299,90</p>
+                    <button class="btn btn-primary" style="width: 100%;">Comprar</button>
+                </div>
+                <div class="info-card">
+                    <div class="card-title">Info Card</div>
+                    <p>This is an information card with a left border accent. Used for highlighting important information.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Card with Header</div>
+                    </div>
+                    <p>Card content goes here. This card has a header section separated by a border.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="preview-section">
+            <div class="preview-title">Badges & Trust Indicators</div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <span class="trust-badge">🛡️ 100% Legal</span>
+                <span class="trust-badge">✅ Anvisa Aprovado</span>
+                <span class="badge badge-success">✓ Sucesso</span>
+                <span class="badge badge-warning">⚠ Atenção</span>
+                <span class="badge badge-info">ℹ Info</span>
+            </div>
+        </div>
+
+        <!-- Forms -->
+        <div class="preview-section">
+            <div class="preview-title">Form Elements</div>
+            <div style="max-width: 500px;">
+                <div class="form-group">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" class="form-input" placeholder="Digite seu nome">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" class="form-input" placeholder="(00) 00000-0000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Upload de Documento</label>
+                    <div class="file-upload">
+                        <p style="margin-bottom: 0.5rem;">📄 Arraste o arquivo aqui</p>
+                        <p style="font-size: 0.875rem; color: #8a9ba8;">ou clique para selecionar</p>
+                        <p style="font-size: 0.75rem; color: #8a9ba8; margin-top: 0.5rem;">PDF, JPG, PNG (Max 5MB)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Preview -->
+        <div class="preview-section">
+            <div class="preview-title">Header Navigation</div>
+            <div class="header" style="position: relative;">
+                <div class="header-container">
+                    <div class="logo">EverWell</div>
+                    <ul class="nav-menu">
+                        <li><a href="#" class="nav-link">Home</a></li>
+                        <li><a href="#" class="nav-link">Produtos</a></li>
+                        <li><a href="#" class="nav-link">Sobre</a></li>
+                        <li><a href="#" class="nav-link">Blog</a></li>
+                        <li><button class="btn btn-primary" style="padding: 10px 20px;">Login</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="benefits-banner" style="margin-top: 1rem;">
+                <div class="benefits-list">
+                    <div class="benefit-item">💳 Pix 5% OFF</div>
+                    <div class="benefit-item">📦 Frete Grátis R$2500+</div>
+                    <div class="benefit-item">📅 Parcelamento 6x Sem Juros</div>
+                    <div class="benefit-item">🛡️ 100% Legal</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="preview-section">
+            <div class="preview-title">Hero Section</div>
+            <div class="hero">
+                <h1 class="hero-title">Transforme Sua Jornada de Bem-Estar</h1>
+                <p class="hero-subtitle">
+                    Descubra produtos premium de cannabis com orientação especializada 
+                    e suporte médico confiável
+                </p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary">Agendar Consulta</button>
+                    <button class="btn btn-secondary">Ver Produtos</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="preview-section">
+            <div class="preview-title">Product Grid</div>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-card-image"></div>
+                    <h3 class="product-card-title">Produto 1</h3>
+                    <p style="color: #5a6c7d; margin-bottom: 1rem;">Descrição do produto aqui...</p>
+                    <div class="product-card-price" style="color: #4fb3a8;">R$ 299,90</div>
+                    <button class="btn btn-primary" style="width: 100%;">Comprar</button>
+                </div>
+                <div class="product-card">
+                    <div class="product-card-image"></div>
+                    <h3 class="product-card-title">Produto 2</h3>
+                    <p style="color: #5a6c7d; margin-bottom: 1rem;">Descrição do produto aqui...</p>
+                    <div class="product-card-price">R$ 399,90</div>
+                    <button class="btn btn-primary" style="width: 100%;">Comprar</button>
+                </div>
+                <div class="product-card">
+                    <div class="product-card-image"></div>
+                    <h3 class="product-card-title">Produto 3</h3>
+                    <p style="color: #5a6c7d; margin-bottom: 1rem;">Descrição do produto aqui...</p>
+                    <div class="product-card-price">R$ 499,90</div>
+                    <button class="btn btn-primary" style="width: 100%;">Comprar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="preview-section" style="background: #f8fdfc;">
+            <div class="preview-title">Features Section (Mint Background)</div>
+            <div class="component-grid">
+                <div class="info-card">
+                    <h4 style="margin-bottom: 0.5rem;">🏥 Consulta Médica</h4>
+                    <p>Agende sua consulta com especialistas certificados</p>
+                </div>
+                <div class="info-card">
+                    <h4 style="margin-bottom: 0.5rem;">📋 Upload de Documentos</h4>
+                    <p>Envie seus documentos de forma segura e rápida</p>
+                </div>
+                <div class="info-card">
+                    <h4 style="margin-bottom: 0.5rem;">🛒 E-commerce Seguro</h4>
+                    <p>Compre com confiança e segurança garantida</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div style="text-align: center; margin-top: 4rem; padding: 2rem; background: #f8fdfc; border-radius: 12px;">
+            <h3 style="color: #4fb3a8; margin-bottom: 1rem;">Design System Completo - Bright & Elegant</h3>
+            <p style="color: #5a6c7d;">
+                Este preview demonstra todos os elementos do design system combinado.<br>
+                As cores, tipografia e componentes foram extraídos e combinados das melhores práticas<br>
+                dos sites Click Cannabis, Blis Brasil e Cannect Life.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

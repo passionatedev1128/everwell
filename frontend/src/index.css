@@ -1,0 +1,2049 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+/* React DatePicker Styles */
+@import 'react-datepicker/dist/react-datepicker.css';
+
+@layer base {
+  body {
+    @apply font-sans text-darkTeal;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(to bottom, #FFFEFB 0%, #FFFFFF 100%);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-darkTeal;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+    font-weight: 600;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl;
+    font-weight: 600;
+  }
+  
+  h5 {
+    @apply text-lg md:text-xl;
+    font-weight: 600;
+  }
+  
+  h6 {
+    @apply text-base md:text-lg;
+    font-weight: 600;
+  }
+  
+  p {
+    @apply text-mediumTeal mb-4;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+  
+  a {
+    @apply text-primary transition-colors duration-200;
+    font-weight: 500;
+  }
+  
+  a:hover {
+    @apply text-primary-dark;
+  }
+}
+
+@layer components {
+  /* Buttons - Metronic Style */
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-2.5 rounded-md font-medium text-sm relative overflow-hidden;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply transition-all duration-300 shadow-sm;
+    position: relative;
+    color: #FFFFFF !important;
+  }
+  
+  .btn-primary * {
+    color: #FFFFFF !important;
+  }
+  
+  /* Hover effect - smooth lift and glow */
+  .btn-primary:hover {
+    @apply shadow-lg text-white;
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #C0DF16 0%, #A8C512 100%);
+    color: #FFFFFF !important;
+  }
+  
+  .btn-primary:hover * {
+    color: #FFFFFF !important;
+  }
+  
+  /* Active/Click effect - ripple and scale down */
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
+    opacity: 0;
+  }
+  
+  .btn-primary:active::before {
+    width: 300px;
+    height: 300px;
+    opacity: 1;
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
+    @apply shadow-md;
+  }
+  
+  .btn-primary span,
+  .btn-primary svg,
+  .btn-primary > * {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-primary:hover span,
+  .btn-primary:hover svg,
+  .btn-primary:hover > * {
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-mediumTeal border border-borderLight px-6 py-2.5 rounded-md relative overflow-hidden;
+    @apply font-medium text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply transition-all duration-300;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    position: relative;
+  }
+  
+  /* Hover effect - subtle lift and border glow */
+  .btn-secondary:hover {
+    @apply shadow-md border-primary/40 text-darkTeal;
+    transform: translateY(-2px);
+    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+    border-color: rgba(192, 223, 22, 0.3);
+  }
+  
+  .btn-secondary:hover * {
+    color: #1A1A1A !important;
+  }
+  
+  /* Active/Click effect - press down */
+  .btn-secondary:active {
+    transform: translateY(0) scale(0.98);
+    @apply shadow-sm;
+    background: #f3f4f6;
+  }
+  
+  .btn-secondary span,
+  .btn-secondary svg,
+  .btn-secondary > * {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-secondary:hover span,
+  .btn-secondary:hover svg,
+  .btn-secondary:hover > * {
+    transform: translateY(-1px);
+  }
+  
+  .btn-outline {
+    @apply bg-transparent text-gray-700 border border-gray-300 px-6 py-2.5 rounded-md;
+    @apply font-medium text-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply transition-all duration-200;
+  }
+  
+  .btn-success {
+    @apply bg-green-600 text-white px-6 py-2.5 rounded-md font-medium text-sm;
+    @apply hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .btn-warning {
+    @apply bg-amber-500 text-white px-6 py-2.5 rounded-md font-medium text-sm;
+    @apply hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  /* Elevated Cards */
+  .card {
+    position: relative;
+    @apply overflow-hidden p-8 backdrop-blur-xl;
+    border-radius: 40px;
+    @apply border;
+    background: #FFFFFF;
+    border-color: #F3F4F6;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, box-shadow;
+  }
+  
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(192, 223, 22, 0.12);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(192, 223, 22, 0.15);
+    cursor: pointer;
+  }
+  
+  .card:hover::before {
+    opacity: 1;
+  }
+  
+  .card-header {
+    @apply mb-4 pb-4 border-b border-white/40;
+  }
+  
+  .card-title {
+    @apply text-xl font-semibold mb-0;
+  }
+  
+  .glass-panel {
+    @apply backdrop-blur-xl border;
+    border-radius: 40px;
+    background: rgba(255, 255, 255, 0.85);
+    border-color: #F3F4F6;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  
+  .info-card {
+    @apply bg-gradient-to-br p-8 border border-primary/15;
+    border-radius: 40px;
+    background: linear-gradient(to bottom right, #FFFFFF 0%, #FEFEFE 50%, #FAFCE8 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  
+  .section-heading {
+    @apply text-sm uppercase tracking-[0.4em] font-semibold text-primary/70 mb-3;
+    letter-spacing: 0.1em;
+  }
+  
+  .section-title {
+    @apply text-4xl font-semibold text-darkTeal mb-4 leading-tight;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  
+  .muted-text {
+    @apply text-lightTeal;
+    line-height: 1.7;
+  }
+  
+  /* Form Elements */
+  .form-group {
+    @apply mb-6;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-darkTeal mb-2 uppercase tracking-wide;
+  }
+  
+  .form-input {
+    @apply w-full border rounded-xl px-4 py-3;
+    @apply text-base text-darkTeal transition-all duration-300;
+    @apply focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10;
+    background: #FFFFFF;
+    border-color: #E5E7EB;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  
+  .form-input:focus {
+    border-color: rgb(192, 223, 22);
+    box-shadow: 0 0 0 4px rgba(192, 223, 22, 0.12), 0 2px 8px rgba(192, 223, 22, 0.12);
+    background: #FFFFFF;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .form-input:hover:not(:focus) {
+    border-color: rgba(192, 223, 22, 0.3);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Global input[type="text"] focus styles */
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="tel"]:focus,
+  textarea:focus {
+    @apply border-primary;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(192, 223, 22, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  .form-input::placeholder {
+    @apply text-lightTeal;
+  }
+  
+  .form-input-error {
+    @apply border-error;
+  }
+  
+  .input-field {
+    @apply form-input;
+  }
+  
+  /* File Upload */
+  .file-upload {
+    @apply border-2 border-dashed rounded-2xl p-8 text-center;
+    @apply backdrop-blur transition-all duration-300;
+    background: #FFFFFF;
+    border-color: rgba(229, 231, 235, 0.8);
+  }
+  
+  .file-upload:hover {
+    @apply border-primary bg-primary-soft;
+    border-color: rgba(192, 223, 22, 0.4);
+    box-shadow: 0 2px 12px rgba(192, 223, 22, 0.1);
+  }
+  
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wide;
+  }
+  
+  .badge-success {
+    background: #D1FAE5;
+    color: #10B981;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  
+  .badge-warning {
+    background: #FEF3C7;
+    color: #F59E0B;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  
+  .badge-error {
+    background: #FEE2E2;
+    color: #EF4444;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  .badge-info {
+    background: #DBEAFE;
+    color: #3B82F6;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  
+  .trust-badge {
+    background: rgba(192, 223, 22, 0.1);
+    @apply text-primary px-5 py-3 rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-3;
+    border: 1px solid rgba(192, 223, 22, 0.2);
+    backdrop-filter: blur(8px);
+  }
+  
+  /* Product Cards */
+  .product-card {
+    @apply relative bg-white/85 backdrop-blur p-6 border border-white/50 shadow-[0_18px_45px_-25px_rgba(15,41,61,0.6)];
+    border-radius: 40px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 32px 70px -40px rgba(15, 41, 61, 0.65);
+  }
+  
+  .product-card-image {
+    @apply w-full h-52 rounded-2xl mb-5 object-cover;
+  }
+  
+  .product-card-title {
+    @apply text-xl font-semibold text-darkTeal mb-2;
+  }
+  
+  .product-card-price {
+    @apply text-2xl font-bold text-primary mb-4;
+  }
+  
+  /* Hero Section */
+  .hero {
+    @apply relative py-28 px-6 text-center;
+  }
+  
+  .hero-title {
+    @apply text-6xl font-semibold text-white mb-8 tracking-tight;
+    line-height: 1.05;
+  }
+  
+  .hero-subtitle {
+    @apply text-xl text-white/80 mb-8 max-w-3xl mx-auto;
+  }
+  
+  .hero-cta {
+    @apply inline-flex gap-4 flex-wrap justify-center;
+  }
+  
+  /* Benefits Banner */
+  .benefits-banner {
+    @apply py-4 px-6 border-b border-white/20 bg-white/60 backdrop-blur;
+  }
+  
+  .benefits-list {
+    @apply max-w-6xl mx-auto flex gap-8 justify-center flex-wrap items-center;
+  }
+  
+  .benefit-item {
+    @apply flex items-center gap-2 text-sm text-darkTeal/80;
+  }
+}
+
+/* Toast Notifications - Ensure visibility */
+div[data-sonner-toaster],
+div[data-sonner-toast],
+div[data-sonner-toast-wrapper] {
+  z-index: 9999 !important;
+}
+
+div[data-react-hot-toast] {
+  z-index: 9999 !important;
+}
+
+[role="status"][aria-live] {
+  z-index: 9999 !important;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-animate.animate-fade-in-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Enhanced scroll animations with stagger */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Elegant text reveal animation for hero text */
+@keyframes elegantReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.5;
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-elegant-reveal {
+  animation: elegantReveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  will-change: opacity, transform, filter;
+}
+
+/* Mobile optimization - reduce blur for better performance */
+@media (max-width: 768px) {
+  @keyframes elegantReveal {
+    0% {
+      opacity: 0;
+      transform: translateY(40px) scale(0.97);
+      filter: blur(5px);
+    }
+    50% {
+      opacity: 0.6;
+      filter: blur(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+}
+
+.scroll-animate[style*="animation-delay"] {
+  animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+button, a, input, select, textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Scroll to top button - with smooth animations */
+.scroll-to-top-btn {
+  transition: background-color 0.2s ease-in-out, opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 50 !important;
+}
+
+.scroll-to-top-btn:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Notification bell button - prevent badge from moving on hover */
+.notification-bell-btn {
+  transform: none !important;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+.notification-bell-btn:hover {
+  transform: none !important;
+}
+
+.notification-bell-badge {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.notification-bell-btn:hover .notification-bell-badge {
+  transform: none !important;
+  top: 0 !important;
+  right: 0 !important;
+}
+
+/* Elegant combobox styling with animations - Metronic style */
+select {
+  @apply rounded-xl border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal;
+  @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  @apply transition-all duration-300 hover:border-primary/50 hover:shadow-sm;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.9em 0.9em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+select:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(192, 223, 22, 0.15);
+}
+
+
+/* Custom dropdown wrapper for enhanced styling */
+.custom-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.custom-select-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.custom-select-wrapper:hover::after,
+.custom-select-wrapper:focus-within::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Elegant datepicker styling - remove dropdown arrow */
+input[type="date"],
+input[type="datetime-local"] {
+  @apply rounded-xl border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal;
+  @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  @apply transition-all duration-300 hover:border-primary/50 hover:shadow-sm;
+  appearance: none;
+  position: relative;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  min-width: 140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25em 1.25em;
+}
+
+/* Responsive datepicker on mobile */
+@media (max-width: 640px) {
+  input[type="date"],
+  input[type="datetime-local"] {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-width: 100%;
+  }
+}
+
+/* Remove calendar dropdown indicator for date inputs */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+input[type="date"]:hover {
+  box-shadow: 0 2px 8px rgba(192, 223, 22, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+}
+
+input[type="date"]:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(192, 223, 22, 0.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+}
+
+/* Datepicker calendar popup styling */
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 0;
+}
+
+/* Custom datepicker calendar styling */
+input[type="date"]::-webkit-datetime-edit {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: #C0DF16;
+  padding: 0 0.25em;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #000000;
+  padding: 0 0.25em;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background-color: rgba(192, 223, 22, 0.1);
+  color: #000000;
+  border-radius: 4px;
+}
+
+/* Datepicker calendar popup styling - elegant and responsive */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the calendar popup when opened */
+input[type="date"]:focus::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+/* Enhanced datepicker calendar popup styling */
+/* Note: Native datepicker calendar styling is limited, but we can improve the input and add some enhancements */
+input[type="date"]:focus {
+  z-index: 1000;
+}
+
+/* Ensure datepicker calendar appears above other elements */
+input[type="date"]:focus::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  pointer-events: none;
+}
+
+/* Better datepicker styling for better UX */
+input[type="date"] {
+  color-scheme: light;
+}
+
+/* Firefox datepicker styling */
+input[type="date"]::-moz-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure calendar popup is visible and responsive */
+@supports (-webkit-appearance: none) {
+  input[type="date"] {
+    position: relative;
+  }
+  
+  input[type="date"]:focus {
+    position: relative;
+    z-index: 1001;
+  }
+}
+
+/* ============================================
+   CUSTOM DATEPICKER STYLES
+   ============================================ */
+
+/* React DatePicker Custom Styling - Elegant and Minimal */
+.react-datepicker {
+  @apply border border-primary/20 rounded-2xl shadow-2xl bg-white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  min-width: 280px;
+}
+
+.react-datepicker__header {
+  @apply bg-gradient-to-r from-primary to-primary-dark text-white rounded-t-xl border-0 pb-2;
+  padding: 1rem 0.5rem 0.5rem;
+}
+
+.react-datepicker__current-month {
+  @apply text-white font-semibold text-base mb-3;
+  text-transform: capitalize;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.react-datepicker__day-names {
+  @apply flex justify-between mb-1;
+}
+
+.react-datepicker__day-name {
+  @apply font-medium text-xs;
+  color: #C0DF16 !important; /* Primary brand color */
+  width: 2.25rem;
+  line-height: 2.25rem;
+  margin: 0;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.react-datepicker__month {
+  @apply m-1;
+}
+
+.react-datepicker__week {
+  @apply flex justify-between mb-1;
+}
+
+.react-datepicker__day {
+  @apply text-darkTeal rounded-lg transition-all duration-200;
+  width: 2.25rem;
+  height: 2.25rem;
+  line-height: 2.25rem;
+  margin: 0;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #2d5a55 !important;
+}
+
+.react-datepicker__day:hover {
+  @apply bg-primary/20 text-primary rounded-lg transform scale-110;
+  color: #C0DF16 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply bg-primary text-brandBlack rounded-lg font-semibold shadow-md;
+  transform: scale(1.1);
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover {
+  @apply bg-primary-dark text-white;
+  transform: scale(1.15);
+}
+
+.react-datepicker__day--today {
+  @apply font-semibold border-2 border-primary/50;
+}
+
+.react-datepicker__day--disabled {
+  @apply text-gray-300 cursor-not-allowed opacity-50;
+}
+
+.react-datepicker__day--disabled:hover {
+  @apply bg-transparent text-gray-300 transform scale-100;
+}
+
+.react-datepicker__day--outside-month {
+  @apply text-gray-300 opacity-40;
+}
+
+/* Show navigation arrows */
+.react-datepicker__navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
+  top: 0.75rem !important;
+  animation: none !important;
+  transform: none !important;
+  position: absolute !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__navigation:hover {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: none !important;
+  animation: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.react-datepicker__navigation:active {
+  background: rgba(255, 255, 255, 0.35) !important;
+}
+
+.react-datepicker__navigation--previous {
+  left: 0.8rem !important;
+  top: 0.75rem !important;
+}
+
+.react-datepicker__navigation--next {
+  right: 0.8rem !important;
+  top: 0.75rem !important;
+}
+
+.react-datepicker__navigation-icon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+  border-width: 2px 2px 0 0;
+  width: 8px;
+  height: 8px;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-135deg);
+  margin: 0 !important;
+  position: absolute;
+}
+
+.react-datepicker__navigation-icon--next::before {
+  transform: translate(-50%, -50%) rotate(45deg) !important;
+}
+
+/* Mobile responsive datepicker */
+@media (max-width: 640px) {
+  .react-datepicker {
+    @apply text-sm;
+  }
+  
+  .react-datepicker__day,
+  .react-datepicker__day-name {
+    width: 2.25rem;
+    line-height: 2.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .react-datepicker__current-month {
+    @apply text-sm;
+  }
+  
+  .react-datepicker__month {
+    @apply m-1.5;
+  }
+}
+
+/* DatePicker wrapper */
+.everwell-datepicker {
+  @apply shadow-[0_24px_60px_-32px_rgba(15,41,61,0.6)];
+}
+
+/* DatePicker popup animations */
+.datepicker-popup {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.datepicker-enter {
+  animation: datepickerEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.datepicker-exit {
+  animation: datepickerExit 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes datepickerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes datepickerExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+}
+
+/* DatePicker popper positioning */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+/* Button hover text visibility fix */
+button:hover:not(.floating-cart-button) {
+  position: relative;
+  z-index: 1;
+}
+
+button:hover:not(.floating-cart-button) span,
+button:hover:not(.floating-cart-button) svg,
+button:hover:not(.floating-cart-button) * {
+  position: relative;
+  z-index: 2;
+  color: inherit;
+}
+
+/* Ensure text is always visible on buttons */
+.btn-primary,
+.btn-secondary,
+button[class*="btn"] {
+  position: relative;
+}
+
+.btn-primary > *,
+.btn-secondary > *,
+button[class*="btn"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Floating cart button - prevent position changes on hover */
+.floating-cart-button,
+.floating-cart-button:hover {
+  position: fixed !important;
+}
+
+.floating-cart-button:hover span,
+.floating-cart-button:hover svg {
+  position: static;
+  z-index: auto;
+}
+
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.form-error {
+  @apply border-error focus:border-error focus:ring-error;
+}
+
+.form-success {
+  @apply border-success focus:border-success focus:ring-success;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Base mobile styles - apply to all mobile devices */
+@media (max-width: 640px) {
+  /* Typography adjustments */
+  .hero-title {
+    @apply text-3xl md:text-4xl;
+    line-height: 1.1;
+  }
+  
+  .hero-subtitle {
+    @apply text-base md:text-lg;
+  }
+  
+  .section-title {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  /* Button adjustments */
+  .btn-primary,
+  .btn-secondary {
+    @apply text-sm px-4 py-2.5;
+    min-height: 44px;
+    min-width: auto;
+  }
+  
+  .input-field {
+    @apply text-base;
+  }
+  
+  /* Card adjustments */
+  .card {
+    @apply p-4 md:p-6;
+  }
+  
+  /* Product card adjustments */
+  .product-card {
+    @apply p-4 md:p-6;
+  }
+  
+  /* Wider first card in homepage carousel */
+  .first-card-wider {
+    width: calc(100% + 25%) !important;
+    min-width: calc(100% + 25%) !important;
+    max-width: calc(100% + 25%) !important;
+  }
+  
+  .product-card-image {
+    @apply h-40 md:h-52;
+  }
+  
+  /* Container padding */
+  .container {
+    @apply px-4;
+  }
+  
+  /* Section spacing */
+  section {
+    @apply py-12 md:py-16;
+  }
+  
+  /* Grid adjustments */
+  .products-grid {
+    grid-template-columns: 1fr !important;
+    @apply gap-4 px-4;
+  }
+  
+  /* Benefits banner */
+  .benefits-list {
+    @apply flex-col gap-4;
+  }
+  
+  /* Trust badges */
+  .trust-badge {
+    @apply text-xs px-3 py-2;
+  }
+}
+
+/* Tablet and small desktop */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-title {
+    @apply text-4xl md:text-5xl;
+  }
+  
+  .section-title {
+    @apply text-3xl md:text-4xl;
+  }
+}
+
+/* Touch-friendly buttons on all mobile */
+@media (max-width: 768px) {
+  button, 
+  a.btn-primary, 
+  a.btn-secondary,
+  .btn-primary,
+  .btn-secondary {
+    min-height: 44px;
+    min-width: 44px;
+    @apply text-sm;
+  }
+  
+  /* Prevent text overflow on mobile */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Ensure proper spacing */
+  body {
+    @apply px-0;
+  }
+  
+  /* Header adjustments */
+  header {
+    @apply px-2 sm:px-4;
+  }
+  
+  /* Footer adjustments */
+  footer {
+    @apply py-8;
+  }
+  
+  /* Grid columns for mobile */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Flex adjustments */
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+  
+  /* Reduce backdrop blur on mobile for better performance */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  
+  /* Optimize card animations on mobile */
+  .card {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* Hero overlay optimization */
+.hero-overlay {
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  will-change: backdrop-filter;
+}
+
+/* Mobile landscape */
+@media (max-width: 896px) and (orientation: landscape) {
+  .hero {
+    @apply py-12 md:py-16;
+  }
+  
+  .hero-title {
+    @apply text-3xl;
+  }
+  
+  /* Reduce blur on mobile landscape for better performance */
+  .hero-overlay {
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+}
+
+/* Prevent horizontal scrolling */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Mobile-specific utility classes */
+@media (max-width: 640px) {
+  .mobile-text-center {
+    text-align: center;
+  }
+  
+  .mobile-px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .mobile-py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  
+  /* Stack elements on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+}
+
+/* Elegant scrollbar styling - thinner with no buttons */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 223, 22, 0.45) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(79,179,168,0.65) 0%, rgba(26,61,58,0.75) 100%);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(79,179,168,0.85) 0%, rgba(26,61,58,0.9) 100%);
+}
+
+/* Remove scrollbar buttons */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Hide scrollbar utility class */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* Elegant fade-in animation for "every day." text */
+@keyframes elegantFadeIn {
+  0% {
+    opacity: 0.7;
+    transform: translateY(5px) scale(0.98);
+    text-shadow: 0 0 15px rgba(187, 224, 42, 0.3);
+    letter-spacing: 0.02em;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+    text-shadow: 0 0 40px rgba(187, 224, 42, 0.6), 0 0 80px rgba(187, 224, 42, 0.4);
+    letter-spacing: 0.03em;
+  }
+  100% {
+    opacity: 0.9;
+    transform: translateY(0px) scale(1);
+    text-shadow: 0 0 25px rgba(187, 224, 42, 0.5), 0 0 50px rgba(187, 224, 42, 0.3);
+    letter-spacing: 0.02em;
+  }
+}
+
+.animate-elegant-fade-in {
+  animation: elegantFadeIn 3s ease-in-out infinite;
+  will-change: transform, opacity, text-shadow;
+}
+
+/* Loading bar animation for JotForm */
+@keyframes loadingBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-loading-bar {
+  animation: loadingBar 2s ease-in-out infinite;
+}
+
+/* Metronic-style combobox with top arrow */
+select.metronic-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C0DF16' d='M6 0L0 6h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+  border: 1px solid rgba(192, 223, 22, 0.3);
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+select.metronic-select:focus {
+  border-color: rgb(192, 223, 22);
+  outline: none;
+  ring: 2px;
+  ring-color: rgba(192, 223, 22, 0.2);
+}
+
+/* Apply to all select elements by default */
+select:not([multiple]) {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C0DF16' d='M6 0L0 6h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+
+/* Page transition animations */
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page transition wrapper */
+.page-transition-wrapper {
+  width: 100%;
+  min-height: 100%;
+}
+
+.page-transition-wrapper.page-enter {
+  animation: pageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Apply animations to all modals */
+.modal-overlay {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-overlay.closing {
+  animation: modalFadeOut 0.3s ease-out;
+}
+
+.modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-content.closing {
+  animation: modalSlideOut 0.3s ease-out;
+}
+
+main.page-transition {
+  animation: pageFadeIn 0.4s ease-out;
+}
+
+/* Enhanced page transition for route changes */
+main {
+  animation: pageFadeIn 0.4s ease-out;
+}
+
+/* Change "every day." animation to show only once */
+.animate-elegant-fade-in {
+  animation: elegantFadeIn 3s ease-in-out 1;
+  animation-fill-mode: forwards;
+  will-change: transform, opacity, text-shadow;
+}
+
+/* Checkbox styling with animation */
+input[type="checkbox"] {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(192, 223, 22, 0.3);
+  border-radius: 0.25rem;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input[type="checkbox"]:hover {
+  border-color: rgb(192, 223, 22);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(192, 223, 22, 0.1);
+}
+
+input[type="checkbox"]:checked {
+  background-color: rgb(192, 223, 22);
+  border-color: rgb(192, 223, 22);
+  transform: scale(1.05);
+}
+
+input[type="checkbox"]:checked::before {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+  animation: checkmark 0.2s ease-out;
+}
+
+@keyframes checkmark {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(192, 223, 22, 0.2);
+}
+
+/* Elegant Custom Dropdown Styles with Animations */
+select {
+  @apply appearance-none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+/* Hover state - Enhanced arrow and lift effect */
+select:hover {
+  @apply border-primary/50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(192, 223, 22, 0.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Focus state - Rotated arrow, ring, and enhanced shadow */
+select:focus {
+  @apply border-primary ring-2 ring-primary/20;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(192, 223, 22, 0.25);
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 15l7-7 7 7'%3E%3C/path%3E%3C/svg%3E");
+  animation: selectFocusPulse 0.3s ease-out;
+}
+
+/* Subtle pulse animation on focus */
+@keyframes selectFocusPulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(192, 223, 22, 0.15);
+  }
+  50% {
+    box-shadow: 0 6px 16px rgba(192, 223, 22, 0.3);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(192, 223, 22, 0.25);
+  }
+}
+
+select:active {
+  transform: translateY(0);
+}
+
+select:disabled {
+  @apply opacity-50 cursor-not-allowed;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  transform: none;
+  box-shadow: none;
+}
+
+/* Custom option styling */
+select option {
+  @apply bg-white text-darkTeal;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+select option:hover {
+  @apply bg-primary/10;
+}
+
+select option:checked,
+select option:focus {
+  @apply bg-primary/20 text-primary font-medium;
+}
+
+/* Dropdown animation keyframes */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom ElegantSelect dropdown animations */
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-dropdownSlideIn {
+  animation: dropdownSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Enhanced select wrapper for better visual feedback */
+.elegant-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.elegant-select-wrapper::before {
+  content: '';
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #C0DF16;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.elegant-select-wrapper:focus-within::before {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Custom País combobox styling for Dashboard Perfil - Must override all general select styles */
+select.country-select.form-input,
+select#address\\.country.country-select.form-input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 1.25rem !important;
+  padding-right: 2.5rem !important;
+  cursor: pointer !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid rgba(192, 223, 22, 0.3) !important;
+  background-color: #ffffff !important;
+  padding: 0.625rem 1rem !important;
+  padding-right: 2.5rem !important;
+  font-size: 0.875rem !important;
+  color: rgb(15, 41, 61) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px rgba(15, 41, 61, 0.05) !important;
+}
+
+select.country-select.form-input:hover,
+select#address\\.country.country-select.form-input:hover {
+  border-color: rgba(192, 223, 22, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(192, 223, 22, 0.15) !important;
+  transform: translateY(-1px) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+}
+
+select.country-select.form-input:focus,
+select#address\\.country.country-select.form-input:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C0DF16' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 15l7-7 7 7'%3E%3C/path%3E%3C/svg%3E") !important;
+  border-color: rgb(192, 223, 22) !important;
+  box-shadow: 0 0 0 4px rgba(192, 223, 22, 0.1), 0 2px 8px rgba(192, 223, 22, 0.15) !important;
+  outline: none !important;
+  transform: translateY(-1px) !important;
+  ring: 2px !important;
+  ring-color: rgba(192, 223, 22, 0.2) !important;
+}
+
+/* Enhanced dropdown options styling for País combobox */
+select.country-select.form-input option,
+select#address\\.country.country-select.form-input option {
+  background-color: #ffffff !important;
+  color: rgb(15, 41, 61) !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  transition: all 0.2s ease !important;
+}
+
+select.country-select.form-input option:hover,
+select#address\\.country.country-select.form-input option:hover {
+  background-color: rgba(192, 223, 22, 0.1) !important;
+  color: rgb(192, 223, 22) !important;
+}
+
+select.country-select.form-input option:checked,
+select.country-select.form-input option:focus,
+select#address\\.country.country-select.form-input option:checked,
+select#address\\.country.country-select.form-input option:focus {
+  background-color: rgba(192, 223, 22, 0.2) !important;
+  color: rgb(192, 223, 22) !important;
+  font-weight: 500 !important;
+}
+
+select.country-select.form-input option:disabled,
+select#address\\.country.country-select.form-input option:disabled {
+  color: rgb(156, 163, 175) !important;
+  opacity: 0.5 !important;
+}
+
+/* Custom ElegantSelect styling for País combobox in Dashboard Perfil */
+.country-select-wrapper button {
+  @apply w-full rounded-xl border border-primary/30 bg-white px-4 py-2.5 text-sm text-darkTeal;
+  @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  @apply transition-all duration-300 hover:border-primary/50 hover:shadow-sm;
+  box-shadow: 0 1px 2px rgba(15, 41, 61, 0.05) !important;
+}
+
+.country-select-wrapper button:hover {
+  border-color: rgba(192, 223, 22, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(192, 223, 22, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.country-select-wrapper button:focus {
+  border-color: rgb(192, 223, 22) !important;
+  box-shadow: 0 0 0 4px rgba(192, 223, 22, 0.1), 0 2px 8px rgba(192, 223, 22, 0.15) !important;
+  outline: none !important;
+}
+
+/* Custom dropdown menu styling for País combobox */
+.country-select-wrapper [role="listbox"] {
+  @apply rounded-xl border border-primary/20 shadow-xl;
+  background: white !important;
+  margin-top: 0.5rem !important;
+  overflow: hidden !important;
+  z-index: 50 !important;
+  max-height: 16rem !important;
+  animation: dropdownSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.country-select-wrapper [role="listbox"] > div {
+  max-height: 16rem !important;
+  overflow-y: auto !important;
+}
+
+/* Custom scrollbar for dropdown */
+.country-select-wrapper [role="listbox"] > div::-webkit-scrollbar {
+  width: 6px;
+}
+
+.country-select-wrapper [role="listbox"] > div::-webkit-scrollbar-track {
+  background: rgba(192, 223, 22, 0.05);
+  border-radius: 3px;
+}
+
+.country-select-wrapper [role="listbox"] > div::-webkit-scrollbar-thumb {
+  background: rgba(192, 223, 22, 0.3);
+  border-radius: 3px;
+}
+
+.country-select-wrapper [role="listbox"] > div::-webkit-scrollbar-thumb:hover {
+  background: rgba(192, 223, 22, 0.5);
+}
+
+/* Custom option button styling */
+.country-select-wrapper [role="option"] {
+  @apply w-full text-left px-4 py-2.5 text-sm transition-all duration-200;
+  border: none !important;
+}
+
+.country-select-wrapper [role="option"]:hover {
+  background-color: rgba(192, 223, 22, 0.1) !important;
+  color: rgb(192, 223, 22) !important;
+}
+
+.country-select-wrapper [role="option"][aria-selected="true"] {
+  background-color: rgba(192, 223, 22, 0.2) !important;
+  color: rgb(192, 223, 22) !important;
+  font-weight: 500 !important;
+}
+
+.country-select-wrapper [role="option"]:focus {
+  background-color: rgba(192, 223, 22, 0.15) !important;
+  outline: none !important;
+}
+
+.advertise-text {
+  color: gray;
+}
+
+.highlighted-text {
+  color: #9ac549;
+}
+
+/* Differentiator Cards Animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) translateY(200%) rotate(45deg);
+  }
+}
+
+.differentiator-card {
+  position: relative;
+  overflow: visible;
+}
+
+
+.differentiator-shine {
+  background: linear-gradient(135deg, transparent 0%, rgba(192, 223, 22, 0.2) 50%, transparent 100%);
+  transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  animation: shimmer 1.5s ease-in-out;
+}
+
+.differentiator-card:hover .differentiator-shine {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+.differentiator-card:hover .differentiator-accent-line {
+  transform: scaleX(1);
+  opacity: 1;
+  height: 3px;
+}
+
+.header-extra-effect {
+  --tw-backdrop-blur: blur(7px);
+  border-bottom-width: 2px;
+  border-bottom-color: #8dc701;
+}
+
+.primary-color-text-green {
+  color: #9ac549 !important
+}
+
+.primary-color-text-gray {
+  color: gray
+}
+
+.primary-color-text-white {
+  color: white !important
+}
+
+.top-2 {
+  top: 2px;
+}
