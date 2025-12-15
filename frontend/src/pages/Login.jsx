@@ -33,12 +33,22 @@ const Login = () => {
       sessionStorage.removeItem('authError'); // Clear after showing
     }
 
-    // Check URL params for error messages
+    // Check URL params for error messages and messages
     const urlParams = new URLSearchParams(location.search);
     const errorParam = urlParams.get('error');
+    const messageParam = urlParams.get('message');
+    const emailParam = urlParams.get('email');
+
     if (errorParam) {
       toast.error(decodeURIComponent(errorParam), {
         duration: 3000,
+        position: 'top-right',
+      });
+      // Clean URL
+      navigate(location.pathname, { replace: true });
+    } else if (messageParam === 'verify_email' && emailParam) {
+      toast.success(`Link de verificação enviado para ${decodeURIComponent(emailParam)}. Verifique seu email para fazer login.`, {
+        duration: 5000,
         position: 'top-right',
       });
       // Clean URL
@@ -113,18 +123,18 @@ const Login = () => {
           navigate('/');
         }
       } else {
-        // Registration flow - Step 1: Only email and name
+        // Registration flow - Email and password only
         const response = await api.post('/auth/register', {
-          name: data.name,
-          email: data.email
+          email: data.email,
+          password: data.password
         });
         
         if (response.data.success && response.data.emailSent) {
-          toast.success('Link de verificação enviado para seu email! Clique no link para completar seu cadastro.');
+          toast.success('Link de verificação enviado para seu email! Clique no link para verificar e fazer login.');
           // Reset form
           reset({
-            name: '',
-            email: ''
+            email: '',
+            password: ''
           });
           // Optionally switch to login mode
           setTimeout(() => {
@@ -155,8 +165,8 @@ const Login = () => {
       } else {
         // For registration: clear fields
         reset({
-          name: '',
-          email: ''
+          email: '',
+          password: ''
         });
       }
     } finally {
@@ -173,30 +183,11 @@ const Login = () => {
           </h2>
           {!isLogin && (
             <p className="text-center text-mediumTeal text-sm mb-6">
-              Use qualquer endereço de email para se registrar
+              Seu nome será extraído do email. Você pode atualizá-lo no perfil depois.
             </p>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {!isLogin && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nome Completo *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('name', { required: 'Nome é obrigatório' })}
-                    className="input-field"
-                    placeholder="Seu nome completo"
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-                  )}
-                </div>
-              </>
-            )}
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 E-mail
@@ -218,28 +209,26 @@ const Login = () => {
               )}
             </div>
 
-            {isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha
-                </label>
-                <input
-                  type="password"
-                  {...register('password', { 
-                    required: 'Senha é obrigatória',
-                    minLength: {
-                      value: 6,
-                      message: 'Senha deve ter no mínimo 6 caracteres'
-                    }
-                  })}
-                  className="input-field"
-                  placeholder="••••••••"
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-                )}
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Senha
+              </label>
+              <input
+                type="password"
+                {...register('password', { 
+                  required: 'Senha é obrigatória',
+                  minLength: {
+                    value: 6,
+                    message: 'Senha deve ter no mínimo 6 caracteres'
+                  }
+                })}
+                className="input-field"
+                placeholder="••••••••"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
 
             {isLogin && (
               <div className="text-right">
@@ -254,7 +243,7 @@ const Login = () => {
               disabled={loading}
               className="w-full btn-primary disabled:opacity-50"
             >
-              {loading ? (isLogin ? 'Processando...' : 'Enviar Link de Verificação') : (isLogin ? 'FAZER LOGIN' : 'Enviar Link de Verificação')}
+              {loading ? (isLogin ? 'Processando...' : 'Processando...') : (isLogin ? 'FAZER LOGIN' : 'CRIAR CONTA')}
             </button>
           </form>
 

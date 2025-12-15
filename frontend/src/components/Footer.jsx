@@ -22,7 +22,7 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold text-darkTeal mb-3 sm:mb-4 text-sm sm:text-base">Links</h4>
+            <h4 className="font-semibold primary-color-text-green mb-3 sm:mb-4 text-sm sm:text-base">Links</h4>
             <ul className="space-y-1.5 sm:space-y-2">
               <li>
                 <Link to="/" className="text-xs sm:text-sm text-mediumTeal hover:text-primary transition-colors block py-1">
@@ -49,25 +49,25 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-darkTeal mb-3 sm:mb-4 text-sm sm:text-base">Contato</h4>
+            <h4 className="font-semibold primary-color-text-green mb-3 sm:mb-4 text-sm sm:text-base">Contato</h4>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-mediumTeal">
               <li>
                 <a
                   href="https://wa.me/5521998170460?text=Gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20EverWell"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-primary transition-colors"
+                  className="text-xs sm:text-sm text-mediumTeal hover:text-primary transition-colors block py-1"
                 >
                   WhatsApp
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
+                <a href="#" className="text-xs sm:text-sm text-mediumTeal hover:text-primary transition-colors block py-1">
                   Política de Privacidade
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
+                <a href="#" className="text-xs sm:text-sm text-mediumTeal hover:text-primary transition-colors block py-1">
                   Política de Troca
                 </a>
               </li>

@@ -79,13 +79,13 @@ export const registerGoogleStrategy = () => {
                 return done(null, user);
               }
 
-              // Create new user
+              // Create new user (will need email verification before login)
               user = await User.create({
                 name: profile.displayName || profile.name?.givenName + ' ' + profile.name?.familyName,
                 email: profile.emails[0].value.toLowerCase(),
                 googleId: profile.id,
                 provider: 'google',
-                emailVerified: true, // Google emails are pre-verified
+                emailVerified: false, // Will be verified after clicking email link
                 isAuthorized: true, // Auto-authorize after first sign up
               });
 

@@ -9,16 +9,24 @@ import {
   passwordResetTemplate 
 } from '../utils/emailTemplates.js';
 
-// Step 1: Initial registration - only email and name
+// Step 1: Initial registration - email and password only
 export const register = async (req, res, next) => {
   try {
-    const { name, email } = req.body;
+    const { email, password } = req.body;
 
     // Validate required fields
-    if (!name || !email) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Nome e email são obrigatórios.'
+        message: 'Email e senha são obrigatórios.'
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Senha deve ter no mínimo 6 caracteres.'
       });
     }
 
@@ -31,25 +39,35 @@ export const register = async (req, res, next) => {
       });
     }
 
+    // Extract name from email (part before @) as default name
+    const emailName = email.toLowerCase().split('@')[0];
+    // Capitalize first letter
+    const defaultName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+
+    // Hash password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
     // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create pending user (no password yet)
+    // Create user with password already set
     const userData = {
-      name,
+      name: defaultName, // Default name from email, can be updated in profile later
       email: email.toLowerCase(),
-      isAuthorized: false,
+      passwordHash,
+      isAuthorized: true, // Auto-authorize after registration
       emailVerified: false,
       emailVerificationToken,
       emailVerificationTokenExpires,
-      registrationPending: true // Flag to indicate registration is incomplete
+      registrationPending: false // Registration is complete (password is set)
     };
 
     const user = await User.create(userData);
 
     // Send verification email and wait for result (with timeout)
-    const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, true);
+    const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, false);
     const emailResult = await sendEmail({
       to: user.email,
       subject: verificationTemplate.subject,
@@ -70,7 +88,7 @@ export const register = async (req, res, next) => {
     console.log(`✅ Verification email sent to ${user.email}`);
     res.status(201).json({
       success: true,
-      message: 'Link de verificação enviado para seu email. Clique no link para completar seu cadastro.',
+      message: 'Link de verificação enviado para seu email. Clique no link para verificar e fazer login.',
       emailSent: true
     });
   } catch (error) {
@@ -247,7 +265,7 @@ export const getMe = async (req, res, next) => {
   }
 };
 
-// @desc    Verify email (for existing users who just need to verify)
+// @desc    Verify email and auto-login user
 // @route   GET /api/auth/verify-email/:token
 // @access  Public
 export const verifyEmail = async (req, res, next) => {
@@ -267,25 +285,48 @@ export const verifyEmail = async (req, res, next) => {
       });
     }
 
-    // If registration is pending, don't verify yet - user needs to complete registration
-    if (user.registrationPending) {
-      return res.json({
-        success: true,
-        message: 'Token válido. Complete seu cadastro.',
-        pending: true
-      });
-    }
-
-    // Verify email for existing users
+    // Verify email
     user.emailVerified = true;
     user.emailVerificationToken = null;
     user.emailVerificationTokenExpires = null;
     await user.save();
 
+    // Generate JWT token for auto-login
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
+
+    // Send welcome email (async, don't wait)
+    const welcomeTemplate = welcomeEmailTemplate(user.name);
+    sendEmail({
+      to: user.email,
+      subject: welcomeTemplate.subject,
+      html: welcomeTemplate.html,
+      text: welcomeTemplate.text
+    }).then(result => {
+      if (result.success) {
+        console.log(`✅ Welcome email sent to ${user.email}`);
+      } else {
+        console.error(`❌ Failed to send welcome email to ${user.email}:`, result.message || result.error);
+      }
+    }).catch(err => {
+      console.error('❌ Error sending welcome email:', err);
+    });
+
     res.json({
       success: true,
       message: 'Email verificado com sucesso!',
-      pending: false
+      token: jwtToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isAuthorized: user.isAuthorized,
+        emailVerified: user.emailVerified
+      }
     });
   } catch (error) {
     next(error);

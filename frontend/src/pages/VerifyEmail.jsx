@@ -24,17 +24,42 @@ const VerifyEmail = () => {
       setLoading(true);
       const response = await verifyEmail(token);
       if (response.success) {
-        // If registration is pending, redirect to complete registration
-        if (response.pending) {
-          navigate(`/complete-registration/${token}`);
-          return;
+        // Auto-login user with token from response
+        if (response.token && response.user) {
+          // Import auth functions
+          const { setToken, setUser } = await import('../utils/auth');
+          const { identifyContact } = await import('../utils/hubspot');
+          const { trackLogin } = await import('../utils/analytics');
+          const { trackLogin: gtmTrackLogin } = await import('../utils/gtm');
+          
+          setToken(response.token);
+          setUser(response.user);
+          
+          // Identify contact in HubSpot
+          identifyContact(response.user).catch(err => {
+            console.warn('HubSpot: Failed to identify contact after verification', err);
+          });
+          
+          // Track login event
+          trackLogin('email');
+          gtmTrackLogin('email');
+          
+          // Dispatch event to update user in Header
+          window.dispatchEvent(new CustomEvent('userUpdated'));
+          
+          setSuccess(true);
+          toast.success('Email verificado com sucesso! Você será redirecionado...');
+          setTimeout(() => {
+            navigate('/');
+          }, 1500);
+        } else {
+          // Fallback if token not provided (shouldn't happen with new flow)
+          setSuccess(true);
+          toast.success('Email verificado com sucesso!');
+          setTimeout(() => {
+            navigate('/login');
+          }, 3000);
         }
-        // Otherwise, email is verified
-        setSuccess(true);
-        toast.success('Email verificado com sucesso!');
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Erro ao verificar email. Token inválido ou expirado.');
@@ -67,10 +92,10 @@ const VerifyEmail = () => {
             </div>
             <h2 className="text-2xl font-bold text-darkTeal mb-4 font-heading">Email Verificado!</h2>
             <p className="text-mediumTeal mb-6">
-              Seu email foi verificado com sucesso. Você será redirecionado para a página de login em instantes.
+              Seu email foi verificado com sucesso. Você será redirecionado para a página inicial em instantes.
             </p>
-            <Link to="/login" className="btn-primary">
-              Ir para Login
+            <Link to="/" className="btn-primary">
+              Ir para Página Inicial
             </Link>
           </div>
         ) : (

@@ -274,7 +274,7 @@ const Home = () => {
             {/* OUR PRODUCTS button */}
             <Link
               to="/produtos"
-              className="inline-block border-2 border-primary bg-transparent px-6 sm:px-8 py-3 sm:py-4 text-white uppercase font-sans font-medium text-sm sm:text-base tracking-wider hover:bg-primary hover:text-brandBlack transition-all duration-300"
+              className="inline-block border-2 border-primary bg-transparent px-6 sm:px-8 py-3 sm:py-4 text-white uppercase font-sans font-medium text-sm sm:text-base tracking-wider hover:bg-primary hover:text-white transition-all duration-300"
               onClick={() => {
                 trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
                 trackGtmEvent('cta_click', { cta: 'our_products', location: 'hero' });

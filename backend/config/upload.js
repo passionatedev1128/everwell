@@ -160,7 +160,8 @@ export const uploadUserPhoto = multer({
 
 // Helper function to get file URL
 export const getFileUrl = (filename, type = 'document') => {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+  // const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+  const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
   let folder = 'documents';
   if (type === 'payment') {
     folder = 'payments';
