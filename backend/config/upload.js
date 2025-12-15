@@ -1,23 +1,10 @@
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
+import { getSupabaseClient } from './supabase.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Ensure upload directories exist
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-const documentsDir = path.join(uploadsDir, 'documents');
-const paymentsDir = path.join(uploadsDir, 'payments');
-const productsDir = path.join(uploadsDir, 'products');
-const usersDir = path.join(uploadsDir, 'users');
-
-[uploadsDir, documentsDir, paymentsDir, productsDir, usersDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
 
 // File filter for documents
 const fileFilter = (req, file, cb) => {
@@ -52,43 +39,12 @@ const imageFilter = (req, file, cb) => {
   }
 };
 
-// Storage configuration for documents
-const documentStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, documentsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename: userId_timestamp_originalname
-    const userId = req.user?._id || 'anonymous';
-    const timestamp = Date.now();
-    const originalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const ext = path.extname(originalName);
-    const name = path.basename(originalName, ext);
-    const filename = `${userId}_${timestamp}_${name}${ext}`;
-    cb(null, filename);
-  }
-});
+// Use memory storage to get file buffer for Supabase upload
+const memoryStorage = multer.memoryStorage();
 
-// Storage configuration for payment proofs
-const paymentStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, paymentsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename: orderId_timestamp_originalname
-    const orderId = req.params?.id || 'unknown';
-    const timestamp = Date.now();
-    const originalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const ext = path.extname(originalName);
-    const name = path.basename(originalName, ext);
-    const filename = `${orderId}_${timestamp}_${name}${ext}`;
-    cb(null, filename);
-  }
-});
-
-// Multer instances
+// Multer instances (using memory storage for Supabase)
 export const uploadDocument = multer({
-  storage: documentStorage,
+  storage: memoryStorage,
   fileFilter: fileFilter,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB max
@@ -96,93 +52,146 @@ export const uploadDocument = multer({
 });
 
 export const uploadPaymentProof = multer({
-  storage: paymentStorage,
+  storage: memoryStorage,
   fileFilter: fileFilter,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB max
   }
 });
 
-// Storage configuration for product images
-const productImageStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, productsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename: productSlug_timestamp_originalname or adminId_timestamp_originalname
-    const productSlug = req.body?.slug || req.params?.slug;
-    const adminId = req.user?._id?.toString() || 'admin';
-    const identifier = productSlug || adminId;
-    const timestamp = Date.now();
-    const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const originalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const ext = path.extname(originalName);
-    const name = path.basename(originalName, ext);
-    const filename = `${identifier}_${timestamp}_${randomSuffix}_${name}${ext}`;
-    cb(null, filename);
-  }
-});
-
 // Multer instance for product images
 export const uploadProductImage = multer({
-  storage: productImageStorage,
+  storage: memoryStorage,
   fileFilter: imageFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB max for images
-  }
-});
-
-// Storage configuration for user photos
-const userPhotoStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, usersDir);
-  },
-  filename: (req, file, cb) => {
-    const userId = req.user?._id?.toString() || req.body?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'user';
-    const timestamp = Date.now();
-    const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const originalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const ext = path.extname(originalName);
-    const name = path.basename(originalName, ext);
-    const filename = `photo_${userId}_${timestamp}_${randomSuffix}_${name}${ext}`;
-    cb(null, filename);
   }
 });
 
 // Multer instance for user photos
 export const uploadUserPhoto = multer({
-  storage: userPhotoStorage,
+  storage: memoryStorage,
   fileFilter: imageFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB max for images
   }
 });
 
-// Helper function to get file URL
-export const getFileUrl = (filename, type = 'document') => {
-  // const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-  const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
-  let folder = 'documents';
-  if (type === 'payment') {
-    folder = 'payments';
+// Helper function to generate filename
+const generateFilename = (req, file, type = 'document') => {
+  let filename = '';
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  const originalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const ext = path.extname(originalName);
+  const name = path.basename(originalName, ext);
+
+  if (type === 'document') {
+    const userId = req.user?._id?.toString() || 'anonymous';
+    filename = `${userId}_${timestamp}_${name}${ext}`;
+  } else if (type === 'payment') {
+    const orderId = req.params?.id || 'unknown';
+    filename = `${orderId}_${timestamp}_${name}${ext}`;
   } else if (type === 'product') {
-    folder = 'products';
+    const productSlug = req.body?.slug || req.params?.slug;
+    const adminId = req.user?._id?.toString() || 'admin';
+    const identifier = productSlug || adminId;
+    filename = `${identifier}_${timestamp}_${randomSuffix}_${name}${ext}`;
   } else if (type === 'user') {
-    folder = 'users';
+    const userId = req.user?._id?.toString() || req.body?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'user';
+    filename = `photo_${userId}_${timestamp}_${randomSuffix}_${name}${ext}`;
   }
-  return `${baseUrl}/uploads/${folder}/${filename}`;
+
+  return filename;
 };
 
-// Helper function to get file path
-export const getFilePath = (filename, type = 'document') => {
-  let folder = 'documents';
+// Helper function to get Supabase bucket name
+const getBucketName = (type = 'document') => {
   if (type === 'payment') {
-    folder = 'payments';
+    return 'payments';
   } else if (type === 'product') {
-    folder = 'products';
+    return 'products';
   } else if (type === 'user') {
-    folder = 'users';
+    return 'users';
   }
-  return path.join(__dirname, '..', 'uploads', folder, filename);
+  return 'documents';
+};
+
+// Upload file to Supabase Storage
+export const uploadToSupabase = async (file, req, type = 'document') => {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Please check SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
+  }
+
+  const filename = generateFilename(req, file, type);
+  const bucket = getBucketName(type);
+
+  // Upload file buffer to Supabase Storage
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(filename, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false // Don't overwrite existing files
+    });
+
+  if (error) {
+    console.error(`❌ Supabase upload error (${type}):`, error);
+    throw new Error(`Failed to upload file to Supabase: ${error.message}`);
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(filename);
+
+  return {
+    filename,
+    path: data.path,
+    url: urlData.publicUrl
+  };
+};
+
+// Helper function to get file URL (now returns Supabase URL)
+export const getFileUrl = (filename, type = 'document') => {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    // Fallback to backend URL if Supabase not configured
+    const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    let folder = 'documents';
+    if (type === 'payment') {
+      folder = 'payments';
+    } else if (type === 'product') {
+      folder = 'products';
+    } else if (type === 'user') {
+      folder = 'users';
+    }
+    return `${baseUrl}/uploads/${folder}/${filename}`;
+  }
+
+  const bucket = getBucketName(type);
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(filename);
+
+  return data.publicUrl;
+};
+
+// Helper function to delete file from Supabase Storage
+export const deleteFromSupabase = async (filename, type = 'document') => {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return;
+  }
+
+  const bucket = getBucketName(type);
+  const { error } = await supabase.storage
+    .from(bucket)
+    .remove([filename]);
+
+  if (error) {
+    console.error(`❌ Supabase delete error (${type}):`, error);
+    throw new Error(`Failed to delete file from Supabase: ${error.message}`);
+  }
 };
 

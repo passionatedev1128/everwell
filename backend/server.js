@@ -72,6 +72,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Serve uploaded files statically with CORS headers (custom handler for ORB compliance)
+// NOTE: This is kept for backwards compatibility with old files. New uploads use Supabase Storage.
 const uploadsPath = path.join(__dirname, 'uploads');
 // Custom route handler for uploads to ensure proper headers for ORB compliance
 app.use('/uploads', (req, res, next) => {

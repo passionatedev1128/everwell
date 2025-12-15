@@ -4,7 +4,7 @@ import {
   documentUploadEmailTemplate, 
   documentApprovedEmailTemplate 
 } from '../utils/emailTemplates.js';
-import { getFileUrl } from '../config/upload.js';
+import { uploadToSupabase } from '../config/upload.js';
 
 export const uploadUserPhoto = async (req, res, next) => {
   try {
@@ -17,8 +17,9 @@ export const uploadUserPhoto = async (req, res, next) => {
       });
     }
 
-    // Get file URL
-    const fileUrl = getFileUrl(file.filename, 'user');
+    // Upload to Supabase Storage
+    const uploadResult = await uploadToSupabase(file, req, 'user');
+    const fileUrl = uploadResult.url;
 
     // If user is authenticated, update their photo
     if (req.user) {
@@ -103,8 +104,9 @@ export const uploadDocument = async (req, res, next) => {
       });
     }
 
-    // Get file URL
-    const fileUrl = getFileUrl(file.filename, 'document');
+    // Upload to Supabase Storage
+    const uploadResult = await uploadToSupabase(file, req, 'document');
+    const fileUrl = uploadResult.url;
 
     // Update document
     user.documents[documentType] = {

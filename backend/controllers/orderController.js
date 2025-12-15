@@ -1,7 +1,7 @@
 import Order from '../models/Order.js';
 import AuditLog from '../models/AuditLog.js';
 import User from '../models/User.js';
-import { getFileUrl } from '../config/upload.js';
+import { uploadToSupabase } from '../config/upload.js';
 import { sendEmail } from '../config/email.js';
 import { orderStatusUpdateEmailTemplate } from '../utils/emailTemplates.js';
 import { sendOrderToHubSpot } from '../integrations/hubspot.js';
@@ -173,8 +173,9 @@ export const uploadPaymentProof = async (req, res, next) => {
       });
     }
 
-    // Get file URL
-    const fileUrl = getFileUrl(file.filename, 'payment');
+    // Upload to Supabase Storage
+    const uploadResult = await uploadToSupabase(file, req, 'payment');
+    const fileUrl = uploadResult.url;
 
     // Update payment proof
     order.paymentProof = {

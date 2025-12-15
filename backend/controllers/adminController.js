@@ -3,7 +3,7 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import AuditLog from '../models/AuditLog.js';
 import { sendEmail } from '../config/email.js';
-import { getFileUrl } from '../config/upload.js';
+import { uploadToSupabase } from '../config/upload.js';
 import bcrypt from 'bcrypt';
 import { 
   authorizationEmailTemplate,
@@ -544,8 +544,10 @@ export const uploadProductImages = async (req, res, next) => {
       });
     }
 
-    // Generate URLs for uploaded images
-    const imageUrls = files.map(file => getFileUrl(file.filename, 'product'));
+    // Upload all images to Supabase Storage
+    const uploadPromises = files.map(file => uploadToSupabase(file, req, 'product'));
+    const uploadResults = await Promise.all(uploadPromises);
+    const imageUrls = uploadResults.map(result => result.url);
 
     res.json({
       success: true,
