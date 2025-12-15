@@ -87,9 +87,15 @@ export const trackPageView = (path, title) => {
   }
   lastTrackedPath = currentPath;
 
-  // Use 'config' with page_path update (standard GA4 SPA approach)
-  // Only update page_path and page_title, don't re-initialize
+  // Update config with new page info
   window.gtag('config', measurementId, {
+    page_path: currentPath,
+    page_title: title || document.title,
+    page_location: window.location.href,
+  });
+
+  // Explicitly send page_view event (required when send_page_view is false)
+  window.gtag('event', 'page_view', {
     page_path: currentPath,
     page_title: title || document.title,
     page_location: window.location.href,
@@ -105,7 +111,9 @@ export const trackEvent = (eventName, eventParams = {}) => {
     return;
   }
 
+  // Send event (gtag automatically uses the configured measurement ID)
   window.gtag('event', eventName, eventParams);
+  
   console.log('GA4: Event tracked', { eventName, eventParams });
 };
 

@@ -73,14 +73,39 @@ app.use(passport.session());
 // Serve uploaded files statically with CORS headers
 const uploadsPath = path.join(__dirname, 'uploads');
 app.use('/uploads', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  res.header('Access-Control-Allow-Origin', frontendUrl);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 }, express.static(uploadsPath, {
   setHeaders: (res, filePath) => {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    // Set CORS headers
+    res.set('Access-Control-Allow-Origin', frontendUrl);
+    res.set('Access-Control-Allow-Credentials', 'true');
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.set('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
+    
+    // Ensure proper Content-Type for images to prevent ORB (Opaque Response Blocking)
+    const ext = path.extname(filePath).toLowerCase();
+    const imageTypes = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml'
+    };
+    
+    if (imageTypes[ext]) {
+      res.set('Content-Type', imageTypes[ext]);
+    }
+    
+    // Allow caching for images
+    if (imageTypes[ext]) {
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    }
   }
 }));
 
