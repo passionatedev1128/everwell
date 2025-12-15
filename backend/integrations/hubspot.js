@@ -3,17 +3,25 @@ import Hubspot from '@hubspot/api-client';
 let hubspotClient = null;
 
 const initializeClient = () => {
-  if (!process.env.HUBSPOT_API_KEY) {
-    console.warn('⚠️ HUBSPOT_API_KEY not set. HubSpot integration disabled.');
+  // Check for private app token first (preferred method)
+  const accessToken = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
+  // Fallback to API key for backward compatibility
+  const apiKey = process.env.HUBSPOT_API_KEY;
+
+  if (!accessToken && !apiKey) {
+    console.warn('⚠️ HUBSPOT_PRIVATE_APP_TOKEN or HUBSPOT_API_KEY not set. HubSpot integration disabled.');
     return null;
   }
 
   if (!hubspotClient) {
     try {
-      hubspotClient = new Hubspot.Client({
-        apiKey: process.env.HUBSPOT_API_KEY,
-      });
-      console.log('✅ HubSpot client initialized');
+      // Use private app token if available (preferred), otherwise fall back to API key
+      const config = accessToken 
+        ? { accessToken } 
+        : { apiKey };
+      
+      hubspotClient = new Hubspot.Client(config);
+      console.log('✅ HubSpot client initialized', { method: accessToken ? 'Private App Token' : 'API Key' });
     } catch (error) {
       console.error('❌ Failed to initialize HubSpot client:', error?.message || error);
       hubspotClient = null;
