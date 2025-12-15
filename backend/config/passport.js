@@ -13,13 +13,45 @@ export const registerGoogleStrategy = () => {
   // Only initialize if credentials are provided
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     try {
+      // Construct callback URL - must be absolute for Google OAuth
+      let callbackURL = process.env.GOOGLE_CALLBACK_URL;
+      
+      // Determine backend URL (check Railway, then BACKEND_URL, then default to localhost)
+      let backendUrl = process.env.BACKEND_URL;
+      
+      // Railway provides RAILWAY_PUBLIC_DOMAIN (without https://)
+      if (!backendUrl && process.env.RAILWAY_PUBLIC_DOMAIN) {
+        backendUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+      }
+      
+      // Fallback to localhost for development
+      if (!backendUrl) {
+        const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+        const port = process.env.PORT || 5000;
+        backendUrl = port === '443' || port === '80' 
+          ? `${protocol}://localhost` 
+          : `${protocol}://localhost:${port}`;
+      }
+      
+      // If GOOGLE_CALLBACK_URL is relative (starts with /), construct full URL
+      if (callbackURL && callbackURL.startsWith('/')) {
+        callbackURL = `${backendUrl}${callbackURL}`;
+      }
+      // If not set, use default
+      else if (!callbackURL) {
+        callbackURL = `${backendUrl}/api/auth/google/callback`;
+      }
+      // If already absolute (starts with http:// or https://), use as-is
+      
+      console.log(`🔗 Google OAuth callback URL: ${callbackURL}`);
+      
       passport.use(
         'google',
         new GoogleStrategy(
           {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: process.env.GOOGLE_CALLBACK_URL || (process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api/auth/google/callback` : 'http://localhost:5000/api/auth/google/callback'),
+            callbackURL: callbackURL,
           },
           async (accessToken, refreshToken, profile, done) => {
             try {

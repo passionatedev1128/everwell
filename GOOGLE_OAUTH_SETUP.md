@@ -134,31 +134,123 @@ npm run dev
 
 ---
 
-## Step 4: Production Setup
+## Step 4: Production Setup (Railway + Vercel)
 
-When deploying to production:
+When deploying to production with **Railway (backend)** and **Vercel (frontend)**:
 
-### 4.1 Update Google OAuth Credentials
+### 4.1 Get Your Production URLs
 
-1. Go to Google Cloud Console > **Credentials**
-2. Edit your OAuth 2.0 Client ID
+1. **Railway Backend URL:**
+   - Go to your Railway project dashboard
+   - Your backend URL will be something like: `https://your-app.up.railway.app`
+   - Or if you have a custom domain: `https://api.yourdomain.com`
+   - **Copy this URL** - you'll need it for the next steps
+
+2. **Vercel Frontend URL:**
+   - Go to your Vercel project dashboard
+   - Your frontend URL will be something like: `https://your-app.vercel.app`
+   - Or if you have a custom domain: `https://yourdomain.com`
+   - **Copy this URL** - you'll need it for environment variables
+
+### 4.2 Update Google Cloud Console
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) > **APIs & Services** > **Credentials**
+2. Click on your OAuth 2.0 Client ID (or create a new one for production)
 3. Add production URLs:
-   - **Authorized JavaScript origins**:
-     - `https://your-backend-domain.com`
-     - `https://your-frontend-domain.com`
-   - **Authorized redirect URIs**:
-     - `https://your-backend-domain.com/api/auth/google/callback`
+   
+   **Authorized JavaScript origins:**
+   ```
+   https://your-railway-app.up.railway.app
+   https://your-vercel-app.vercel.app
+   ```
+   (Replace with your actual Railway and Vercel URLs)
+   
+   **Authorized redirect URIs:**
+   ```
+   https://your-railway-app.up.railway.app/api/auth/google/callback
+   ```
+   ⚠️ **Important**: Only add the Railway backend URL here, NOT the Vercel URL
 
-### 4.2 Update Environment Variables
+4. Click **Save**
 
-Update your production `.env`:
+### 4.3 Configure Railway (Backend) Environment Variables
+
+In your Railway project dashboard:
+
+1. Go to your service → **Variables** tab
+2. Add these environment variables:
 
 ```env
-GOOGLE_CLIENT_ID=your-production-client-id
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your-production-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-production-client-secret
+
+# Backend URL (Railway will auto-set RAILWAY_PUBLIC_DOMAIN, or set your custom domain)
+BACKEND_URL=https://your-railway-app.up.railway.app
+# OR use Railway's auto-generated variable:
+# BACKEND_URL=https://${RAILWAY_PUBLIC_DOMAIN}
+
+# Callback URL (relative path - code will build full URL automatically)
 GOOGLE_CALLBACK_URL=/api/auth/google/callback
-FRONTEND_URL=https://your-frontend-domain.com
+
+# Frontend URL (Vercel)
+FRONTEND_URL=https://your-vercel-app.vercel.app
+
+# Other required variables
+MONGO_URI=your-production-mongodb-uri
+JWT_SECRET=your-production-jwt-secret
+SESSION_SECRET=your-production-session-secret
+NODE_ENV=production
 ```
+
+**Important Notes:**
+- `BACKEND_URL` should be your Railway backend URL (the code will use this to build the callback URL)
+- `GOOGLE_CALLBACK_URL` can be a relative path (`/api/auth/google/callback`) - the code will automatically prepend `BACKEND_URL`
+- If Railway provides `RAILWAY_PUBLIC_DOMAIN`, you can use: `BACKEND_URL=https://${RAILWAY_PUBLIC_DOMAIN}`
+- Make sure `FRONTEND_URL` matches your Vercel deployment URL
+
+### 4.4 Configure Vercel (Frontend) Environment Variables
+
+In your Vercel project dashboard:
+
+1. Go to your project → **Settings** → **Environment Variables**
+2. Add:
+
+```env
+VITE_API_URL=https://your-railway-app.up.railway.app/api
+```
+
+(Replace with your actual Railway backend URL)
+
+### 4.5 Verify the Configuration
+
+1. **Deploy your backend to Railway** with the updated environment variables
+2. Check Railway logs - you should see:
+   ```
+   🔗 Google OAuth callback URL: https://your-railway-app.up.railway.app/api/auth/google/callback
+   ```
+3. **Verify this exact URL is in Google Cloud Console** under Authorized redirect URIs
+4. **Deploy your frontend to Vercel** with the updated environment variables
+5. Test the Google OAuth login in production
+
+### 4.6 Using Custom Domains
+
+If you're using custom domains:
+
+**For Railway:**
+```env
+BACKEND_URL=https://api.yourdomain.com
+GOOGLE_CALLBACK_URL=/api/auth/google/callback
+```
+
+**For Vercel:**
+```env
+VITE_API_URL=https://api.yourdomain.com/api
+```
+
+**In Google Cloud Console, use:**
+- Authorized JavaScript origins: `https://api.yourdomain.com`, `https://yourdomain.com`
+- Authorized redirect URIs: `https://api.yourdomain.com/api/auth/google/callback`
 
 ---
 
@@ -167,10 +259,36 @@ FRONTEND_URL=https://your-frontend-domain.com
 ### Issue: "redirect_uri_mismatch"
 
 **Solution:**
-- Make sure the redirect URI in Google Console exactly matches:
-  - `http://localhost:5000/api/auth/google/callback` (development)
-  - Or your production callback URL
-- Check for trailing slashes or http vs https
+1. **Check what callback URL your backend is using:**
+   - Look at the backend console when the server starts
+   - You should see: `🔗 Google OAuth callback URL: http://localhost:5000/api/auth/google/callback`
+   - This is the EXACT URL you need in Google Console
+
+2. **Update Google Cloud Console:**
+   - Go to **APIs & Services** > **Credentials**
+   - Click on your OAuth 2.0 Client ID
+   - Under **Authorized redirect URIs**, make sure you have:
+     - `http://localhost:5000/api/auth/google/callback` (development)
+     - Your production backend callback URL (check Railway logs for the exact URL)
+   - The URL must match EXACTLY (including http vs https, port number, no trailing slash)
+   - **For Railway deployments:** The URL will be `https://your-railway-app.up.railway.app/api/auth/google/callback`
+
+3. **Common mistakes:**
+   - ❌ Missing `http://` or `https://`
+   - ❌ Wrong port number (5000 vs 5173)
+   - ❌ Trailing slash at the end
+   - ❌ Using `localhost:5173` instead of `localhost:5000` (backend port)
+
+4. **If using GOOGLE_CALLBACK_URL in .env:**
+   - You can set it as a relative path: `/api/auth/google/callback` (recommended)
+   - The code will automatically build the full URL using `BACKEND_URL`
+   - Or set it as a full URL: `http://localhost:5000/api/auth/google/callback` (works too)
+   - Either way, check the backend logs to see what callback URL is actually being used
+
+5. **For Railway/Vercel deployments:**
+   - See `GOOGLE_OAUTH_RAILWAY_VERCEL.md` for detailed production setup instructions
+   - Make sure `BACKEND_URL` is set to your Railway backend URL in Railway environment variables
+   - Check Railway deployment logs to see the exact callback URL being used
 
 ### Issue: "access_denied"
 
