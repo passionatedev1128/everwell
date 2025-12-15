@@ -30,34 +30,29 @@ export const initGA4 = (measurementId) => {
 
   gtag('js', new Date());
 
+  // Configure immediately (gtag queues commands in dataLayer before script loads)
+  configureGA4(measurementId);
+
   // Check if GA4 script is already loaded
   const existingScript = document.querySelector(
     `script[src*="gtag/js?id=${measurementId}"]`
   );
   
-  if (existingScript && existingScript.hasAttribute('data-loaded')) {
-    // Script already loaded, just configure
-    configureGA4(measurementId);
-  } else {
-    // Load the script and configure after it loads
+  if (!existingScript) {
+    // Load the script (configuration already applied, script will process queued commands)
     const script1 = document.createElement('script');
     script1.async = true;
     script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
     script1.onload = () => {
       script1.setAttribute('data-loaded', 'true');
       console.log('GA4: Script loaded successfully');
+      // Re-apply config after script loads to ensure proper initialization
       configureGA4(measurementId);
     };
     script1.onerror = () => {
       console.warn('GA4: Script blocked by ad blocker or browser extension. This is normal if you have privacy extensions enabled.');
     };
     document.head.appendChild(script1);
-    
-    // Also configure immediately (gtag queues commands before script loads)
-    // This ensures events sent before script loads are still tracked
-    setTimeout(() => {
-      configureGA4(measurementId);
-    }, 100);
   }
 
   window.__GA4_MEASUREMENT_ID = measurementId;
