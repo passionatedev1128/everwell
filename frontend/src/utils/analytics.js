@@ -34,6 +34,14 @@ export const initGA4 = (measurementId) => {
   }
   window.gtag = gtag;
 
+  // Set consent mode (grant analytics storage by default)
+  gtag('consent', 'default', {
+    analytics_storage: 'granted',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied'
+  });
+
   gtag('js', new Date());
   
   // Enable debug mode only in development
@@ -42,9 +50,6 @@ export const initGA4 = (measurementId) => {
     page_path: window.location.pathname,
     // Prevent automatic page view tracking (we'll track manually)
     send_page_view: false,
-    // Prevent any redirects or page reloads
-    allow_google_signals: false,
-    allow_ad_personalization_signals: false,
   };
   
   if (isDevelopment) {

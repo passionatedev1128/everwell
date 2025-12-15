@@ -11,20 +11,10 @@
     <meta name="description" content="EverWell oferece produtos à base de CBD para bem-estar e alta performance, com suporte médico especializado e conformidade com Anvisa.">
 
     <!-- Initialize dataLayer for GTM and GA4 (both initialized in main.jsx) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-05TH31T6CK"></script>
-
     <script>
+      // Initialize dataLayer early for GTM and GA4
+      // Both will be initialized in main.jsx with IDs from environment variables
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-    
-      // ✅ REQUIRED: initialize consent FIRST
-      gtag('consent', 'default', {
-        analytics_storage: 'granted'
-      });
-    
-      // ✅ then initialize GA
-      gtag('js', new Date());
-      gtag('config', 'G-05TH31T6CK');
     </script>
   </head>
   <body>
