@@ -86,8 +86,13 @@ app.use('/uploads', (req, res, next) => {
     return res.status(200).end();
   }
   
-  // Get file extension to determine Content-Type (from req.path)
-  const ext = path.extname(req.path).toLowerCase();
+  // When mounted with app.use('/uploads', ...), req.path is relative to mount point
+  // So /uploads/products/image.jpg becomes /products/image.jpg
+  // But we need the full path from uploads root, so use req.path as-is
+  const filePath = req.path; // e.g., /products/image.jpg
+  
+  // Get file extension to determine Content-Type
+  const ext = path.extname(filePath).toLowerCase();
   const imageTypes = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
@@ -121,9 +126,9 @@ app.use('/uploads', (req, res, next) => {
   }
   
   // Send file using root option (safer, prevents directory traversal)
-  res.sendFile(req.path, { root: uploadsPath }, (err) => {
+  res.sendFile(filePath, { root: uploadsPath }, (err) => {
     if (err) {
-      console.error('Error sending file:', err);
+      console.error('Error sending file:', err.message, 'Path:', filePath);
       if (!res.headersSent) {
         res.status(404).json({ error: 'File not found' });
       }

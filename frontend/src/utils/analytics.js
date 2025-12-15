@@ -13,21 +13,7 @@ export const initGA4 = (measurementId) => {
     return;
   }
 
-  // Ensure GA4 script for this measurement ID is present
-  const existingScript = document.querySelector(
-    `script[src*="gtag/js?id=${measurementId}"]`
-  );
-  if (!existingScript) {
-    const script1 = document.createElement('script');
-    script1.async = true;
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-    script1.onerror = () => {
-      console.warn('GA4: Script blocked by ad blocker or browser extension. This is normal if you have privacy extensions enabled.');
-    };
-    document.head.appendChild(script1);
-  }
-
-  // Initialize dataLayer and gtag
+  // Initialize dataLayer and gtag function first (before script loads)
   window.dataLayer = window.dataLayer || [];
   function gtag() {
     window.dataLayer.push(arguments);
@@ -43,26 +29,56 @@ export const initGA4 = (measurementId) => {
   });
 
   gtag('js', new Date());
+
+  // Check if GA4 script is already loaded
+  const existingScript = document.querySelector(
+    `script[src*="gtag/js?id=${measurementId}"]`
+  );
   
-  // Enable debug mode only in development
-  const isDevelopment = import.meta.env.MODE === 'development';
-  const config = {
-    page_path: window.location.pathname,
-    // Prevent automatic page view tracking (we'll track manually)
-    send_page_view: false,
-  };
-  
-  if (isDevelopment) {
-    config.debug_mode = true; // Enable DebugView in GA4 for development
+  if (existingScript && existingScript.hasAttribute('data-loaded')) {
+    // Script already loaded, just configure
+    configureGA4(measurementId);
+  } else {
+    // Load the script and configure after it loads
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    script1.onload = () => {
+      script1.setAttribute('data-loaded', 'true');
+      console.log('GA4: Script loaded successfully');
+      configureGA4(measurementId);
+    };
+    script1.onerror = () => {
+      console.warn('GA4: Script blocked by ad blocker or browser extension. This is normal if you have privacy extensions enabled.');
+    };
+    document.head.appendChild(script1);
+    
+    // Also configure immediately (gtag queues commands before script loads)
+    // This ensures events sent before script loads are still tracked
+    setTimeout(() => {
+      configureGA4(measurementId);
+    }, 100);
   }
-  
-  gtag('config', measurementId, config);
 
   window.__GA4_MEASUREMENT_ID = measurementId;
   window.__GA4_INITIALIZED = true;
 
   console.log('GA4: Initialized with measurement ID', measurementId);
 };
+
+// Configure GA4 after script is loaded
+function configureGA4(measurementId) {
+  // Always enable debug_mode for easier testing (can be disabled later)
+  const config = {
+    page_path: window.location.pathname,
+    // Prevent automatic page view tracking (we'll track manually)
+    send_page_view: false,
+    debug_mode: true, // Enable DebugView for easier debugging
+  };
+  
+  window.gtag('config', measurementId, config);
+  console.log('GA4: Configuration applied', { measurementId, config });
+}
 
 // Track page view
 let lastTrackedPath = null;
@@ -99,9 +115,11 @@ export const trackPageView = (path, title) => {
     page_path: currentPath,
     page_title: title || document.title,
     page_location: window.location.href,
+    debug_mode: true,
   });
 
   console.log('GA4: Page view tracked', { path: currentPath, title, measurementId });
+  console.log('GA4: Check Network tab for requests to google-analytics.com or googletagmanager.com');
 };
 
 // Track custom event
@@ -111,10 +129,16 @@ export const trackEvent = (eventName, eventParams = {}) => {
     return;
   }
 
-  // Send event (gtag automatically uses the configured measurement ID)
-  window.gtag('event', eventName, eventParams);
+  const measurementId = window.__GA4_MEASUREMENT_ID || import.meta.env.VITE_GA4_MEASUREMENT_ID;
+
+  // Send event with debug_mode for easier testing
+  window.gtag('event', eventName, {
+    ...eventParams,
+    debug_mode: true,
+  });
   
-  console.log('GA4: Event tracked', { eventName, eventParams });
+  console.log('GA4: Event tracked', { eventName, eventParams, measurementId });
+  console.log('GA4: Check Network tab for requests to google-analytics.com or googletagmanager.com');
 };
 
 // E-commerce Events
