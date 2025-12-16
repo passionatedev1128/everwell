@@ -644,202 +644,80 @@ const Home = () => {
               Our Products
             </h2>
           </div>
-          {/* Three Product Cards */}
+          {/* All Product Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mb-12 sm:mb-16">
-            {/* Oil Product */}
-            {(() => {
-              const oilProduct = findProductByName('oil') || findProductByName('óleo');
-              return (
-                <Link
-                  to={oilProduct?.slug ? `/produtos/${oilProduct.slug}` : "/produtos"}
-                  className="flex flex-col items-center no-underline"
-                  style={{ textDecoration: 'none' }}
+            {productHighlights.map((product) => (
+              <div
+                key={product.name || product.slug}
+                className="flex flex-col items-center"
+              >
+                {/* Product Frame with Lime Green Border */}
+                <div 
+                  className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
+                  style={{
+                    border: '2px solid #C0DF16',
+                    borderRadius: '12px',
+                    backgroundColor: 'white'
+                  }}
                 >
-                  {/* Product Frame with Lime Green Border */}
-                  <div 
-                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
-                    style={{
-                      border: '2px solid #C0DF16',
-                      borderRadius: '12px',
-                      backgroundColor: 'white'
-                    }}
-                  >
-                    {/* Product Image Container with White Circular Pedestal */}
-                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
-                      {/* White Circular Pedestal with Shadow */}
-                      <div 
-                        className="absolute bottom-0 w-32 h-8 rounded-full"
-                        style={{
-                          backgroundColor: 'white',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          transform: 'translateY(50%)'
-                        }}
-                      />
-                      {/* Product Image */}
-                      <div className="relative z-10">
-                        {oilProduct?.image ? (
+                  {/* Product Image Container with White Circular Pedestal */}
+                  <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
+                    {/* White Circular Pedestal with Shadow */}
+                    <div 
+                      className="absolute bottom-0 w-32 h-8 rounded-full"
+                      style={{
+                        backgroundColor: 'white',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        transform: 'translateY(50%)'
+                      }}
+                    />
+                    {/* Product Image - Only Clickable */}
+                    <div className="relative z-10">
+                      {product?.image ? (
+                        <Link
+                          to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
+                          className="block"
+                          style={{ textDecoration: 'none' }}
+                          onClick={() => {
+                            trackAnalyticsEvent('product_click', { product: product.name, location: 'products_preview' });
+                            trackGtmEvent('product_click', { product: product.name, location: 'products_preview' });
+                          }}
+                        >
                           <img 
-                            src={oilProduct.image} 
-                            alt={oilProduct.name || 'CBD Oil - EverWell'}
+                            src={product.image} 
+                            alt={product.name || 'Product - EverWell'}
                             className="w-full h-auto max-h-64 object-contain"
-                            style={{ filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
+                            style={{ 
+                              filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
+                              cursor: 'pointer'
+                            }}
                             onError={(e) => {
                               e.target.style.display = 'none';
                               const placeholder = e.target.parentNode;
-                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Oil Product Image</div></div>';
+                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Product Image</div></div>';
                             }}
                           />
-                        ) : (
-                          <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <div className="text-gray-400 text-sm">Oil Product Image</div>
-                          </div>
-                        )}
-                      </div>
+                        </Link>
+                      ) : (
+                        <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="text-gray-400 text-sm">Product Image</div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  
-                  {/* Product Title and Description */}
-                  <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
-                      {oilProduct?.name || 'Oil'}
-                    </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan', minWidth: '100%' }}>
-                      {oilProduct?.subtitle || oilProduct?.description || 'Increased focus and consistent performance'}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })()}
-
-            {/* Cream Product */}
-            {(() => {
-              const creamProduct = findProductByName('cream') || findProductByName('creme');
-              return (
-                <Link
-                  to={creamProduct?.slug ? `/produtos/${creamProduct.slug}` : "/produtos"}
-                  className="flex flex-col items-center no-underline"
-                  style={{ textDecoration: 'none' }}
-                >
-                  {/* Product Frame with Lime Green Border */}
-                  <div 
-                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
-                    style={{
-                      border: '2px solid #C0DF16',
-                      borderRadius: '12px',
-                      backgroundColor: 'white'
-                    }}
-                  >
-                    {/* Product Image Container with White Circular Pedestal */}
-                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
-                      {/* White Circular Pedestal with Shadow */}
-                      <div 
-                        className="absolute bottom-0 w-32 h-8 rounded-full"
-                        style={{
-                          backgroundColor: 'white',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          transform: 'translateY(50%)'
-                        }}
-                      />
-                      {/* Product Image */}
-                      <div className="relative z-10">
-                        {creamProduct?.image ? (
-                          <img 
-                            src={creamProduct.image} 
-                            alt={creamProduct.name || 'CBD Cream - EverWell'}
-                            className="w-full h-auto max-h-64 object-contain"
-                            style={{ filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              const placeholder = e.target.parentNode;
-                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Cream Product Image</div></div>';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <div className="text-gray-400 text-sm">Cream Product Image</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Product Title and Description */}
-                  <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
-                      {creamProduct?.name || 'Cream'}
-                    </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
-                      {creamProduct?.subtitle || creamProduct?.description || 'Instant relief and fast recovery.'}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })()}
-
-            {/* Gummy Product */}
-            {(() => {
-              const gummyProduct = findProductByName('gummy') || findProductByName('gummies') || findProductByName('goma');
-              return (
-                <Link
-                  to={gummyProduct?.slug ? `/produtos/${gummyProduct.slug}` : "/produtos"}
-                  className="flex flex-col items-center no-underline"
-                  style={{ textDecoration: 'none' }}
-                >
-                  {/* Product Frame with Lime Green Border */}
-                  <div 
-                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
-                    style={{
-                      border: '2px solid #C0DF16',
-                      borderRadius: '12px',
-                      backgroundColor: 'white'
-                    }}
-                  >
-                    {/* Product Image Container with White Circular Pedestal */}
-                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
-                      {/* White Circular Pedestal with Shadow */}
-                      <div 
-                        className="absolute bottom-0 w-32 h-8 rounded-full"
-                        style={{
-                          backgroundColor: 'white',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          transform: 'translateY(50%)'
-                        }}
-                      />
-                      {/* Product Image */}
-                      <div className="relative z-10">
-                        {gummyProduct?.image ? (
-                          <img 
-                            src={gummyProduct.image} 
-                            alt={gummyProduct.name || 'CBD Gummies - EverWell'}
-                            className="w-full h-auto max-h-64 object-contain"
-                            style={{ filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              const placeholder = e.target.parentNode;
-                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Gummy Product Image</div></div>';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <div className="text-gray-400 text-sm">Gummy Product Image</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Product Title and Description */}
-                  <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
-                      {gummyProduct?.name || 'Gummy'}
-                    </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
-                      {gummyProduct?.subtitle || gummyProduct?.description || 'Deep sleep, restful nights'}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })()}
+                </div>
+                
+                {/* Product Title and Description - Not Clickable */}
+                <div className="text-center w-full">
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
+                    {product?.name || 'Product'}
+                  </h3>
+                  <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
+                    {product?.subtitle || product?.description || 'Product description'}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* DISCOVER THE PRODUCTS Button - Centered */}
