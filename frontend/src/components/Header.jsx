@@ -115,43 +115,44 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/20 backdrop-blur-xl border-b-4 border-brandBlack shadow-lg header-extra-effect">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/20 backdrop-blur-xl shadow-lg header-extra-effect">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="flex items-center justify-center rounded-lg text-white font-semibold text-base sm:text-lg" style={{ width: "148px" }}>
-              <img src = "/logos/logo_everwell_colored_green.png" />
-            </div>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <div className="flex items-center justify-center rounded-lg text-white font-semibold text-base sm:text-lg" style={{ width: "148px" }}>
+                <img src = "/logos/logo_everwell_colored_green.png" />
+              </div>
+            </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 mx-8">
-            {navLinks.map((link) => {
-              // Check if user is authenticated for product link
-              const isProductLink = link.path === '/produtos';
-              const shouldShowActive = isActive(link.path);
-              
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  state={link.path === '/produtos' && !authenticated ? { from: link.path } : undefined}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 relative ${
-                    shouldShowActive
-                      ? 'border-b-2 pb-2 font-semibold'
-                      : 'hover:bg-primary-dark/20'
-                  }`}
-                  style={{
-                    color: shouldShowActive ? '#C0DF16' : '#C0DF16',
-                    borderColor: shouldShowActive ? '#C0DF16' : 'transparent'
-                  }}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+            <nav className="hidden lg:flex items-center gap-1 mx-8">
+              {navLinks.map((link) => {
+                // Check if user is authenticated for product link
+                const isProductLink = link.path === '/produtos';
+                const shouldShowActive = isActive(link.path);
+                
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    state={link.path === '/produtos' && !authenticated ? { from: link.path } : undefined}
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 relative ${
+                      shouldShowActive
+                        ? 'border-b-2 pb-2 font-semibold'
+                        : 'hover:bg-primary-dark/20'
+                    }`}
+                    style={{
+                      color: shouldShowActive ? '#C0DF16' : '#C0DF16',
+                      borderColor: shouldShowActive ? '#C0DF16' : 'transparent'
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
 
-          <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3">
               {authenticated ? (
               <div className="flex items-center gap-2">
                 <NotificationBell />
@@ -285,6 +286,7 @@ const Header = () => {
                 </svg>
               </Link>
             )}
+            </div>
           </div>
 
           <button

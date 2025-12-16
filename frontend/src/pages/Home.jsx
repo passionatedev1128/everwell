@@ -109,8 +109,6 @@ const Home = () => {
   const testimonialsFetchedRef = useRef(false);
   const productsScrollRef = useRef(null);
   const testimonialsScrollRef = useRef(null);
-  const productsAutoScrollRef = useRef(null);
-  const testimonialsAutoScrollRef = useRef(null);
 
   // Helper function to find product by name (case-insensitive)
   const findProductByName = (productName) => {
@@ -230,121 +228,8 @@ const Home = () => {
       }
       // Reset fetch flag on unmount to allow refetch on remount
       testimonialsFetchedRef.current = false;
-      // Clear auto-scroll intervals
-      if (productsAutoScrollRef.current) {
-        clearInterval(productsAutoScrollRef.current);
-      }
-      if (testimonialsAutoScrollRef.current) {
-        clearInterval(testimonialsAutoScrollRef.current);
-      }
     };
   }, []);
-
-  // Auto-scroll for products
-  useEffect(() => {
-    if (productHighlights.length > 3 && productsScrollRef.current) {
-      const scrollContainer = productsScrollRef.current;
-      let scrollPosition = 0;
-      const scrollSpeed = 0.5; // pixels per frame (slower for smoother effect)
-      const scrollInterval = 16; // ~60fps
-      let isPaused = false;
-      let pauseTimeout = null;
-
-      const autoScroll = () => {
-        if (scrollContainer && !isPaused) {
-          const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-          scrollPosition += scrollSpeed;
-          
-          if (scrollPosition >= maxScroll) {
-            scrollPosition = 0; // Reset to start for continuous loop
-          }
-          
-          scrollContainer.scrollLeft = scrollPosition;
-        }
-      };
-
-      const handleUserInteraction = () => {
-        isPaused = true;
-        if (pauseTimeout) clearTimeout(pauseTimeout);
-        // Resume auto-scroll after 3 seconds of no interaction
-        pauseTimeout = setTimeout(() => {
-          isPaused = false;
-        }, 3000);
-      };
-
-      productsAutoScrollRef.current = setInterval(autoScroll, scrollInterval);
-      
-      // Pause on user interaction
-      scrollContainer.addEventListener('mousedown', handleUserInteraction);
-      scrollContainer.addEventListener('touchstart', handleUserInteraction);
-      scrollContainer.addEventListener('wheel', handleUserInteraction);
-
-      return () => {
-        if (productsAutoScrollRef.current) {
-          clearInterval(productsAutoScrollRef.current);
-        }
-        if (pauseTimeout) {
-          clearTimeout(pauseTimeout);
-        }
-        scrollContainer.removeEventListener('mousedown', handleUserInteraction);
-        scrollContainer.removeEventListener('touchstart', handleUserInteraction);
-        scrollContainer.removeEventListener('wheel', handleUserInteraction);
-      };
-    }
-  }, [productHighlights]);
-
-  // Auto-scroll for testimonials
-  useEffect(() => {
-    if (testimonials.length > 3 && testimonialsScrollRef.current) {
-      const scrollContainer = testimonialsScrollRef.current;
-      let scrollPosition = 0;
-      const scrollSpeed = 0.5; // pixels per frame (slower for smoother effect)
-      const scrollInterval = 16; // ~60fps
-      let isPaused = false;
-      let pauseTimeout = null;
-
-      const autoScroll = () => {
-        if (scrollContainer && !isPaused) {
-          const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-          scrollPosition += scrollSpeed;
-          
-          if (scrollPosition >= maxScroll) {
-            scrollPosition = 0; // Reset to start for continuous loop
-          }
-          
-          scrollContainer.scrollLeft = scrollPosition;
-        }
-      };
-
-      const handleUserInteraction = () => {
-        isPaused = true;
-        if (pauseTimeout) clearTimeout(pauseTimeout);
-        // Resume auto-scroll after 3 seconds of no interaction
-        pauseTimeout = setTimeout(() => {
-          isPaused = false;
-        }, 3000);
-      };
-
-      testimonialsAutoScrollRef.current = setInterval(autoScroll, scrollInterval);
-      
-      // Pause on user interaction
-      scrollContainer.addEventListener('mousedown', handleUserInteraction);
-      scrollContainer.addEventListener('touchstart', handleUserInteraction);
-      scrollContainer.addEventListener('wheel', handleUserInteraction);
-
-      return () => {
-        if (testimonialsAutoScrollRef.current) {
-          clearInterval(testimonialsAutoScrollRef.current);
-        }
-        if (pauseTimeout) {
-          clearTimeout(pauseTimeout);
-        }
-        scrollContainer.removeEventListener('mousedown', handleUserInteraction);
-        scrollContainer.removeEventListener('touchstart', handleUserInteraction);
-        scrollContainer.removeEventListener('wheel', handleUserInteraction);
-      };
-    }
-  }, [testimonials]);
 
   // Scroll functions for products
   const scrollProducts = (direction) => {
@@ -869,14 +754,14 @@ const Home = () => {
                               trackGtmEvent('product_click', { product: product.name, location: 'products_preview' });
                             }}
                           >
-                            <img 
+                            <img                                                                          
                               src={product.image} 
                               alt={product.name || 'Product - EverWell'}
                               className="w-full h-auto max-h-64 object-contain"
                               style={{ 
                                 filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
                                 cursor: 'pointer'
-                              }}
+                              }}                   
                               onError={(e) => {
                                 e.target.style.display = 'none';
                                 const placeholder = e.target.parentNode;
@@ -1066,7 +951,7 @@ const Home = () => {
             {testimonials.length > 3 ? (
               <div
                 ref={testimonialsScrollRef}
-                className="flex gap-6 sm:gap-8 md:gap-10 overflow-x-auto hide-scrollbar scroll-smooth"
+                className="flex gap-6 sm:gap-8 md:gap-10 overflow-x-auto hide-scrollbar scroll-smooth justify-center"
                 style={{
                   WebkitOverflowScrolling: 'touch',
                   cursor: 'grab',
@@ -1167,7 +1052,7 @@ const Home = () => {
               ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 justify-items-center">
                 {testimonials.map((testimonial) => (
                   <div 
                     key={testimonial.id || testimonial.name}
