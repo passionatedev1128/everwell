@@ -12,52 +12,34 @@ import { getResolvedFeedbacks } from '../utils/api';
 
 const trustBadges = [
   {
-    icon: (
-      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/>
-      </svg>
-    ),
+    icon: '/images/check.png',
     line1: 'Produtos Aprovados',
-    line2: 'pela Anvisa'
+    line2: 'pela Anvisa',
+    size: 'w-6 h-6'
   },
   {
-    icon: (
-      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-        <circle cx="9" cy="9" r="1" fill="white"/>
-        <path d="M10 16h4v-1h-4v1z" fill="white"/>
-      </svg>
-    ),
+    icon: '/images/human.png',
     line1: 'Suporte Médico',
-    line2: 'Especializado'
+    line2: 'Especializado',
+    size: 'w-6 h-6'
   },
   {
-    icon: (
-      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-      </svg>
-    ),
+    icon: '/images/car.png',
     line1: 'Entrega em',
-    line2: 'todo o Brasil'
+    line2: 'todo o Brasil',
+    size: 'w-10 h-6'
   },
   {
-    icon: (
-      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-        <path d="M9 12l1 1 3-3" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
+    icon: '/images/cart.png',
     line1: 'Compra 100%',
-    line2: 'Segura'
+    line2: 'Segura',
+    size: 'w-8 h-6'
   },
   {
-    icon: (
-      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h16v6z"/>
-      </svg>
-    ),
+    icon: '/images/book.png',
     line1: 'Embalagem',
-    line2: 'Discreta'
+    line2: 'Discreta',
+    size: 'w-6 h-6'
   }
 ];
 
@@ -242,43 +224,37 @@ const Home = () => {
     <div className="bg-transparent">
       {/* Hero Section - Focus Performance Recovery */}
       <section className="relative min-h-screen bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '95%'}}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center">
             {/* Left Side - Text Content */}
-            <div className="flex flex-col justify-center z-10">
+            <div className="font-kodchasan flex flex-col justify-center z-10">
               {/* Stacked headline: focus, performance, recovery (lowercase) */}
-              <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6">
-                <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-sans font-normal text-black leading-none lowercase" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
-                  focus
-                </h2>
-                <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-sans font-normal text-black leading-none lowercase" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
-                  performance
-                </h2>
-                <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-sans font-normal text-black leading-none lowercase" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
-                  recovery
-                </h2>
+              <div className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontFamily: 'kodchasan', fontSize: '88px' }}>
+                focus<br />
+                performance<br />
+                recovery
               </div>
-              
+              <br />
               {/* every day. in lime green */}
               <p 
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal lowercase mb-8 sm:mb-10" 
+                className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" 
                 style={{
                   color: '#C0DF16',
                   fontWeight: 400,
-                  fontFamily: 'sans-serif'
+                  fontFamily: 'kodchasan'
                 }}
               >
-                every day.
+                every day
               </p>
-              
+              <br />
               {/* OUR PRODUCTS Button */}
               <Link
                 to="/produtos"
-                className="inline-block border-2 border-black bg-transparent px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-sm"
+                className="inline-block border-2 border-black bg-transparent px-6 sm:px-8 py-3 sm:py-4 uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-sm"
                 style={{
-                  borderRadius: '4px',
+                  borderRadius: '10px',
                   maxWidth: 'fit-content',
-                  color: '#d3d3d3'
+                  color: '#C0DF16'
                 }}
                 onClick={() => {
                   trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
@@ -384,12 +360,12 @@ const Home = () => {
       </section> */}
 
       {/* Value Proposition - Unlock your next level */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20">
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white" style={{ padding: '65 0 65 0' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ minWidth: '100%'}}>
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20" style={{ minWidth: '100%'}}>
             {/* Left Side - Product Image */}
-            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-start">
-              <div className="relative w-full max-w-md">
+            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-start" style={{ minWidth: '100%'}}>
+              <div className="relative w-full max-w-md" style={{ minWidth: '20%', marginRight: '10%' }}>
                 <img 
                   src="/images/cbd-oil-product.png" 
                   alt="CBD Oil Product - EverWell"
@@ -405,28 +381,27 @@ const Home = () => {
                   }}
                 />
               </div>
-            </div>
-            
-            {/* Right Side - Text Content */}
-            <div className="w-full md:w-1/2 flex flex-col justify-center text-left">
-              <p className="text-sm text-black mb-3 md:mb-4 font-normal" style={{ fontSize: '14px', fontFamily: 'sans-serif' }}>
-                on
-              </p>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-normal text-black leading-tight mb-4 md:mb-6" style={{ fontWeight: 400, fontFamily: 'sans-serif', letterSpacing: '-0.02em' }}>
-                Unlock your next level.
-              </h2>
-              <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 400, fontFamily: 'sans-serif', letterSpacing: '-0.02em' }}>
-                It's every well.
-              </h3>
-              <p className="text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
-                We create CBD-based products for those seeking constant improvement.
-              </p>
+              {/* Right Side - Text Content */}
+              <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '100%' }}>
+                <p className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
+                  on
+                </p>
+                <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal text-black leading-tight mb-4 md:mb-6" style={{ fontWeight: 400, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
+                  Unlock your next level.
+                </p>
+                <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
+                  It's every well.
+                </h3>
+                <p className="text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, minWidth: '100%' }}>
+                  We create CBD-based products for those seeking constant improvement.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
       {/* Trust Badges - Right below header */}
-      <section className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#0f1f2b', minHeight: '80px' }}>
+      <section className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#C0DF16', padding: '15px' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12">
             {trustBadges.map((badge, index) => (
@@ -436,9 +411,9 @@ const Home = () => {
                 style={{ minWidth: '150px', flex: '1 1 auto' }}
               >
                 <div className="flex-shrink-0" style={{ color: '#C0DF16' }}>
-                  {badge.icon}
+                  <img src={badge.icon} alt={badge.alt} className={badge.size} />
                 </div>
-                <div className="flex flex-col" style={{ color: '#C0DF16' }}>
+                <div className="flex flex-col" style={{ color: 'white' }}>
                   <span className="text-xs sm:text-sm font-medium leading-tight whitespace-nowrap">{badge.line1}</span>
                   <span className="text-xs sm:text-sm font-medium leading-tight whitespace-nowrap">{badge.line2}</span>
                 </div>
