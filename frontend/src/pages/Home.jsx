@@ -371,7 +371,7 @@ const Home = () => {
       </section> */}
 
       {/* Value Proposition - Unlock your next level */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white" style={{ padding: '65 0 65 0' }}>
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white" style={{ padding: '65 0 65 0', paddingTop: '30px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ minWidth: '100%'}}>
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20" style={{ minWidth: '100%'}}>
             {/* Left Side - Product Image */}
