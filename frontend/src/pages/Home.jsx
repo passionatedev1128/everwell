@@ -236,7 +236,7 @@ const Home = () => {
       {/* Hero Section - Focus Performance Recovery */}
       <section className="relative min-h-screen bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '95%'}}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center" style = {{marginTop: "-162px"}}>
             {/* Left Side - Text Content */}
             <div className="font-kodchasan flex flex-col justify-center z-10">
               {/* Stacked headline: focus, performance, recovery (lowercase) */}

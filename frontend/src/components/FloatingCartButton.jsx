@@ -18,11 +18,16 @@ const FloatingCartButton = () => {
     }
   };
 
+  // Hide this button if user is authenticated and authorized (Header cart icon will show instead)
+  if (canAccessCart) {
+    return null;
+  }
+
   return (
     <button
       type="button"
       onClick={handleClick}
-      className="floating-cart-button fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full shadow-[0_18px_45px_-25px_rgba(15,41,61,0.7),0_8px_16px_rgba(0,0,0,0.2)] bg-primary primary-color-text-white hover:shadow-[0_24px_60px_-20px_rgba(79,179,168,0.6),0_12px_24px_rgba(0,0,0,0.3)] hover:bg-primary-dark active:bg-primary-dark/90 transition-all duration-300 hover:scale-110"
+      className="floating-cart-button fixed bottom-6 left-6 z-40 flex items-center justify-center w-14 h-14 rounded-full shadow-[0_18px_45px_-25px_rgba(15,41,61,0.7),0_8px_16px_rgba(0,0,0,0.2)] bg-primary primary-color-text-white hover:shadow-[0_24px_60px_-20px_rgba(79,179,168,0.6),0_12px_24px_rgba(0,0,0,0.3)] hover:bg-primary-dark active:bg-primary-dark/90 transition-all duration-300 hover:scale-110"
       style={{
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
