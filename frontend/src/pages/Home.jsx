@@ -1349,6 +1349,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <section className="py-12 sm:py-16 md:py-24 bg-white" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '38px' }}>
+        <img src="/images/brand.png" alt="EverWell" className="w-full h-auto object-contain" style={{ width: '30%' }} />
+      </section>
     </div>
   );
 };
