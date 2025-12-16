@@ -63,27 +63,16 @@ const trustBadges = [
 
 const processSteps = [
   {
-    number: '01',
-    title: 'Consulta & Avaliação',
-    copy: 'Conecte-se com médicos parceiros certificados e receba orientação personalizada.',
-    link: {
-      label: 'Agendar consulta',
-      href: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
-    }
+    number: '1',
+    title: 'Schedule your online consultation'
   },
   {
-    number: '02',
-    title: 'Autorização & Importação',
-    copy: 'Acompanhamos o processo regulatório e garantimos importação segura e ágil.',
-    link: {
-      label: 'Solicitar autorização',
-      href: 'https://pro.quaddro.co/yourbestversion/servicos/xUJjRT'
-    }
+    number: '2',
+    title: 'Talk to an Expert'
   },
   {
-    number: '03',
-    title: 'Entrega & Performance',
-    copy: 'Receba seus produtos com rastreio e suporte contínuo para resultados reais.'
+    number: '3',
+    title: 'Receive your products at home'
   }
 ];
 
@@ -127,6 +116,14 @@ const Home = () => {
   const [testimonials, setTestimonials] = useState([]);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
+
+  // Helper function to find product by name (case-insensitive)
+  const findProductByName = (productName) => {
+    return productHighlights.find(p => 
+      p.name.toLowerCase().includes(productName.toLowerCase()) ||
+      p.slug?.toLowerCase().includes(productName.toLowerCase())
+    );
+  };
 
   // Monitor testimonials state for debugging
   useEffect(() => {
@@ -243,6 +240,191 @@ const Home = () => {
 
   return (
     <div className="bg-transparent">
+      {/* Hero Section - Focus Performance Recovery */}
+      <section className="relative min-h-screen bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center">
+            {/* Left Side - Text Content */}
+            <div className="flex flex-col justify-center z-10">
+              {/* Stacked headline: focus, performance, recovery (lowercase) */}
+              <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6">
+                <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-sans font-normal text-black leading-none lowercase" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+                  focus
+                </h2>
+                <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-sans font-normal text-black leading-none lowercase" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+                  performance
+                </h2>
+                <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-sans font-normal text-black leading-none lowercase" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+                  recovery
+                </h2>
+              </div>
+              
+              {/* every day. in lime green */}
+              <p 
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal lowercase mb-8 sm:mb-10" 
+                style={{
+                  color: '#C0DF16',
+                  fontWeight: 400,
+                  fontFamily: 'sans-serif'
+                }}
+              >
+                every day.
+              </p>
+              
+              {/* OUR PRODUCTS Button */}
+              <Link
+                to="/produtos"
+                className="inline-block border-2 border-black bg-transparent px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-sm"
+                style={{
+                  borderRadius: '4px',
+                  maxWidth: 'fit-content',
+                  color: '#d3d3d3'
+                }}
+                onClick={() => {
+                  trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
+                  trackGtmEvent('cta_click', { cta: 'our_products', location: 'hero' });
+                }}
+              >
+                OUR PRODUCTS
+              </Link>
+            </div>
+            
+            {/* Right Side - Blurred Image */}
+            <div className="relative w-full h-full min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-lg">
+              <div 
+                className="absolute inset-0 w-full h-full bg-cover bg-center"
+                style={{
+                  backgroundImage: 'url(/images/landing_image.jpg)',
+                  filter: 'blur(30px) brightness(1.1)',
+                  transform: 'scale(1.2)',
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover'
+                }}
+              />
+              {/* Overlay with warm earthy tones (browns, beiges) */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(139, 90, 43, 0.25) 0%, rgba(205, 133, 63, 0.2) 30%, rgba(192, 223, 22, 0.3) 60%, rgba(139, 90, 43, 0.15) 100%)',
+                  mixBlendMode: 'multiply'
+                }}
+              />
+              {/* Light blues, greys, whites overlay */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(173, 216, 230, 0.15) 0%, rgba(192, 192, 192, 0.1) 50%, rgba(255, 255, 255, 0.1) 100%)',
+                  mixBlendMode: 'overlay'
+                }}
+              />
+              {/* Prominent lime green accent at bottom right */}
+              <div 
+                className="absolute bottom-0 right-0 w-2/3 h-2/3"
+                style={{
+                  background: 'radial-gradient(ellipse at bottom right, rgba(192, 223, 22, 0.6) 0%, rgba(192, 223, 22, 0.2) 50%, transparent 80%)',
+                  mixBlendMode: 'screen'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quality Statement */}
+      {/* <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary-ultra-light to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}>
+          <div className="text-center mb-8 sm:mb-12" style={{ flex: "4" }}>
+            <p className="text-lg sm:text-xl md:text-2xl font-medium text-darkTeal leading-relaxed mb-6 sm:mb-8">
+              Produtos importados, testados e com qualidade reconhecida
+            </p>
+          </div>          
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12" style={{ flex: "6" }}>
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-1.png" 
+                alt="Brand 1" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-2.png" 
+                alt="Brand 2" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-3.png" 
+                alt="Brand 3" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-4.png" 
+                alt="Brand 4" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </section> */}
+
+      {/* Value Proposition - Unlock your next level */}
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20">
+            {/* Left Side - Product Image */}
+            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-start">
+              <div className="relative w-full max-w-md">
+                <img 
+                  src="/images/cbd-oil-product.png" 
+                  alt="CBD Oil Product - EverWell"
+                  className="w-full h-auto object-contain"
+                  style={{ maxHeight: '600px' }}
+                  onError={(e) => {
+                    // Fallback if image doesn't exist - create placeholder
+                    e.target.style.display = 'none';
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg';
+                    placeholder.innerHTML = '<div class="text-gray-400 text-sm">Product Image Placeholder<br/>Add /images/cbd-oil-product.png</div>';
+                    e.target.parentNode.appendChild(placeholder);
+                  }}
+                />
+              </div>
+            </div>
+            
+            {/* Right Side - Text Content */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center text-left">
+              <p className="text-sm text-black mb-3 md:mb-4 font-normal" style={{ fontSize: '14px', fontFamily: 'sans-serif' }}>
+                on
+              </p>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-normal text-black leading-tight mb-4 md:mb-6" style={{ fontWeight: 400, fontFamily: 'sans-serif', letterSpacing: '-0.02em' }}>
+                Unlock your next level.
+              </h2>
+              <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 400, fontFamily: 'sans-serif', letterSpacing: '-0.02em' }}>
+                It's every well.
+              </h3>
+              <p className="text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+                We create CBD-based products for those seeking constant improvement.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Trust Badges - Right below header */}
       <section className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#0f1f2b', minHeight: '80px' }}>
         <div className="max-w-7xl mx-auto">
@@ -265,268 +447,117 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Hero with diagonal split and gym background */}
-      <section className="relative min-h-screen overflow-hidden">
-        {/* Gym background image */}
-        <div 
-          className="absolute top-0 left-0 right-0 w-full h-full bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(/images/landing_image.jpg)',
-            marginTop: 0,
-            paddingTop: 0,
-          }}
-        />
-        
-        {/* Frosted glass overlay on left and central parts */}
-        <div 
-          className="absolute top-0 left-0 right-0 w-full h-full hero-overlay"
-          style={{
-            background: 'linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.1) 70%, transparent 100%)',
-            marginTop: 0,
-            paddingTop: 0,
-          }}
-        />
-        
-        {/* Content */}
-        <div className="relative z-10 min-h-screen flex flex-col pt-16 sm:pt-20">
-          {/* Top section with everwell banner */}
-          <div className="pt-4 sm:pt-8 md:pt-12 px-4 sm:px-6 lg:px-8">
-            {/* Stacked headline: focus, performance, recovery */}
-            <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 relative z-20">
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-                focus
-              </h2>
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-                performance
-              </h2>
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
-                recovery
-              </h2>
-            </div>
-            
-            {/* every day. in lime green with elegant animation */}
-            <p 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-normal text-primary lowercase italic mb-12 sm:mb-16 relative z-20 animate-elegant-fade-in" 
-              style={{
-                fontFamily: "monospace",
-                animationDelay: '1.2s'
-              }}
-            >
-              every day.
-            </p>
-          </div>
-          
-          {/* Bottom section with OUR PRODUCTS button and logo */}
-          <div className="mt-auto pb-8 sm:pb-12 md:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-end justify-between gap-6 relative z-20" style = {{ display: "flex", flexDirection: "column" }}>
-            
-            {/* OUR PRODUCTS button */}
-            <Link
-              to="/produtos"
-              className="inline-block border-2 border-primary bg-transparent px-6 sm:px-8 py-3 sm:py-4 text-white uppercase font-sans font-medium text-sm sm:text-base tracking-wider hover:bg-primary hover:text-white transition-all duration-300"
-              onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
-                trackGtmEvent('cta_click', { cta: 'our_products', location: 'hero' });
-              }}
-            >
-              OUR PRODUCTS
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Quality Statement */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary-ultra-light to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}>
-          <div className="text-center mb-8 sm:mb-12" style={{ flex: "4" }}>
-            <p className="text-lg sm:text-xl md:text-2xl font-medium text-darkTeal leading-relaxed mb-6 sm:mb-8">
-              Produtos importados, testados e com qualidade reconhecida
-            </p>
-          </div>
-          
-          {/* Brand Logos */}
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12" style={{ flex: "6" }}>
-            {/* Brand Logo 1 - Add your brand logo image here */}
-            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
-              <img 
-                src="/images/brand-1.png" 
-                alt="Brand 1" 
-                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            </div>
-            
-            {/* Brand Logo 2 */}
-            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
-              <img 
-                src="/images/brand-2.png" 
-                alt="Brand 2" 
-                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            </div>
-            
-            {/* Brand Logo 3 */}
-            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
-              <img 
-                src="/images/brand-3.png" 
-                alt="Brand 3" 
-                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            </div>
-            
-            {/* Brand Logo 4 */}
-            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
-              <img 
-                src="/images/brand-4.png" 
-                alt="Brand 4" 
-                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Value Proposition */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-[#FFFEFB] via-primary-ultra-light to-[#FEFEFE]">
+      {/* Your next level in 3 Steps */}
+      <section className="py-12 sm:py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-            <h2 className="section-title text-3xl sm:text-4xl md:text-5xl highlighted-text mb-4 sm:mb-6">
-              Unlock the power of our products
+          {/* Title Section - Left Aligned */}
+          <div className="mb-12 sm:mb-16 md:mb-20 text-left">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+              Your next level
             </h2>
-            <p className="muted-text text-base sm:text-lg leading-relaxed">
-              Criamos fórmulas que funcionam de verdade, com ingredientes naturais eficazes e propósito definido. Elaborados por especialistas e analisados lote a lote para garantir excelência.
-            </p>
+            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+              in 3 Steps
+            </h3>
           </div>
-          <div className="text-center">
-            <Link
-              to="/produtos"
-              className="btn-primary inline-flex items-center gap-3"
-              onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'saiba_mais', location: 'value_proposition' });
-                trackGtmEvent('cta_click', { cta: 'saiba_mais', location: 'value_proposition' });
-              }}
-            >
-              SAIBA MAIS
-              <span aria-hidden>→</span>
-            </Link>
-          </div>
-        </div>
-      </section>
 
-      {/* Purchase Process */}
-      <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden">
-        {/* Background Image on Scroll */}
-        <div
-          ref={backgroundSectionRef}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            backgroundVisible ? 'opacity-20' : 'opacity-0'
-          }`}
-          style={{
-            backgroundImage: 'url(/images/middle_image.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="section-heading">Compra Descomplicada</p>
-            <h2 className="section-title highlighted-text">Uma experiência desenhada para alcançar resultados reais</h2>
-            <p className="muted-text">
-              Da primeira consulta à entrega, cada etapa é orientada por especialistas e acompanhada com total transparência.
-            </p>
-          </div>
-          {processSteps.length > 3 ? (
-            <Carousel
-              items={processSteps.map((step) => (
-                <div key={step.number} className="card space-y-4 mx-2 h-full flex flex-col">
-                  <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
-                  <p className="text-4xl font-heading primary-color-text-green">{step.number}</p>
-                  <h3 className="text-2xl font-semibold primary-color-text-green">{step.title}</h3>
-                  <p className="muted-text flex-grow">{step.copy}</p>
-                  {step.link && (
-                    <a
-                      href={step.link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
-                    >
-                      {step.link.label}
-                      <span aria-hidden>↗</span>
-                    </a>
-                  )}
-                </div>
-              ))}
-              itemsPerView={3}
-            />
-          ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {processSteps.map((step) => (
+          {/* Three Step Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 mb-12 sm:mb-16">
+            {processSteps.map((step) => (
               <div 
                 key={step.number} 
-                className="card space-y-3 sm:space-y-4 h-full flex flex-col cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-                onClick={() => step.link && window.open(step.link.href, '_blank', 'noopener,noreferrer')}
+                className="relative bg-white border-2 border-black rounded-lg p-6 sm:p-8 flex flex-col"
+                style={{
+                  borderRadius: '8px',
+                  minHeight: '400px'
+                }}
               >
-                <span className="text-xs sm:text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
-                <p className="text-3xl sm:text-4xl font-heading primary-color-text-green">{step.number}</p>
-                <h3 className="text-xl sm:text-2xl font-semibold primary-color-text-green">{step.title}</h3>
-                <p className="muted-text text-sm sm:text-base flex-grow">{step.copy}</p>
-                  {step.link && (
-                    <a
-                      href={step.link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
-                    >
-                      {step.link.label}
-                      <span aria-hidden>↗</span>
-                    </a>
-                  )}
+                {/* Circular Lime Green Badge - Top Left, Overlapping Border */}
+                <div 
+                  className="absolute -top-4 -left-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-10"
+                  style={{
+                    backgroundColor: '#C0DF16',
+                    border: '2px solid black',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  <span className="text-white font-bold text-xl sm:text-2xl" style={{ fontFamily: 'sans-serif' }}>
+                    {step.number}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
-          <div className="text-center mt-8 sm:mt-10">
+
+                {/* Light Lime Green Blurred Square Graphic - Centered */}
+                <div className="flex-1 flex items-center justify-center my-6 sm:my-8">
+                  <div 
+                    className="w-full h-48 sm:h-56 md:h-64 rounded-lg"
+                    style={{
+                      backgroundColor: '#C0DF16',
+                      opacity: 0.3,
+                      filter: 'blur(8px)',
+                      backgroundImage: 'url(/images/step-placeholder.jpg)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  />
+                </div>
+
+                {/* Text Below Graphic - Left Aligned */}
+                <h3 
+                  className="text-lg sm:text-xl md:text-2xl font-sans font-normal text-black text-left"
+                  style={{ 
+                    fontWeight: 400, 
+                    fontFamily: 'sans-serif',
+                    lineHeight: '1.4'
+                  }}
+                >
+                  {step.title}
+                </h3>
+              </div>
+            ))}
+          </div>
+
+          {/* START NOW Button - Centered */}
+          <div className="text-center">
             <Link
               to="/agendar"
-              className="btn-primary inline-flex items-center gap-3"
+              className="inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300"
+              style={{
+                borderRadius: '8px',
+                borderColor: '#C0DF16',
+                color: '#000000',
+                backgroundColor: 'transparent',
+                fontWeight: 500,
+                fontFamily: 'sans-serif'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#C0DF16';
+                e.target.style.color = '#000000';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+                e.target.style.color = '#000000';
+              }}
               onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
-                trackGtmEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
+                trackAnalyticsEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
+                trackGtmEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
               }}
             >
-              Inicie agora
-              <span aria-hidden>→</span>
+              START NOW
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Objective Form */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-[#FFFEFB] via-primary-ultra-light to-[#FEFEFE]">
+      {/* <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-[#FFFEFB] via-primary-ultra-light to-[#FEFEFE]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Section - Headline and Description */}
           <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6" style={{ color: '#0f1f2b' }}>
-              Sua Melhor Versão começa agora!
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 lowercase" style={{ color: '#0f1f2b' }}>
+              defina seus objetivos
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-darkTeal leading-relaxed">
               Compartilhe seus objetivos e histórico de saúde para que possamos criar a melhor estratégia de bem-estar e performance para você.
             </p>
           </div>
 
-          {/* Visual Section with Image and Text Overlays */}
           <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden" style={{ 
             backgroundColor: '#f5f5f5',
             minHeight: '500px',
@@ -534,15 +565,11 @@ const Home = () => {
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}>
-            {/* Background Image Overlay for better text readability */}
+          
             <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/40 to-transparent"></div>
-            
-            {/* Content Container */}
+
             <div className="relative z-10 flex flex-col md:flex-row items-center h-full min-h-[500px] p-6 sm:p-8 md:p-12">
-              {/* Left Side - Image Area (will be handled by background) */}
               <div className="hidden md:block md:w-1/2"></div>
-              
-              {/* Right Side - Text Overlays */}
               <div className="w-full md:w-1/2 flex flex-col justify-center items-start gap-4 sm:gap-6 text-left">
                 <p className="text-lg sm:text-xl md:text-2xl font-medium text-darkTeal leading-relaxed">
                   Atinja sua melhor perfomance, seja pessoal ou profissional.
@@ -563,7 +590,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* JotForm Modal */}
       {showJotForm && (
         <div 
           className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 transition-opacity duration-300 ${
@@ -584,7 +610,6 @@ const Home = () => {
               animation: isClosing ? 'none' : 'modalOpen 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
           >
-            {/* Close Button - Isolated Layer */}
             <div className="absolute top-6 right-6 z-[100] pointer-events-none">
               <button
                 onClick={(e) => {
@@ -611,8 +636,6 @@ const Home = () => {
                 </svg>
               </button>
             </div>
-            
-            {/* Form Container - Isolated from button */}
             <div 
               className="p-4 sm:p-6 md:p-8 overflow-y-auto max-h-[90vh] hide-scrollbar"
               style={{ 
@@ -624,362 +647,331 @@ const Home = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
-      {/* Purchase Process */}
-      <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden">
-        {/* Background Image on Scroll */}
-        <div
-          ref={backgroundSectionRef}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            backgroundVisible ? 'opacity-20' : 'opacity-0'
-          }`}
-          style={{
-            backgroundImage: 'url(/images/middle_image.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-          }}
-        />
-      </section>
-
-      {/* Products Preview */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-primary-ultra-light via-[#FFFEFB] to-[#FEFEFE]">
+      {/* Our Products */}
+      <section className="py-12 sm:py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
-            <div className="mb-4 md:mb-0">
-              <p className="section-heading text-xs sm:text-sm">Coleção exclusiva</p>
-              <h2 className="section-title text-2xl sm:text-3xl md:text-4xl highlighted-text">Produtos desenhados para performance, foco e recuperação</h2>
-            </div>
-            <Link 
-              to="/produtos" 
-              className="primary-color-text-green btn-secondary px-6 sm:px-8 py-3 text-xs sm:text-sm font-semibold tracking-wide w-full md:w-auto text-center"
+          {/* Title at Top Right */}
+          <div className="flex justify-end mb-12 sm:mb-16 md:mb-20">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+              Our Products
+            </h2>
+          </div>
+          {/* Three Product Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mb-12 sm:mb-16">
+            {/* Oil Product */}
+            {(() => {
+              const oilProduct = findProductByName('oil') || findProductByName('óleo');
+              return (
+                <Link
+                  to={oilProduct?.slug ? `/produtos/${oilProduct.slug}` : "/produtos"}
+                  className="flex flex-col items-center no-underline"
+                  style={{ textDecoration: 'none' }}
+                >
+                  {/* Product Frame with Lime Green Border */}
+                  <div 
+                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
+                    style={{
+                      border: '2px solid #C0DF16',
+                      borderRadius: '12px',
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    {/* Product Image Container with White Circular Pedestal */}
+                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
+                      {/* White Circular Pedestal with Shadow */}
+                      <div 
+                        className="absolute bottom-0 w-32 h-8 rounded-full"
+                        style={{
+                          backgroundColor: 'white',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          transform: 'translateY(50%)'
+                        }}
+                      />
+                      {/* Product Image */}
+                      <div className="relative z-10">
+                        {oilProduct?.image ? (
+                          <img 
+                            src={oilProduct.image} 
+                            alt={oilProduct.name || 'CBD Oil - EverWell'}
+                            className="w-full h-auto max-h-64 object-contain"
+                            style={{ filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const placeholder = e.target.parentNode;
+                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Oil Product Image</div></div>';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <div className="text-gray-400 text-sm">Oil Product Image</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Product Title and Description */}
+                  <div className="text-center w-full">
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+                      {oilProduct?.name || 'Oil'}
+                    </h3>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'sans-serif' }}>
+                      {oilProduct?.subtitle || oilProduct?.description || 'Increased focus and consistent performance'}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })()}
+
+            {/* Cream Product */}
+            {(() => {
+              const creamProduct = findProductByName('cream') || findProductByName('creme');
+              return (
+                <Link
+                  to={creamProduct?.slug ? `/produtos/${creamProduct.slug}` : "/produtos"}
+                  className="flex flex-col items-center no-underline"
+                  style={{ textDecoration: 'none' }}
+                >
+                  {/* Product Frame with Lime Green Border */}
+                  <div 
+                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
+                    style={{
+                      border: '2px solid #C0DF16',
+                      borderRadius: '12px',
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    {/* Product Image Container with White Circular Pedestal */}
+                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
+                      {/* White Circular Pedestal with Shadow */}
+                      <div 
+                        className="absolute bottom-0 w-32 h-8 rounded-full"
+                        style={{
+                          backgroundColor: 'white',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          transform: 'translateY(50%)'
+                        }}
+                      />
+                      {/* Product Image */}
+                      <div className="relative z-10">
+                        {creamProduct?.image ? (
+                          <img 
+                            src={creamProduct.image} 
+                            alt={creamProduct.name || 'CBD Cream - EverWell'}
+                            className="w-full h-auto max-h-64 object-contain"
+                            style={{ filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const placeholder = e.target.parentNode;
+                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Cream Product Image</div></div>';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <div className="text-gray-400 text-sm">Cream Product Image</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Product Title and Description */}
+                  <div className="text-center w-full">
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+                      {creamProduct?.name || 'Cream'}
+                    </h3>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'sans-serif' }}>
+                      {creamProduct?.subtitle || creamProduct?.description || 'Instant relief and fast recovery.'}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })()}
+
+            {/* Gummy Product */}
+            {(() => {
+              const gummyProduct = findProductByName('gummy') || findProductByName('gummies') || findProductByName('goma');
+              return (
+                <Link
+                  to={gummyProduct?.slug ? `/produtos/${gummyProduct.slug}` : "/produtos"}
+                  className="flex flex-col items-center no-underline"
+                  style={{ textDecoration: 'none' }}
+                >
+                  {/* Product Frame with Lime Green Border */}
+                  <div 
+                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
+                    style={{
+                      border: '2px solid #C0DF16',
+                      borderRadius: '12px',
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    {/* Product Image Container with White Circular Pedestal */}
+                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
+                      {/* White Circular Pedestal with Shadow */}
+                      <div 
+                        className="absolute bottom-0 w-32 h-8 rounded-full"
+                        style={{
+                          backgroundColor: 'white',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          transform: 'translateY(50%)'
+                        }}
+                      />
+                      {/* Product Image */}
+                      <div className="relative z-10">
+                        {gummyProduct?.image ? (
+                          <img 
+                            src={gummyProduct.image} 
+                            alt={gummyProduct.name || 'CBD Gummies - EverWell'}
+                            className="w-full h-auto max-h-64 object-contain"
+                            style={{ filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const placeholder = e.target.parentNode;
+                              placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Gummy Product Image</div></div>';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <div className="text-gray-400 text-sm">Gummy Product Image</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Product Title and Description */}
+                  <div className="text-center w-full">
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+                      {gummyProduct?.name || 'Gummy'}
+                    </h3>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'sans-serif' }}>
+                      {gummyProduct?.subtitle || gummyProduct?.description || 'Deep sleep, restful nights'}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })()}
+          </div>
+
+          {/* DISCOVER THE PRODUCTS Button - Centered */}
+          <div className="text-center">
+            <Link
+              to="/produtos"
+              className="inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300"
+              style={{
+                borderRadius: '8px',
+                borderColor: '#C0DF16',
+                color: '#000000',
+                backgroundColor: 'white',
+                fontWeight: 500,
+                fontFamily: 'sans-serif'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#C0DF16';
+                e.target.style.color = '#000000';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'white';
+                e.target.style.color = '#000000';
+              }}
               onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'conheca_produtos', location: 'products_preview' });
-                trackGtmEvent('cta_click', { cta: 'conheca_produtos', location: 'products_preview' });
+                trackAnalyticsEvent('cta_click', { cta: 'discover_products', location: 'products_preview' });
+                trackGtmEvent('cta_click', { cta: 'discover_products', location: 'products_preview' });
               }}
             >
-              Conheça os produtos
+              DISCOVER THE PRODUCTS
             </Link>
           </div>
-          {productHighlights.length >= 3 ? (
-            <Carousel
-              items={productHighlights.map((product, index) => (
-                <Link 
-                  key={product.name} 
-                  to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
-                  className="product-card mx-2 relative flex flex-col bg-white rounded-[32px] overflow-hidden transition-all duration-700 ease-out hover:scale-[1.02] hover:-translate-y-2 cursor-pointer group"
-                  style={{ 
-                    minHeight: '520px', 
-                    height: '520px', 
-                    width: '100%', 
-                    textDecoration: 'none',
-                    border: '1px solid rgba(192, 223, 22, 0.08)',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(192, 223, 22, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08)';
-                    e.currentTarget.style.borderColor = 'rgba(192, 223, 22, 0.2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)';
-                    e.currentTarget.style.borderColor = 'rgba(192, 223, 22, 0.08)';
-                  }}
-                >
-                  {/* Elegant top border accent */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
-                  
-                  {/* Image section with refined presentation */}
-                  <div className="relative mt-10 mx-8 mb-8 flex items-center justify-center flex-shrink-0" style={{ height: '260px', minHeight: '260px' }}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-white to-primary/5 rounded-[24px]"></div>
-                    <div className="relative w-full h-full flex items-center justify-center p-8">
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="w-full h-full object-contain relative z-10 transition-all duration-700 group-hover:scale-110"
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '260px', 
-                          filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08))'
-                        }}
-                        onError={(e) => {
-                          e.target.src = '';
-                        }}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Content section with refined typography */}
-                  <div className="px-8 pb-8 flex flex-col flex-grow justify-between">
-                    <div>
-                      <h3 
-                        className="text-xl font-semibold mb-2 transition-colors duration-300 group-hover:text-primary primary-color-text-green" 
-                        style={{ 
-                          color: '#1A1A1A',
-                          letterSpacing: '-0.01em',
-                          lineHeight: '1.3',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {product.name}
-                      </h3>
-                      {product.subtitle && (
-                        <p 
-                          className="text-sm primary-color-text-green mb-4 leading-relaxed"
-                          style={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          }}
-                        >
-                          {product.subtitle}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-baseline justify-between pt-4 border-t border-primary/10">
-                      <div>
-                        <span className="text-2xl font-bold text-primary" style={{ lineHeight: '1.2', marginBottom: '5px', whiteSpace: 'nowrap' }}>
-                          R$ {product.price ? product.price.toFixed(2).replace('.', ',') : '0,00'}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="text-sm font-medium mr-2">Ver detalhes</span>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              itemsPerView={3}
-            />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-              {productHighlights.map((product) => (
-                <Link
-                  key={product.name}
-                  to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
-                  className="product-card relative flex flex-col bg-white rounded-[32px] overflow-hidden transition-all duration-700 ease-out hover:scale-[1.02] hover:-translate-y-2 cursor-pointer group"
-                  style={{
-                    textDecoration: 'none',
-                    border: '1px solid rgba(192, 223, 22, 0.08)',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)',
-                    minHeight: '520px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(192, 223, 22, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08)';
-                    e.currentTarget.style.borderColor = 'rgba(192, 223, 22, 0.2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)';
-                    e.currentTarget.style.borderColor = 'rgba(192, 223, 22, 0.08)';
-                  }}
-                >
-                  {/* Elegant top border accent */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
-                  
-                  {/* Image section */}
-                  <div className="relative mt-10 mx-8 mb-8 flex items-center justify-center flex-shrink-0" style={{ height: '260px', minHeight: '260px' }}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-white to-primary/5 rounded-[24px]"></div>
-                    <div className="relative w-full h-full flex items-center justify-center p-8">
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="w-full h-full object-contain relative z-10 transition-all duration-700 group-hover:scale-110"
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '260px', 
-                          filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08))'
-                        }}
-                        onError={(e) => {
-                          e.target.src = '';
-                        }}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Content section */}
-                  <div className="px-8 pb-8 flex flex-col flex-grow justify-between">
-                    <div>
-                      <h3 
-                        className="text-xl font-semibold mb-2 transition-colors duration-300 group-hover:text-primary" 
-                        style={{ 
-                          color: '#1A1A1A',
-                          letterSpacing: '-0.01em',
-                          lineHeight: '1.3',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {product.name}
-                      </h3>
-                      {product.subtitle && (
-                        <p 
-                          className="text-sm text-mediumTeal mb-3 leading-relaxed"
-                          style={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          }}
-                        >
-                          {product.subtitle}
-                        </p>
-                      )}
-                      {product.description && (
-                        <p className="text-mediumTeal text-sm leading-relaxed mb-4 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-baseline justify-between pt-4 border-t border-primary/10">
-                      <div>
-                        <span className="text-xs font-medium text-mediumTeal uppercase tracking-wider block mb-1">Preço</span>
-                        <span className="text-2xl font-bold text-primary" style={{ lineHeight: '1.2', whiteSpace: 'nowrap' }}>
-                          R$ {product.price ? product.price.toFixed(2).replace('.', ',') : '0,00'}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="text-sm font-medium mr-2">Ver detalhes</span>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
-      {/* Testimonials - Only show if there are resolved feedbacks */}
+      {/* Testimonials - We are recognized */}
       {testimonials && testimonials.length > 0 && (
-      <section className="py-12 sm:py-16 md:py-24" data-testimonials-count={testimonials.length}>
+      <section className="py-12 sm:py-16 md:py-24 bg-white" data-testimonials-count={testimonials.length}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-14">
-            <p className="section-heading text-xs sm:text-sm">Satisfied customers</p>
-            <h2 className="section-title text-2xl sm:text-3xl md:text-4xl highlighted-text">Histórias reais de alta performance com EverWell</h2>
-            <p className="muted-text text-sm sm:text-base">
-              Resultados sustentáveis, suporte contínuo e uma comunidade que vive bem-estar todos os dias.
-            </p>
+          {/* Heading - Left Aligned */}
+          <div className="text-left mb-12 sm:mb-16 md:mb-20">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+              We are recognized.
+            </h2>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+              For those who matter,
+            </h3>
+            <h4 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 700, fontFamily: 'sans-serif', color: '#C0DF16' }}>
+              YOU
+            </h4>
           </div>
-          {testimonials.length > 3 ? (
-            <Carousel
-              items={testimonials.map((testimonial) => (
-                <div key={testimonial.id || testimonial.name} className="px-2 h-full" style={{ width: '100%' }}>
-                  <div 
-                    className="card text-left flex flex-col transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full"
-                    style={{
-                      transform: 'perspective(1000px) rotateX(0deg)',
-                      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                      minHeight: '280px',
-                      height: '280px',
-                      padding: '1.5rem',
-                      width: '100%'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'perspective(1000px) rotateX(2deg) translateY(-8px)';
-                      e.currentTarget.style.boxShadow = '0 20px 60px -15px rgba(79, 179, 168, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(0px)';
-                      e.currentTarget.style.boxShadow = '';
-                    }}
-                  >
-                    {/* Avatar and Name Section - Fixed Height */}
-                    <div className="flex items-center gap-4 mb-4" style={{ minHeight: '56px', height: '56px' }}>
-                      <img
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40 flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary truncate">{testimonial.name}</p>
-                      </div>
-                    </div>
-                    {/* Stars Section - Fixed Height */}
-                    <div className="flex items-center gap-1 mb-4" style={{ minHeight: '24px', height: '24px' }}>
-                      {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110 flex-shrink-0" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    {/* Quote Section - Fixed Height with Overflow */}
-                    <div className="flex-1 overflow-hidden" style={{ minHeight: '120px', maxHeight: '120px' }}>
-                      <p className="text-darkTeal/80 leading-relaxed" style={{ 
-                        display: '-webkit-box',
-                        WebkitLineClamp: 5,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>"{testimonial.quote}"</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              itemsPerView={3}
-            />
-          ) : (
-            <div className={`${testimonials.length <= 2 ? 'flex flex-wrap justify-center' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3'} gap-4 sm:gap-6 md:gap-8 justify-items-center`}>
-              {testimonials.map((testimonial) => (
+          {/* Three Testimonial Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
+            {testimonials.slice(0, 3).map((testimonial) => (
               <div 
-                key={testimonial.id || testimonial.name} 
-                className="card text-left flex flex-col transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer hover:border-primary/40 border-2 border-transparent group h-full w-full max-w-sm mx-auto"
+                key={testimonial.id || testimonial.name}
+                className="flex flex-col items-center"
                 style={{
-                  transform: 'perspective(1000px) rotateX(0deg)',
-                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                  minHeight: '280px',
-                  height: '280px',
-                  padding: '1.5rem'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'perspective(1000px) rotateX(2deg) translateY(-8px)';
-                  e.currentTarget.style.boxShadow = '0 20px 60px -15px rgba(79, 179, 168, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(0px)';
-                  e.currentTarget.style.boxShadow = '';
+                  border: '2px solid black',
+                  borderRadius: '12px',
+                  backgroundColor: '#C0DF16',
+                  padding: '2rem',
+                  minHeight: '400px'
                 }}
               >
-                {/* Avatar and Name Section - Fixed Height */}
-                <div className="flex items-center gap-4 mb-4" style={{ minHeight: '56px', height: '56px' }}>
+                {/* Person Image - Centered */}
+                <div className="mb-4 flex items-center justify-center">
                   <img
                     src={testimonial.avatar}
                     alt={testimonial.name}
-                    className="w-14 h-14 rounded-2xl object-cover border-4 border-white/60 transition-transform duration-500 group-hover:scale-110 group-hover:border-primary/40 flex-shrink-0"
+                    className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover"
+                    style={{
+                      border: '3px solid white',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                    }}
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80';
+                    }}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-darkTeal transition-colors duration-300 group-hover:text-primary truncate">{testimonial.name}</p>
-                  </div>
                 </div>
-                {/* Stars Section - Fixed Height */}
-                <div className="flex items-center gap-1 mb-4" style={{ minHeight: '24px', height: '24px' }}>
+
+                {/* Name - Bold Black */}
+                <h3 
+                  className="text-xl sm:text-2xl font-bold text-black mb-4 text-center"
+                  style={{ 
+                    fontWeight: 700, 
+                    fontFamily: 'sans-serif' 
+                  }}
+                >
+                  {testimonial.name}
+                </h3>
+
+                {/* Testimonial Text */}
+                <p 
+                  className="text-sm sm:text-base text-black mb-4 text-center flex-grow"
+                  style={{ 
+                    fontFamily: 'sans-serif',
+                    lineHeight: '1.6'
+                  }}
+                >
+                  "{testimonial.quote}"
+                </p>
+
+                {/* 5 Yellow Stars */}
+                <div className="flex items-center justify-center gap-1 mt-auto">
                   {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current transition-transform duration-300 group-hover:scale-110 flex-shrink-0" style={{ transitionDelay: `${i * 50}ms` }} viewBox="0 0 20 20" fill="currentColor">
+                    <svg 
+                      key={i} 
+                      className="w-5 h-5 sm:w-6 sm:h-6 fill-current" 
+                      style={{ color: '#FFD700' }}
+                      viewBox="0 0 20 20"
+                    >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
-                {/* Quote Section - Fixed Height with Overflow */}
-                <div className="flex-1 overflow-hidden" style={{ minHeight: '120px', maxHeight: '120px' }}>
-                  <p className="text-darkTeal/80 leading-relaxed" style={{ 
-                    display: '-webkit-box',
-                    WebkitLineClamp: 5,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>"{testimonial.quote}"</p>
-                </div>
               </div>
             ))}
-            </div>
-          )}
+          </div>
         </div>
       </section>
       )}
@@ -988,7 +980,7 @@ const Home = () => {
       <section className="py-12 sm:py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-14">
-            <p className="section-heading text-xs sm:text-sm">Por que EverWell</p>
+            <p className="section-heading text-xs sm:text-sm">Por que a EverWell ?</p>
             <h2 className="section-title text-2xl sm:text-3xl md:text-4xl highlighted-text">Uma plataforma completa para alta performance e bem-estar</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
@@ -1238,7 +1230,7 @@ const Home = () => {
             <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 sm:gap-8 md:gap-10">
               <div className="max-w-2xl space-y-3 sm:space-y-4">
                 <p className="section-heading text-white/70 text-xs sm:text-sm">Pronto para começar?</p>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight text-white">Sua melhor versão começa agora</h2>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight text-white">Sua Melhor Versão começa agora!</h2>
                 <p className="text-white/75 text-sm sm:text-base">
                   Avance para seu próximo nível com fórmulas EverWell, acompanhamento premium e métricas claras.
                 </p>
