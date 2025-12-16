@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-[#C0DF16] text-white py-8 sm:py-10 md:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 md:gap-12">
+    <footer className="bg-[#C0DF16] text-white py-8 sm:py-10 md:py-12" style={{ color: 'white' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ minWidth: '85%' }}>
+        <div className="flex flex-row justify-between">
           {/* Left Column - Logo and Copyright */}
           <div className="flex flex-col">
             {/* Logo - Stylized "ew" or "w" */}
@@ -12,40 +12,43 @@ const Footer = () => {
               <div 
                 className="text-6xl sm:text-7xl md:text-8xl font-bold" 
                 style={{ 
-                  fontFamily: 'sans-serif', 
+                  fontFamily: 'kodchasan', 
                   fontWeight: 700, 
                   letterSpacing: '-0.08em',
                   lineHeight: '1',
                   fontStyle: 'italic'
-                }}
+                }}                                            
               >
-                ew
+                <img src="/logos/logo_we_colored_white.png" alt="EverWell" className="w-full h-auto object-contain" style={{ width: '175px', marginLeft: '29px' }} />
               </div>
             </div>
             {/* Copyright */}
-            <p className="text-sm sm:text-base font-normal" style={{ fontFamily: 'sans-serif' }}>
-              Copyright 2025 EverWell. All rights reserved.
+            <p className="text-sm sm:text-base font-normal text-white" style={{ fontFamily: 'kodchasan' }}>
+              Copyright 2025 EverWell.
+            </p>
+            <p className="text-sm sm:text-base font-normal text-white" style={{ fontFamily: 'kodchasan', marginTop: '-20px', marginLeft: '29px' }}>
+              All rights reserved.
             </p>
           </div>
 
           {/* Middle Column - Legal and Informational Text */}
-          <div className="flex flex-col space-y-3 sm:space-y-4">
-            <p className="text-sm sm:text-base font-normal leading-relaxed" style={{ fontFamily: 'sans-serif' }}>
+          <div className="flex flex-col space-y-3 sm:space-y-4" style={{ alignItems: 'center' }}>
+            <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
               Terms and Conditions for Healthcare Professionals | Terms and Conditions for Patients
             </p>
-            <p className="text-sm sm:text-base font-normal leading-relaxed" style={{ fontFamily: 'sans-serif' }}>
+            <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
               EverWell is not intended to diagnose, treat, cure, or prevent any disease.
             </p>
-            <p className="text-sm sm:text-base font-normal leading-relaxed" style={{ fontFamily: 'sans-serif' }}>
+            <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
               We connect doctors and patients.
             </p>
-            <p className="text-sm sm:text-base font-normal leading-relaxed" style={{ fontFamily: 'sans-serif' }}>
+            <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
               The medications presented are under study and already have thousands of research studies and proven cases worldwide.
             </p>
           </div>
 
           {/* Right Column - Social Media Icons and Contact Links */}
-          <div className="flex flex-col">
+          <div className="flex flex-col" style={{ alignItems: 'flex-end' }}>
             {/* Social Media Icons */}
             <div className="flex gap-4 mb-6 sm:mb-8">
               {/* Facebook Icon */}
@@ -90,22 +93,22 @@ const Footer = () => {
             <div className="flex flex-col space-y-2 sm:space-y-3">
               <Link 
                 to="/duvidas" 
-                className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity"
-                style={{ fontFamily: 'sans-serif' }}
+                className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
+                style={{ fontFamily: 'kodchasan' }}
               >
                 Contact
               </Link>
               <Link 
                 to="/duvidas" 
-                className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity"
-                style={{ fontFamily: 'sans-serif' }}
+                className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
+                style={{ fontFamily: 'kodchasan' }}
               >
                 Exchange Policy
               </Link>
               <Link 
                 to="/duvidas" 
-                className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity"
-                style={{ fontFamily: 'sans-serif' }}
+                className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
+                style={{ fontFamily: 'kodchasan' }}
               >
                 Privacy Policy
               </Link>
