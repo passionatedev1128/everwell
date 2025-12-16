@@ -106,8 +106,13 @@ const Home = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [productHighlights, setProductHighlights] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  const [smokeParticles, setSmokeParticles] = useState([]);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [prevMousePos, setPrevMousePos] = useState({ x: 0, y: 0 });
+  const [fireworkVisible, setFireworkVisible] = useState(false);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
+  const heroSectionRef = useRef(null);
 
   // Helper function to find product by name (case-insensitive)
   const findProductByName = (productName) => {
@@ -129,6 +134,62 @@ const Home = () => {
       setIsClosing(false);
     }, 300); // Match animation duration
   };
+
+  // Mouse tracking and smoke particles
+  useEffect(() => {
+    let animationFrameId;
+    
+    const handleMouseMove = (e) => {
+      const newPos = { x: e.clientX, y: e.clientY };
+      
+      // Calculate mouse movement direction
+      const dx = newPos.x - prevMousePos.x;
+      const dy = newPos.y - prevMousePos.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Only create smoke particles if mouse moved enough
+      if (distance > 5 && prevMousePos.x !== 0 && prevMousePos.y !== 0) {
+        // Create a small smoke particle
+        const angle = Math.atan2(dy, dx);
+        const speed = Math.min(distance * 0.5, 30);
+        
+        const particle = {
+          id: Date.now() + Math.random(),
+          x: newPos.x,
+          y: newPos.y,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
+        };
+        
+        setSmokeParticles(prev => [...prev.slice(-15), particle]);
+        
+        // Remove particle after animation
+        setTimeout(() => {
+          setSmokeParticles(prev => prev.filter(p => p.id !== particle.id));
+        }, 600);
+      }
+      
+      setPrevMousePos(newPos);
+      setMousePos(newPos);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [prevMousePos]);
+
+  // Firework effect for "every day" text
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFireworkVisible(true);
+      setTimeout(() => setFireworkVisible(false), 800);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     initScrollAnimations();
@@ -232,40 +293,120 @@ const Home = () => {
 
 
   return (
-    <div className="bg-transparent">
+    <div 
+      className="bg-transparent relative"
+      style={{
+        background: 'linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 50%, #FFFFFF 100%)',
+        position: 'relative'
+      }}
+    >
+      {/* Subtle background effect - pleasing and non-stimulating */}
+      <div className="homepage-bg-effect" />
+      
+      {/* Mouse smoke particles */}
+      {smokeParticles.map(particle => (
+        <div
+          key={particle.id}
+          className="mouse-smoke-particle"
+          style={{
+            left: `${particle.x}px`,
+            top: `${particle.y}px`,
+            opacity: 0.8,
+            transform: 'translate(0, 0) scale(1)',
+            animation: `smokeFloat${particle.id} 0.6s ease-out forwards`,
+          }}
+        >
+          <style>{`
+            @keyframes smokeFloat${particle.id} {
+              0% {
+                opacity: 0.8;
+                transform: translate(0, 0) scale(1);
+              }
+              100% {
+                opacity: 0;
+                transform: translate(${particle.dx}px, ${particle.dy}px) scale(2.5);
+              }
+            }
+          `}</style>
+        </div>
+      ))}
+      <div className="relative z-10">
       {/* Hero Section - Focus Performance Recovery */}
-      <section className="relative min-h-screen bg-white overflow-hidden">
+      <section ref={heroSectionRef} className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '95%'}}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center" style = {{marginTop: "-162px"}}>
             {/* Left Side - Text Content */}
             <div className="font-kodchasan flex flex-col justify-center z-10">
-              {/* Stacked headline: focus, performance, recovery (lowercase) */}
+              {/* Stacked headline: focus, performance, recovery (lowercase) with cascading animation */}
               <div className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontFamily: 'kodchasan', fontSize: '88px' }}>
-                focus<br />
-                performance<br />
-                recovery
+                <span className="cascade-text-0 inline-block">focus</span><br />
+                <span className="cascade-text-1 inline-block">performance</span><br />
+                <span className="cascade-text-2 inline-block">recovery</span>
               </div>
               <br />
-              {/* every day. in lime green */}
-              <p 
-                className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" 
-                style={{
-                  color: '#C0DF16',
-                  fontWeight: 400,
-                  fontFamily: 'kodchasan'
-                }}
-              >
-                every day
-              </p>
+              
+              {/* every day. in lime green - appears after firework */}
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                {/* Firework burst effect */}
+                {fireworkVisible && (
+                  <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 100 }}>
+                    {[...Array(12)].map((_, i) => {
+                      const angle = (i / 12) * Math.PI * 2;
+                      const distance = 40;
+                      const x = Math.cos(angle) * distance;
+                      const y = Math.sin(angle) * distance;
+                      return (
+                        <div
+                          key={i}
+                          className="firework-particle"
+                          style={{
+                            left: '50%',
+                            top: '50%',
+                            animation: `fireworkExplode${i} 0.8s ease-out forwards`,
+                          }}
+                        >
+                          <style>{`
+                            @keyframes fireworkExplode${i} {
+                              0% {
+                                opacity: 0;
+                                transform: translate(-50%, -50%) scale(0);
+                              }
+                              50% {
+                                opacity: 1;
+                                transform: translate(-50%, -50%) scale(1);
+                              }
+                              100% {
+                                opacity: 0;
+                                transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1.5);
+                              }
+                            }
+                          `}</style>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <p 
+                  className="fade-in-after-firework text-5xl md:text-6xl leading-[1.05] font-normal" 
+                  style={{
+                    color: '#C0DF16',
+                    fontWeight: 400,
+                    fontFamily: 'kodchasan'
+                  }}
+                >
+                  every day
+                </p>
+              </div>
               <br />
-              {/* OUR PRODUCTS Button */}
+              {/* OUR PRODUCTS Button - descends after "every day" */}
               <Link
                 to="/produtos"
-                className="inline-block border-2 border-black bg-transparent px-6 sm:px-8 py-3 sm:py-4 uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-sm"
+                className="button-descend inline-block border-2 border-black bg-transparent px-6 sm:px-8 py-3 sm:py-4 uppercase tracking-wider transition-all duration-300 rounded-sm"
                 style={{
                   borderRadius: '10px',
                   maxWidth: 'fit-content',
-                  color: '#C0DF16'
+                  color: '#C0DF16',
+                  borderColor: '#C0DF16'
                 }}
                 onClick={() => {
                   trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
@@ -276,8 +417,8 @@ const Home = () => {
               </Link>
             </div>
             
-            {/* Right Side - Blurred Image */}
-            <div className="relative w-full h-full min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-lg">
+            {/* Right Side - Blurred Image with fade in from right */}
+            <div className="fade-in-from-right relative w-full h-full min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-lg">
               <div 
                 className="absolute inset-0 w-full h-full bg-cover bg-center"
                 style={{
@@ -371,7 +512,7 @@ const Home = () => {
       </section> */}
 
       {/* Value Proposition - Unlock your next level */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white" style={{ padding: '65 0 65 0', paddingTop: '30px' }}>
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32" style={{ padding: '65 0 65 0', paddingTop: '30px', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ minWidth: '100%'}}>
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20" style={{ minWidth: '100%'}}>
             {/* Left Side - Product Image */}
@@ -397,7 +538,14 @@ const Home = () => {
                 <p className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
                   on
                 </p>
-                <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal text-black leading-tight mb-4 md:mb-6" style={{ fontWeight: 400, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
+                <p 
+                  className="unlock-gradient-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight mb-4 md:mb-6" 
+                  style={{ 
+                    fontWeight: 400, 
+                    fontFamily: 'kodchasan', 
+                    letterSpacing: '-0.02em'
+                  }}
+                >
                   Unlock your next level.
                 </p>
                 <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
@@ -434,7 +582,7 @@ const Home = () => {
         </div>
       </section>
       {/* Your next level in 3 Steps */}
-      <section className="py-12 sm:py-16 md:py-24 bg-white">
+      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title Section - Left Aligned */}
           <div className="mb-12 sm:mb-16 md:mb-20 text-left">
@@ -638,7 +786,7 @@ const Home = () => {
       )} */}
 
       {/* Our Products */}
-      <section className="py-12 sm:py-16 md:py-24 bg-white">
+      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title at Top Right */}
           <div className="flex justify-end mb-12 sm:mb-16 md:mb-20">
@@ -758,7 +906,7 @@ const Home = () => {
 
       {/* Testimonials - We are recognized */}
       {testimonials && testimonials.length > 0 && (
-      <section className="py-12 sm:py-16 md:py-24 bg-white" data-testimonials-count={testimonials.length}>
+      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }} data-testimonials-count={testimonials.length}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Heading - Left Aligned */}
           <div className="text-left mb-12 sm:mb-16 md:mb-20">
@@ -1092,7 +1240,7 @@ const Home = () => {
       </section> */}
 
       {/* CTA - Your best version starts now */}
-      <section className="relative min-h-screen bg-white overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '69%'}}>
           {/* Left Side - Blurred Image (1/3 width) */}
           <div className="w-full md:w-1/3 relative overflow-hidden">
@@ -1219,7 +1367,7 @@ const Home = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary/5 to-white">
+      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <p className="section-heading text-xs sm:text-sm">FAQ EverWell</p>
@@ -1237,9 +1385,10 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="py-12 sm:py-16 md:py-24 bg-white" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '38px' }}>
+      <section className="py-12 sm:py-16 md:py-24" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '38px', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <img src="/images/brand.png" alt="EverWell" className="w-full h-auto object-contain" style={{ width: '30%' }} />
       </section>
+      </div>
     </div>
   );
 };

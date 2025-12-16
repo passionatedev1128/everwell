@@ -2052,3 +2052,154 @@ select#address\\.country.country-select.form-input option:disabled {
   position: absolute;
   left: 0;
 }
+
+/* Homepage Background Animation - Subtle and pleasing */
+@keyframes subtleBgPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.homepage-bg-effect {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(192, 223, 22, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(192, 223, 22, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(192, 223, 22, 0.04) 0%, transparent 50%);
+  animation: subtleBgPulse 8s ease-in-out infinite;
+}
+
+/* Mouse Smoke Cloud Particles */
+.mouse-smoke-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192, 223, 22, 0.8), rgba(168, 197, 18, 0.4));
+  box-shadow: 0 0 8px rgba(192, 223, 22, 0.6);
+  transform-origin: center;
+}
+
+/* Cascading Text Animation - Left to Right */
+@keyframes cascadeInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.cascade-text-0 {
+  animation: cascadeInFromLeft 0.8s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.cascade-text-1 {
+  animation: cascadeInFromLeft 0.8s ease-out 0.6s forwards;
+  opacity: 0;
+}
+
+.cascade-text-2 {
+  animation: cascadeInFromLeft 0.8s ease-out 0.9s forwards;
+  opacity: 0;
+}
+
+/* Image Fade In from Right */
+@keyframes fadeInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-from-right {
+  animation: fadeInFromRight 1s ease-out 1.2s forwards;
+  opacity: 0;
+}
+
+/* Firework Burst Animation */
+.firework-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C0DF16;
+  box-shadow: 0 0 12px #C0DF16, 0 0 24px rgba(192, 223, 22, 0.6);
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Every Day Text Fade In After Firework */
+@keyframes fadeInAfterFirework {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-in-after-firework {
+  animation: fadeInAfterFirework 0.6s ease-out 1.8s forwards;
+  opacity: 0;
+}
+
+/* Button Descend Animation */
+@keyframes buttonDescend {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.button-descend {
+  animation: buttonDescend 0.8s ease-out 2.4s forwards;
+  opacity: 0;
+}
+
+/* Unlock Your Next Level Gradient Text */
+.unlock-gradient-text {
+  background: linear-gradient(135deg, #C0DF16 0%, #A8C512 25%, #D4E83A 50%, #E8F15C 75%, #C0DF16 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  text-shadow: 0 0 30px rgba(192, 223, 22, 0.5);
+  filter: drop-shadow(0 2px 4px rgba(192, 223, 22, 0.3));
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+#our-products-button:hover {
+  color: white !important;
+  background-color: #C0DF16 !important;
+}
