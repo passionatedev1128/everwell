@@ -115,7 +115,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const scrollAmount = 425; // Scroll by card width + gap
+      const scrollAmount = 430; // Scroll by card width + gap
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
