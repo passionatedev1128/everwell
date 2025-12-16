@@ -12,20 +12,52 @@ import { getResolvedFeedbacks } from '../utils/api';
 
 const trustBadges = [
   {
-    title: 'Suporte Médico Premium',
-    subtitle: 'Equipe especializada para acompanhar cada etapa'
+    icon: (
+      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/>
+      </svg>
+    ),
+    line1: 'Produtos Aprovados',
+    line2: 'pela Anvisa'
   },
   {
-    title: 'Conformidade total Anvisa',
-    subtitle: 'Produtos auditados e aprovados lote a lote'
+    icon: (
+      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+        <circle cx="9" cy="9" r="1" fill="white"/>
+        <path d="M10 16h4v-1h-4v1z" fill="white"/>
+      </svg>
+    ),
+    line1: 'Suporte Médico',
+    line2: 'Especializado'
   },
   {
-    title: 'Entrega em todo Brasil',
-    subtitle: 'Logística discreta e rastreável'
+    icon: (
+      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+      </svg>
+    ),
+    line1: 'Entrega em',
+    line2: 'todo o Brasil'
   },
   {
-    title: 'Compra 100% Segura',
-    subtitle: 'Protocolos de segurança avançados'
+    icon: (
+      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        <path d="M9 12l1 1 3-3" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    line1: 'Compra 100%',
+    line2: 'Segura'
+  },
+  {
+    icon: (
+      <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h16v6z"/>
+      </svg>
+    ),
+    line1: 'Embalagem',
+    line2: 'Discreta'
   }
 ];
 
@@ -61,23 +93,23 @@ const processSteps = [
 const differentiators = [
   {
     icon: '✨',
-    title: 'Formulações exclusivas',
-    copy: 'Desenvolvidas por especialistas e testadas lote a lote com laudos certificados.'
+    title: 'Qualidade é Inegociável',
+    copy: 'Produtos importados, testados e com qualidade reconhecida. Desenvolvidas por especialistas e testadas lote a lote com laudos certificados.'
   },
   {
     icon: '🛡️',
-    title: 'Compliance integral',
-    copy: 'Estrutura regulatória robusta, seguindo rigorosamente RDC 327/2019 e 660/2022.'
+    title: 'Transparência e Conformidade Legal',
+    copy: 'Estrutura regulatória robusta, seguindo rigorosamente RDC 327/2019 e 660/2022. Total conformidade com a Anvisa.'
   },
   {
     icon: '🤝',
-    title: 'Acompanhamento contínuo',
-    copy: 'Equipe dedicada para ajustar protocolos e potencializar resultados.'
+    title: 'Foco em Wellness',
+    copy: 'Produtos desenhados para promover bem-estar e alta performance, apoiando sua jornada pessoal ou profissional.'
   },
   {
     icon: '📊',
-    title: 'Insights orientados a dados',
-    copy: 'Dashboard completo para monitorar evolução, adesão e performance.'
+    title: 'Acompanhamento de Ponta a Ponta',
+    copy: 'Equipe dedicada para ajustar protocolos e potencializar resultados. Dashboard completo para monitorar evolução.'
   }
 ];
 
@@ -211,8 +243,31 @@ const Home = () => {
 
   return (
     <div className="bg-transparent">
+      {/* Trust Badges - Right below header */}
+      <section className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#0f1f2b', minHeight: '80px' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12">
+            {trustBadges.map((badge, index) => (
+              <div 
+                key={index} 
+                className="flex items-center gap-3 sm:gap-4"
+                style={{ minWidth: '150px', flex: '1 1 auto' }}
+              >
+                <div className="flex-shrink-0" style={{ color: '#C0DF16' }}>
+                  {badge.icon}
+                </div>
+                <div className="flex flex-col" style={{ color: '#C0DF16' }}>
+                  <span className="text-xs sm:text-sm font-medium leading-tight whitespace-nowrap">{badge.line1}</span>
+                  <span className="text-xs sm:text-sm font-medium leading-tight whitespace-nowrap">{badge.line2}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Hero with diagonal split and gym background */}
-      <section className="relative min-h-screen overflow-hidden -mt-16 sm:-mt-20">
+      <section className="relative min-h-screen overflow-hidden">
         {/* Gym background image */}
         <div 
           className="absolute top-0 left-0 right-0 w-full h-full bg-cover bg-center"
@@ -237,12 +292,6 @@ const Home = () => {
         <div className="relative z-10 min-h-screen flex flex-col pt-16 sm:pt-20">
           {/* Top section with everwell banner */}
           <div className="pt-4 sm:pt-8 md:pt-12 px-4 sm:px-6 lg:px-8">
-            
-            {/* A NEW STANDARD IN CBD RECOVERY */}
-            <p className="text-xs sm:text-sm font-sans font-medium text-white uppercase tracking-widest mb-8 sm:mb-12 relative z-20">
-              A NEW STANDARD IN CBD RECOVERY
-            </p>
-            
             {/* Stacked headline: focus, performance, recovery */}
             <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 relative z-20">
               <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-normal text-white lowercase leading-none animate-elegant-reveal" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
@@ -286,33 +335,189 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trust Badges */}
-      <section className="-mt-8 sm:-mt-12 md:-mt-16 relative z-20 px-4 sm:px-6 lg:px-8 scroll-animate">
-        <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-xl shadow-lg border border-primary/20 p-4 sm:p-6 md:p-8 lg:p-10" style={{ borderRadius: '40px' }}>
-          {/* First Row: Titles */}
-          <div className="flex flex-wrap gap-4 sm:gap-6 mb-4 scroll-animate">
-            {trustBadges.map((badge, index) => (
-              <div key={`title-${index}`} className="flex-1 min-w-[200px] scroll-animate" style={{ animationDelay: `${index * 0.1}s` }}>
-                <p className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wide">{badge.title}</p>
-              </div>
-            ))}
+      {/* Quality Statement */}
+      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary-ultra-light to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}>
+          <div className="text-center mb-8 sm:mb-12" style={{ flex: "4" }}>
+            <p className="text-lg sm:text-xl md:text-2xl font-medium text-darkTeal leading-relaxed mb-6 sm:mb-8">
+              Produtos importados, testados e com qualidade reconhecida
+            </p>
           </div>
-          {/* Second Row: Subtitles */}
-          <div className="flex flex-wrap gap-4 sm:gap-6 scroll-animate">
-            {trustBadges.map((badge, index) => (
-              <div key={`subtitle-${index}`} className="flex-1 min-w-[200px] scroll-animate" style={{ animationDelay: `${(index + 4) * 0.1}s` }}>
-                <p className="text-mediumTeal text-xs sm:text-sm leading-relaxed advertise-text">{badge.subtitle}</p>
-              </div>
-            ))}
+          
+          {/* Brand Logos */}
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12" style={{ flex: "6" }}>
+            {/* Brand Logo 1 - Add your brand logo image here */}
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-1.png" 
+                alt="Brand 1" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+            
+            {/* Brand Logo 2 */}
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-2.png" 
+                alt="Brand 2" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+            
+            {/* Brand Logo 3 */}
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-3.png" 
+                alt="Brand 3" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+            
+            {/* Brand Logo 4 */}
+            <div className="flex items-center justify-center" style={{ height: '60px', maxWidth: '150px' }}>
+              <img 
+                src="/images/brand-4.png" 
+                alt="Brand 4" 
+                className="h-full w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Define Goals */}
+      {/* Value Proposition */}
       <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-[#FFFEFB] via-primary-ultra-light to-[#FEFEFE]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-            <p className="section-heading">Estratégia personalizada</p>
+            <h2 className="section-title text-3xl sm:text-4xl md:text-5xl highlighted-text mb-4 sm:mb-6">
+              Unlock the power of our products
+            </h2>
+            <p className="muted-text text-base sm:text-lg leading-relaxed">
+              Criamos fórmulas que funcionam de verdade, com ingredientes naturais eficazes e propósito definido. Elaborados por especialistas e analisados lote a lote para garantir excelência.
+            </p>
+          </div>
+          <div className="text-center">
+            <Link
+              to="/produtos"
+              className="btn-primary inline-flex items-center gap-3"
+              onClick={() => {
+                trackAnalyticsEvent('cta_click', { cta: 'saiba_mais', location: 'value_proposition' });
+                trackGtmEvent('cta_click', { cta: 'saiba_mais', location: 'value_proposition' });
+              }}
+            >
+              SAIBA MAIS
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Purchase Process */}
+      <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden">
+        {/* Background Image on Scroll */}
+        <div
+          ref={backgroundSectionRef}
+          className={`absolute inset-0 transition-opacity duration-1000 ${
+            backgroundVisible ? 'opacity-20' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: 'url(/images/middle_image.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+          }}
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <p className="section-heading">Compra Descomplicada</p>
+            <h2 className="section-title highlighted-text">Uma experiência desenhada para alcançar resultados reais</h2>
+            <p className="muted-text">
+              Da primeira consulta à entrega, cada etapa é orientada por especialistas e acompanhada com total transparência.
+            </p>
+          </div>
+          {processSteps.length > 3 ? (
+            <Carousel
+              items={processSteps.map((step) => (
+                <div key={step.number} className="card space-y-4 mx-2 h-full flex flex-col">
+                  <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
+                  <p className="text-4xl font-heading primary-color-text-green">{step.number}</p>
+                  <h3 className="text-2xl font-semibold primary-color-text-green">{step.title}</h3>
+                  <p className="muted-text flex-grow">{step.copy}</p>
+                  {step.link && (
+                    <a
+                      href={step.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
+                    >
+                      {step.link.label}
+                      <span aria-hidden>↗</span>
+                    </a>
+                  )}
+                </div>
+              ))}
+              itemsPerView={3}
+            />
+          ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              {processSteps.map((step) => (
+              <div 
+                key={step.number} 
+                className="card space-y-3 sm:space-y-4 h-full flex flex-col cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                onClick={() => step.link && window.open(step.link.href, '_blank', 'noopener,noreferrer')}
+              >
+                <span className="text-xs sm:text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
+                <p className="text-3xl sm:text-4xl font-heading primary-color-text-green">{step.number}</p>
+                <h3 className="text-xl sm:text-2xl font-semibold primary-color-text-green">{step.title}</h3>
+                <p className="muted-text text-sm sm:text-base flex-grow">{step.copy}</p>
+                  {step.link && (
+                    <a
+                      href={step.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
+                    >
+                      {step.link.label}
+                      <span aria-hidden>↗</span>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="text-center mt-8 sm:mt-10">
+            <Link
+              to="/agendar"
+              className="btn-primary inline-flex items-center gap-3"
+              onClick={() => {
+                trackAnalyticsEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
+                trackGtmEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
+              }}
+            >
+              Inicie agora
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Objective Form */}
+      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-[#FFFEFB] via-primary-ultra-light to-[#FEFEFE]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+            <p className="section-heading">Compartilhe seus objetivos</p>
             <h2 className="section-title highlighted-text">Defina seus objetivos com especialistas EverWell</h2>
             <p className="muted-text">
               Compartilhe histórico, metas e desafios. Nossa equipe analisa seus dados, define a dosagem ideal e acompanha a evolução com métricas claras.
@@ -323,7 +528,7 @@ const Home = () => {
               onClick={() => setShowJotForm(true)}
               className="btn-primary inline-flex items-center gap-3"
             >
-              Preencher Formulário
+              defina seus objetivos
               <span aria-hidden>→</span>
             </button>
           </div>
@@ -410,11 +615,24 @@ const Home = () => {
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="section-heading">Onboarding premium</p>
+            <p className="section-heading">Compra Descomplicada</p>
             <h2 className="section-title highlighted-text">Uma experiência desenhada para alcançar resultados reais</h2>
             <p className="muted-text">
               Da primeira consulta à entrega, cada etapa é orientada por especialistas e acompanhada com total transparência.
             </p>
+          </div>
+          <div className="text-center mt-8 sm:mt-10">
+            <Link
+              to="/agendar"
+              className="btn-primary inline-flex items-center gap-3"
+              onClick={() => {
+                trackAnalyticsEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
+                trackGtmEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
+              }}
+            >
+              Inicie agora
+              <span aria-hidden>→</span>
+            </Link>
           </div>
           {processSteps.length > 3 ? (
             <Carousel
@@ -477,8 +695,15 @@ const Home = () => {
               <p className="section-heading text-xs sm:text-sm">Coleção exclusiva</p>
               <h2 className="section-title text-2xl sm:text-3xl md:text-4xl highlighted-text">Produtos desenhados para performance, foco e recuperação</h2>
             </div>
-            <Link to="/produtos" className="primary-color-text-green btn-secondary px-6 sm:px-8 py-3 text-xs sm:text-sm font-semibold tracking-wide w-full md:w-auto text-center">
-              Ver catálogo completo
+            <Link 
+              to="/produtos" 
+              className="primary-color-text-green btn-secondary px-6 sm:px-8 py-3 text-xs sm:text-sm font-semibold tracking-wide w-full md:w-auto text-center"
+              onClick={() => {
+                trackAnalyticsEvent('cta_click', { cta: 'conheca_produtos', location: 'products_preview' });
+                trackGtmEvent('cta_click', { cta: 'conheca_produtos', location: 'products_preview' });
+              }}
+            >
+              Conheça os produtos
             </Link>
           </div>
           {productHighlights.length >= 3 ? (
