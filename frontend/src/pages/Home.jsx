@@ -380,7 +380,7 @@ const Home = () => {
                 <img 
                   src="/images/cbd-oil-product.png" 
                   alt="CBD Oil Product - EverWell"
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain" 
                   style={{ maxHeight: '600px' }}
                   onError={(e) => {
                     // Fallback if image doesn't exist - create placeholder

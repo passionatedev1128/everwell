@@ -305,27 +305,6 @@ const Header = () => {
           </div>
         </div>
       </div>
-      
-      {/* Cart Icon - Fixed Bottom Left of Page */}
-      {authenticated && user?.isAuthorized && (
-        <Link
-          to="/carrinho"
-          className="fixed bottom-6 left-6 flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 hover:bg-primary/20 transition-all duration-300 hover:scale-110 shadow-lg z-40"
-          style={{ 
-            color: '#C0DF16',
-            backgroundColor: 'rgba(192, 223, 22, 0.1)'
-          }}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-semibold border-2 border-white">
-              {cartCount > 9 ? '9+' : cartCount}
-            </span>
-          )}
-        </Link>
-      )}
 
       {isMenuOpen && (
         <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-primary/20 shadow-lg animate-slide-down">

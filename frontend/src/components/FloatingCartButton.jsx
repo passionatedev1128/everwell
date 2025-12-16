@@ -18,8 +18,8 @@ const FloatingCartButton = () => {
     }
   };
 
-  // Hide this button if user is authenticated and authorized (Header cart icon will show instead)
-  if (canAccessCart) {
+  // Only show this button if user is authenticated and authorized (signed in)
+  if (!canAccessCart) {
     return null;
   }
 
