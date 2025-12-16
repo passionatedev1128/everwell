@@ -120,7 +120,7 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
 
       {/* Navigation Buttons - Isolated containers to prevent cross-button interference */}
       <div 
-        style={{ 
+        style={{
           position: 'absolute',
           left: '1.5rem',
           top: '50%',

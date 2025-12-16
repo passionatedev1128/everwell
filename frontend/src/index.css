@@ -2028,8 +2028,8 @@ select#address\\.country.country-select.form-input option:disabled {
 
 .header-extra-effect {
   --tw-backdrop-blur: blur(7px);
-  border-bottom-width: 2px;
-  border-bottom-color: #8dc701;
+  /* border-bottom-width: 2px;
+  border-bottom-color: #8dc701; */
 }
 
 .primary-color-text-green {
@@ -2046,4 +2046,9 @@ select#address\\.country.country-select.form-input option:disabled {
 
 .top-2 {
   top: 2px;
+}
+
+.left-arrow-button {
+  position: absolute;
+  left: 0;
 }

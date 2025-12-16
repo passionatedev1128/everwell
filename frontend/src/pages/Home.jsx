@@ -4,6 +4,7 @@ import FAQAccordion from '../components/FAQAccordion';
 import GoalForm from '../components/GoalForm';
 import JotForm from '../components/JotForm';
 import Carousel from '../components/Carousel';
+import SimpleCarousel from '../components/SimpleCarousel';
 import { initScrollAnimations } from '../utils/scrollAnimations';
 import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
 import { trackEvent as trackGtmEvent } from '../utils/gtm';
@@ -107,8 +108,6 @@ const Home = () => {
   const [testimonials, setTestimonials] = useState([]);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
-  const productsScrollRef = useRef(null);
-  const testimonialsScrollRef = useRef(null);
 
   // Helper function to find product by name (case-insensitive)
   const findProductByName = (productName) => {
@@ -231,27 +230,6 @@ const Home = () => {
     };
   }, []);
 
-  // Scroll functions for products
-  const scrollProducts = (direction) => {
-    if (productsScrollRef.current) {
-      const scrollAmount = 400; // Scroll by card width + gap
-      productsScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  // Scroll functions for testimonials
-  const scrollTestimonials = (direction) => {
-    if (testimonialsScrollRef.current) {
-      const scrollAmount = 400; // Scroll by card width + gap
-      testimonialsScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
 
   return (
     <div className="bg-transparent">
@@ -669,59 +647,10 @@ const Home = () => {
             </h2>
           </div>
           {/* Product Cards Container with Carousel */}
-          <div className="relative mb-12 sm:mb-16">
-            {/* Left Arrow Button - Only show if more than 3 products */}
-            {productHighlights.length > 3 && (
-              <button
-                onClick={() => scrollProducts('left')}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 shadow-lg"
-                style={{ fontFamily: 'kodchasan' }}
-                aria-label="Previous products"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
-            
-            {/* Scrollable Container */}
-            {productHighlights.length > 3 ? (
-              <div
-                ref={productsScrollRef}
-                className="flex gap-8 sm:gap-10 md:gap-12 overflow-x-auto hide-scrollbar scroll-smooth"
-                style={{
-                  WebkitOverflowScrolling: 'touch',
-                  cursor: 'grab',
-                  scrollBehavior: 'auto'
-                }}
-                onMouseDown={(e) => {
-                  const startX = e.pageX - productsScrollRef.current.offsetLeft;
-                  const scrollLeft = productsScrollRef.current.scrollLeft;
-                  const isDown = true;
-                  
-                  const handleMouseMove = (e) => {
-                    if (!isDown) return;
-                    e.preventDefault();
-                    const x = e.pageX - productsScrollRef.current.offsetLeft;
-                    const walk = (x - startX) * 2;
-                    productsScrollRef.current.scrollLeft = scrollLeft - walk;
-                  };
-                  
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                  };
-                  
-                  document.addEventListener('mousemove', handleMouseMove);
-                  document.addEventListener('mouseup', handleMouseUp);
-                }}
-              >
-                {productHighlights.map((product) => (
-                  <div
-                    key={product.name || product.slug}
-                    className="flex flex-col items-center flex-shrink-0"
-                    style={{ width: 'calc(33.333% - 1rem)', minWidth: '300px' }}
-                  >
+          <div className="mb-12 sm:mb-16">
+            <SimpleCarousel
+              items={productHighlights.map((product) => (
+                <div key={product.name || product.slug} className="flex flex-col items-center" style={{ minWidth: "100%"}}>
                   {/* Product Frame with Lime Green Border */}
                   <div 
                     className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
@@ -780,106 +709,18 @@ const Home = () => {
                   
                   {/* Product Title and Description - Not Clickable */}
                   <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontSize: '40px', fontFamily: 'kodchasan' }}>
                       {product?.name || 'Product'}
                     </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan', fontSize: '15px' }}>
                       {product?.subtitle || product?.description || 'Product description'}
                     </p>
                   </div>
                 </div>
               ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 md:gap-12">
-                {productHighlights.map((product) => (
-                  <div
-                    key={product.name || product.slug}
-                    className="flex flex-col items-center"
-                  >
-                    {/* Product Frame with Lime Green Border */}
-                    <div 
-                      className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
-                      style={{
-                        border: '2px solid #C0DF16',
-                        borderRadius: '12px',
-                        backgroundColor: 'white'
-                      }}
-                    >
-                      {/* Product Image Container with White Circular Pedestal */}
-                      <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
-                        {/* White Circular Pedestal with Shadow */}
-                        <div 
-                          className="absolute bottom-0 w-32 h-8 rounded-full"
-                          style={{
-                            backgroundColor: 'white',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                            transform: 'translateY(50%)'
-                          }}
-                        />
-                        {/* Product Image - Only Clickable */}
-                        <div className="relative z-10">
-                          {product?.image ? (
-                            <Link
-                              to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
-                              className="block"
-                              style={{ textDecoration: 'none' }}
-                              onClick={() => {
-                                trackAnalyticsEvent('product_click', { product: product.name, location: 'products_preview' });
-                                trackGtmEvent('product_click', { product: product.name, location: 'products_preview' });
-                              }}
-                            >
-                              <img 
-                                src={product.image} 
-                                alt={product.name || 'Product - EverWell'}
-                                className="w-full h-auto max-h-64 object-contain"
-                                style={{ 
-                                  filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
-                                  cursor: 'pointer'
-                                }}
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  const placeholder = e.target.parentNode;
-                                  placeholder.innerHTML = '<div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center"><div class="text-gray-400 text-sm">Product Image</div></div>';
-                                }}
-                              />
-                            </Link>
-                          ) : (
-                            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                              <div className="text-gray-400 text-sm">Product Image</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Product Title and Description - Not Clickable */}
-                    <div className="text-center w-full">
-                      <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
-                        {product?.name || 'Product'}
-                      </h3>
-                      <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
-                        {product?.subtitle || product?.description || 'Product description'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Right Arrow Button - Only show if more than 3 products */}
-            {productHighlights.length > 3 && (
-              <button
-                onClick={() => scrollProducts('right')}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 shadow-lg"
-                style={{ fontFamily: 'kodchasan' }}
-                aria-label="Next products"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
+              itemsPerView={3}
+              gap="gap-8 sm:gap-10 md:gap-12"
+            />
           </div>
 
           {/* DISCOVER THE PRODUCTS Button - Centered */}
@@ -932,214 +773,80 @@ const Home = () => {
             </h4>
           </div>
           {/* Testimonial Cards Container with Carousel */}
-          <div className="relative">
-            {/* Left Arrow Button - Only show if more than 3 testimonials */}
-            {testimonials.length > 3 && (
-              <button
-                onClick={() => scrollTestimonials('left')}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 shadow-lg"
-                style={{ fontFamily: 'kodchasan' }}
-                aria-label="Previous testimonials"
+          <SimpleCarousel
+            items={testimonials.map((testimonial) => (
+              <div 
+                key={testimonial.id || testimonial.name}
+                className="flex flex-col items-center"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
+                <div 
+                  className="flex flex-col items-center"
+                  style={{
+                    border: '2px solid black',
+                    borderRadius: '12px',
+                    backgroundColor: '#C0DF16',
+                    padding: '2rem',
+                    minHeight: '400px',
+                    width: '100%'
+                  }}
+                >
+                  {/* Person Image - Centered */}
+                  <div className="mb-4 flex items-center justify-center">
+                    <img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover"
+                      style={{
+                        border: '3px solid white',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                      }}
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80';
+                      }}
+                    />
+                  </div>
 
-            {/* Scrollable Container */}
-            {testimonials.length > 3 ? (
-              <div
-                ref={testimonialsScrollRef}
-                className="flex gap-6 sm:gap-8 md:gap-10 overflow-x-auto hide-scrollbar scroll-smooth justify-center"
-                style={{
-                  WebkitOverflowScrolling: 'touch',
-                  cursor: 'grab',
-                  scrollBehavior: 'auto'
-                }}
-                onMouseDown={(e) => {
-                  const startX = e.pageX - testimonialsScrollRef.current.offsetLeft;
-                  const scrollLeft = testimonialsScrollRef.current.scrollLeft;
-                  const isDown = true;
-                  
-                  const handleMouseMove = (e) => {
-                    if (!isDown) return;
-                    e.preventDefault();
-                    const x = e.pageX - testimonialsScrollRef.current.offsetLeft;
-                    const walk = (x - startX) * 2;
-                    testimonialsScrollRef.current.scrollLeft = scrollLeft - walk;
-                  };
-                  
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                  };
-                  
-                  document.addEventListener('mousemove', handleMouseMove);
-                  document.addEventListener('mouseup', handleMouseUp);
-                }}
-              >
-                {testimonials.map((testimonial) => (
-                  <div 
-                    key={testimonial.id || testimonial.name}
-                    className="flex flex-col items-center flex-shrink-0"
-                    style={{ width: 'calc(33.333% - 1rem)', minWidth: '300px' }}
-                  >
-                  <div 
-                    className="flex flex-col items-center"
-                    style={{
-                      border: '2px solid black',
-                      borderRadius: '12px',
-                      backgroundColor: '#C0DF16',
-                      padding: '2rem',
-                      minHeight: '400px',
-                      width: '100%'
+                  {/* Name - Bold Black */}
+                  <h3 
+                    className="text-xl sm:text-2xl font-bold text-black mb-4 text-center"
+                    style={{ 
+                      fontWeight: 700, 
+                      fontFamily: 'kodchasan' 
                     }}
                   >
-                    {/* Person Image - Centered */}
-                    <div className="mb-4 flex items-center justify-center">
-                      <img
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover"
-                        style={{
-                          border: '3px solid white',
-                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                        }}
-                        onError={(e) => {
-                          e.target.src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80';
-                        }}
-                      />
-                    </div>
+                    {testimonial.name}
+                  </h3>
 
-                    {/* Name - Bold Black */}
-                    <h3 
-                      className="text-xl sm:text-2xl font-bold text-black mb-4 text-center"
-                      style={{ 
-                        fontWeight: 700, 
-                        fontFamily: 'kodchasan' 
-                      }}
-                    >
-                      {testimonial.name}
-                    </h3>
+                  {/* Testimonial Text */}
+                  <p 
+                    className="text-sm sm:text-base text-black mb-4 text-center flex-grow"
+                    style={{ 
+                      fontFamily: 'kodchasan',
+                      lineHeight: '1.6'
+                    }}
+                  >
+                    "{testimonial.quote}"
+                  </p>
 
-                    {/* Testimonial Text */}
-                    <p 
-                      className="text-sm sm:text-base text-black mb-4 text-center flex-grow"
-                      style={{ 
-                        fontFamily: 'kodchasan',
-                        lineHeight: '1.6'
-                      }}
-                    >
-                      "{testimonial.quote}"
-                    </p>
-
-                    {/* 5 Yellow Stars */}
-                    <div className="flex items-center justify-center gap-1 mt-auto">
-                      {[...Array(5)].map((_, i) => (
-                        <svg 
-                          key={i} 
-                          className="w-5 h-5 sm:w-6 sm:h-6 fill-current" 
-                          style={{ color: '#FFD700' }}
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
+                  {/* 5 Yellow Stars */}
+                  <div className="flex items-center justify-center gap-1 mt-auto">
+                    {[...Array(5)].map((_, i) => (
+                      <svg 
+                        key={i} 
+                        className="w-5 h-5 sm:w-6 sm:h-6 fill-current" 
+                        style={{ color: '#FFD700' }}
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
                   </div>
                 </div>
-              ))}
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 justify-items-center">
-                {testimonials.map((testimonial) => (
-                  <div 
-                    key={testimonial.id || testimonial.name}
-                    className="flex flex-col items-center"
-                  >
-                    <div 
-                      className="flex flex-col items-center"
-                      style={{
-                        border: '2px solid black',
-                        borderRadius: '12px',
-                        backgroundColor: '#C0DF16',
-                        padding: '2rem',
-                        minHeight: '400px',
-                        width: '100%'
-                      }}
-                    >
-                      {/* Person Image - Centered */}
-                      <div className="mb-4 flex items-center justify-center">
-                        <img
-                          src={testimonial.avatar}
-                          alt={testimonial.name}
-                          className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover"
-                          style={{
-                            border: '3px solid white',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                          }}
-                          onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80';
-                          }}
-                        />
-                      </div>
-
-                      {/* Name - Bold Black */}
-                      <h3 
-                        className="text-xl sm:text-2xl font-bold text-black mb-4 text-center"
-                        style={{ 
-                          fontWeight: 700, 
-                          fontFamily: 'kodchasan' 
-                        }}
-                      >
-                        {testimonial.name}
-                      </h3>
-
-                      {/* Testimonial Text */}
-                      <p 
-                        className="text-sm sm:text-base text-black mb-4 text-center flex-grow"
-                        style={{ 
-                          fontFamily: 'kodchasan',
-                          lineHeight: '1.6'
-                        }}
-                      >
-                        "{testimonial.quote}"
-                      </p>
-
-                      {/* 5 Yellow Stars */}
-                      <div className="flex items-center justify-center gap-1 mt-auto">
-                        {[...Array(5)].map((_, i) => (
-                          <svg 
-                            key={i} 
-                            className="w-5 h-5 sm:w-6 sm:h-6 fill-current" 
-                            style={{ color: '#FFD700' }}
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Right Arrow Button - Only show if more than 3 testimonials */}
-            {testimonials.length > 3 && (
-              <button
-                onClick={() => scrollTestimonials('right')}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 shadow-lg"
-                style={{ fontFamily: 'kodchasan' }}
-                aria-label="Next testimonials"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-          </div>
+            ))}
+            itemsPerView={3}
+            gap="gap-6 sm:gap-8 md:gap-10"
+          />
         </div>
       </section>
       )}

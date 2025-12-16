@@ -21,7 +21,7 @@ const fileFilter = (req, file, cb) => {
     cb(new Error('Tipo de arquivo não permitido. Envie apenas documentos PDF ou Word (.doc, .docx).'), false);
   }
 };                      
-
+                                 
 // File filter for images (products)
 const imageFilter = (req, file, cb) => {
   // Allowed image types
