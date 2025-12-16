@@ -976,7 +976,7 @@ const Home = () => {
       </section>
       )}
 
-      {/* Differentials */}
+      {/*
       <section className="py-12 sm:py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-14">
@@ -1008,7 +1008,7 @@ const Home = () => {
                   e.currentTarget.style.transform = 'translateY(0) scale(1)';
                 }}                         
               >
-                {/* Inner Card Container with Raised Edges */}
+              
                 <div 
                   className="absolute inset-0 overflow-hidden"
                   style={{
@@ -1021,7 +1021,7 @@ const Home = () => {
                     `
                   }}
                 >
-                  {/* Image Background - No Color Overlay */}
+                
                   <div 
                     className="absolute inset-0 transition-all duration-700 ease-out"
                     style={{
@@ -1031,7 +1031,7 @@ const Home = () => {
                       opacity: 1
                     }}
                   />
-                  {/* Enhanced Dark Overlay for Text Readability */}
+                  
                   <div 
                     className="absolute inset-0 transition-all duration-700 ease-out"
                     style={{
@@ -1041,9 +1041,7 @@ const Home = () => {
                   />
                 </div>
                 
-                {/* Content */}
-                <div className="relative z-10 h-full flex flex-col p-6 sm:p-8">
-                  {/* Title at bottom-right */}
+                <div className="relative z-10 h-full flex flex-col p-6 sm:p-8">                
                   <div className="flex items-end justify-end flex-1 mt-auto">
                     <h3 
                       className="text-xl sm:text-2xl font-bold transition-all duration-300 text-right"
@@ -1063,10 +1061,10 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Quality Certificates (COA) */}
-      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary-ultra-light to-white">
+      {/* <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-white via-primary-ultra-light to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-14">
             <p className="section-heading text-xs sm:text-sm">Qualidade e transparência</p>
@@ -1078,9 +1076,7 @@ const Home = () => {
             </p>
           </div>
           
-          {/* Certificate Gallery */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
-            {/* Certificate Card 1 */}
             <div 
               className="bg-white rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
               onClick={() => {
@@ -1121,8 +1117,7 @@ const Home = () => {
                 <p className="text-xs" style={{ color: '#4A4A4A' }}>Análise completa de canabinoides</p>
               </div>
             </div>
-
-            {/* Certificate Card 2 */}
+            
             <div 
               className="bg-white rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
               onClick={() => {
@@ -1164,7 +1159,6 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Certificate Card 3 */}
             <div 
               className="bg-white rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
               onClick={() => {
@@ -1220,33 +1214,133 @@ const Home = () => {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      {/* CTA */}
-      <section className="py-12 sm:py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#0f1f2b] via-primary/90 to-[#124f45] text-white p-6 sm:p-8 md:p-12 lg:p-16" style={{ borderRadius: '40px' }}>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent)]" />
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 sm:gap-8 md:gap-10">
-              <div className="max-w-2xl space-y-3 sm:space-y-4">
-                <p className="section-heading text-white/70 text-xs sm:text-sm">Pronto para começar?</p>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight text-white">Sua Melhor Versão começa agora!</h2>
-                <p className="text-white/75 text-sm sm:text-base">
-                  Avance para seu próximo nível com fórmulas EverWell, acompanhamento premium e métricas claras.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 sm:gap-4 md:text-right">
-                <a href="/agendar" target="_blank" rel="noopener noreferrer" className="btn-primary w-full md:w-auto text-center">
-                  Agendar consulta
-                </a>
-                <Link to="/duvidas" className="btn-secondary bg-white/10 border-white/20 text-white hover:bg-white/20 inline-flex items-center justify-center gap-2 w-full md:w-auto">
-                  Fale com especialistas
-                  <span aria-hidden>→</span>
-                </Link>
-              </div>
+      {/* CTA - Your best version starts now */}
+      <section className="py-0 bg-white relative">
+        <div className="flex flex-col md:flex-row min-h-[600px] md:min-h-[700px]">
+          {/* Left Side - Blurred Image (1/3 width) */}
+          <div className="w-full md:w-1/3 relative overflow-hidden">
+            <div 
+              className="absolute inset-0 w-full h-full bg-cover bg-center"
+              style={{
+                backgroundImage: 'url(/images/cta-background.jpg)',
+                filter: 'blur(20px) brightness(1.1)',
+                transform: 'scale(1.1)',
+                backgroundPosition: 'center',
+                backgroundSize: 'cover'
+              }}
+            />
+            {/* Overlay with green/yellow tones blending to brown */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(180deg, rgba(192, 223, 22, 0.3) 0%, rgba(255, 255, 0, 0.2) 30%, rgba(139, 90, 43, 0.4) 70%, rgba(101, 67, 33, 0.5) 100%)',
+                mixBlendMode: 'multiply'
+              }}
+            />
+          </div>
+
+          {/* Right Side - Text and Buttons (2/3 width) */}
+          <div className="w-full md:w-2/3 flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-12 md:py-16">
+            {/* Text Content */}
+            <div className="mb-8 sm:mb-12 text-left">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+                Your best
+              </h2>
+              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+                version starts
+              </h3>
+              <h4 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ fontWeight: 700, fontFamily: 'sans-serif', color: '#C0DF16' }}>
+                now
+              </h4>
+            </div>
+
+            {/* Three Buttons Stacked */}
+            <div className="flex flex-col gap-4 sm:gap-5">
+              {/* Button 1: SCHEDULE YOUR APPOINTMENT */}
+              <Link
+                to="/agendar"
+                className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
+                style={{
+                  borderRadius: '8px',
+                  borderColor: '#C0DF16',
+                  color: '#000000',
+                  backgroundColor: 'white',
+                  fontWeight: 500,
+                  fontFamily: 'sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f9f9f9';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'white';
+                }}
+                onClick={() => {
+                  trackAnalyticsEvent('cta_click', { cta: 'schedule_appointment', location: 'cta' });
+                  trackGtmEvent('cta_click', { cta: 'schedule_appointment', location: 'cta' });
+                }}
+              >
+                SCHEDULE YOUR APPOINTMENT.
+              </Link>
+
+              {/* Button 2: DISCOVER THE PRODUCTS */}
+              <Link
+                to="/produtos"
+                className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
+                style={{
+                  borderRadius: '8px',
+                  borderColor: '#C0DF16',
+                  color: '#000000',
+                  backgroundColor: 'white',
+                  fontWeight: 500,
+                  fontFamily: 'sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f9f9f9';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'white';
+                }}
+                onClick={() => {
+                  trackAnalyticsEvent('cta_click', { cta: 'discover_products', location: 'cta' });
+                  trackGtmEvent('cta_click', { cta: 'discover_products', location: 'cta' });
+                }}
+              >
+                DISCOVER THE PRODUCTS
+              </Link>
+
+              {/* Button 3: GET YOUR QUESTIONS ANSWERED */}
+              <Link
+                to="/duvidas"
+                className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
+                style={{
+                  borderRadius: '8px',
+                  borderColor: '#000000',
+                  color: '#000000',
+                  backgroundColor: '#C0DF16',
+                  fontWeight: 500,
+                  fontFamily: 'sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#b8d014';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#C0DF16';
+                }}
+                onClick={() => {
+                  trackAnalyticsEvent('cta_click', { cta: 'get_questions_answered', location: 'cta' });
+                  trackGtmEvent('cta_click', { cta: 'get_questions_answered', location: 'cta' });
+                }}
+              >
+                GET YOUR QUESTIONS ANSWERED
+              </Link>
             </div>
           </div>
         </div>
+
+        {/* Thin Dark Horizontal Line at Bottom */}
+        <div className="w-full h-px bg-black" style={{ height: '1px' }} />
       </section>
 
       {/* FAQ */}
