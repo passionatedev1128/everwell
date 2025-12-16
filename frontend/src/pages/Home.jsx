@@ -516,21 +516,49 @@ const Home = () => {
       {/* Objective Form */}
       <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-[#FFFEFB] via-primary-ultra-light to-[#FEFEFE]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-            <p className="section-heading">Compartilhe seus objetivos</p>
-            <h2 className="section-title highlighted-text">Defina seus objetivos com especialistas EverWell</h2>
-            <p className="muted-text">
-              Compartilhe histórico, metas e desafios. Nossa equipe analisa seus dados, define a dosagem ideal e acompanha a evolução com métricas claras.
+          {/* Top Section - Headline and Description */}
+          <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6" style={{ color: '#0f1f2b' }}>
+              Sua Melhor Versão começa agora!
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-darkTeal leading-relaxed">
+              Compartilhe seus objetivos e histórico de saúde para que possamos criar a melhor estratégia de bem-estar e performance para você.
             </p>
           </div>
-          <div className="text-center">
-            <button
-              onClick={() => setShowJotForm(true)}
-              className="btn-primary inline-flex items-center gap-3"
-            >
-              defina seus objetivos
-              <span aria-hidden>→</span>
-            </button>
+
+          {/* Visual Section with Image and Text Overlays */}
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden" style={{ 
+            backgroundColor: '#f5f5f5',
+            minHeight: '500px',
+            backgroundImage: 'url(/images/objectives-section.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
+            {/* Background Image Overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/40 to-transparent"></div>
+            
+            {/* Content Container */}
+            <div className="relative z-10 flex flex-col md:flex-row items-center h-full min-h-[500px] p-6 sm:p-8 md:p-12">
+              {/* Left Side - Image Area (will be handled by background) */}
+              <div className="hidden md:block md:w-1/2"></div>
+              
+              {/* Right Side - Text Overlays */}
+              <div className="w-full md:w-1/2 flex flex-col justify-center items-start gap-4 sm:gap-6 text-left">
+                <p className="text-lg sm:text-xl md:text-2xl font-medium text-darkTeal leading-relaxed">
+                  Atinja sua melhor perfomance, seja pessoal ou profissional.
+                </p>
+                <p className="text-base sm:text-lg md:text-xl text-darkTeal leading-relaxed">
+                  Avance para seu próximo nível e se surpreenda do que você é capaz
+                </p>
+                <button
+                  onClick={() => setShowJotForm(true)}
+                  className="mt-4 sm:mt-6 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-white uppercase tracking-wide rounded-lg transition-all duration-300 hover:opacity-90"
+                  style={{ backgroundColor: '#0f1f2b' }}
+                >
+                  DEFINA SEUS OBJETIVOS
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -613,78 +641,6 @@ const Home = () => {
             backgroundAttachment: 'fixed',
           }}
         />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="section-heading">Compra Descomplicada</p>
-            <h2 className="section-title highlighted-text">Uma experiência desenhada para alcançar resultados reais</h2>
-            <p className="muted-text">
-              Da primeira consulta à entrega, cada etapa é orientada por especialistas e acompanhada com total transparência.
-            </p>
-          </div>
-          <div className="text-center mt-8 sm:mt-10">
-            <Link
-              to="/agendar"
-              className="btn-primary inline-flex items-center gap-3"
-              onClick={() => {
-                trackAnalyticsEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
-                trackGtmEvent('cta_click', { cta: 'inicie_agora', location: 'purchase_process' });
-              }}
-            >
-              Inicie agora
-              <span aria-hidden>→</span>
-            </Link>
-          </div>
-          {processSteps.length > 3 ? (
-            <Carousel
-              items={processSteps.map((step) => (
-                <div key={step.number} className="card space-y-4 mx-2 h-full flex flex-col">
-                  <span className="text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
-                  <p className="text-4xl font-heading primary-color-text-green">{step.number}</p>
-                  <h3 className="text-2xl font-semibold primary-color-text-green">{step.title}</h3>
-                  <p className="muted-text flex-grow">{step.copy}</p>
-                  {step.link && (
-                    <a
-                      href={step.link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
-                    >
-                      {step.link.label}
-                      <span aria-hidden>↗</span>
-                    </a>
-                  )}
-                </div>
-              ))}
-              itemsPerView={3}
-            />
-          ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {processSteps.map((step) => (
-              <div 
-                key={step.number} 
-                className="card space-y-3 sm:space-y-4 h-full flex flex-col cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-                onClick={() => step.link && window.open(step.link.href, '_blank', 'noopener,noreferrer')}
-              >
-                <span className="text-xs sm:text-sm uppercase tracking-[0.4em] text-primary/70">Etapa</span>
-                <p className="text-3xl sm:text-4xl font-heading primary-color-text-green">{step.number}</p>
-                <h3 className="text-xl sm:text-2xl font-semibold primary-color-text-green">{step.title}</h3>
-                <p className="muted-text text-sm sm:text-base flex-grow">{step.copy}</p>
-                  {step.link && (
-                    <a
-                      href={step.link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center gap-2 uppercase tracking-wide hover:text-primary-dark transition-colors"
-                    >
-                      {step.link.label}
-                      <span aria-hidden>↗</span>
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </section>
 
       {/* Products Preview */}
@@ -1083,40 +1039,32 @@ const Home = () => {
                       opacity: 1
                     }}
                   />
-                  {/* Subtle Dark Overlay for Text Readability Only */}
+                  {/* Enhanced Dark Overlay for Text Readability */}
                   <div 
                     className="absolute inset-0 transition-all duration-700 ease-out"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.15) 100%)',
-                      opacity: 0.4
+                      background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.6) 100%)',
+                      opacity: 0.7
                     }}
                   />
                 </div>
                 
                 {/* Content */}
                 <div className="relative z-10 h-full flex flex-col p-6 sm:p-8">
-                  {/* Title at top-left */}
-                  <h3 
-                    className="text-xl sm:text-2xl font-bold transition-all duration-300 mb-auto"
-                    style={{
-                      color: 'white',
-                      textShadow: '0 2px 8px rgba(255, 255, 255, 0.5), 0 1px 4px rgba(0, 0, 0, 0.2)',
-                      letterSpacing: '-0.02em'
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-                  {/* Text at bottom-right */}
+                  {/* Title at bottom-right */}
                   <div className="flex items-end justify-end flex-1 mt-auto">
-                    <p 
-                      className="text-sm sm:text-base leading-relaxed transition-all duration-300 text-right"
+                    <h3 
+                      className="text-xl sm:text-2xl font-bold transition-all duration-300 text-right"
                       style={{
-                        color: 'gray',
-                        textShadow: '0 1px 3px rgba(255, 255, 255, 0.4)'
+                        color: '#FFFFFF',
+                        textShadow: '2px 2px 8px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.9)',
+                        letterSpacing: '-0.02em',
+                        fontWeight: '700',
+                        lineHeight: '1.3'
                       }}
                     >
-                      {item.copy}
-                    </p>
+                      {item.title}
+                    </h3>
                   </div>
                 </div>
               </div>
