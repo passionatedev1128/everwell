@@ -46,15 +46,24 @@ const trustBadges = [
 const processSteps = [
   {
     number: '1',
-    title: 'Schedule your online consultation'
+    title: 'Schedule your online consultation',
+    image: '/images/schedule.png',
+    imageWidth: '159px',
+    imageHeight: '145px'
   },
   {
     number: '2',
-    title: 'Talk to an Expert'
+    title: 'Talk to an Expert',
+    image: '/images/expert.svg',
+    imageWidth: '159px',
+    imageHeight: '157px'
   },
   {
     number: '3',
-    title: 'Receive your products at home'
+    title: 'Receive your products at home',
+    image: '/images/deliverable.png',
+    imageWidth: '178px',
+    imageHeight: '145px'
   }
 ];
 
@@ -427,10 +436,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title Section - Left Aligned */}
           <div className="mb-12 sm:mb-16 md:mb-20 text-left">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
               Your next level
             </h2>
-            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 500, fontFamily: 'kodchasan' }}>
               in 3 Steps
             </h3>
           </div>
@@ -442,7 +451,7 @@ const Home = () => {
                 key={step.number} 
                 className="relative bg-white border-2 border-black rounded-lg p-6 sm:p-8 flex flex-col"
                 style={{
-                  borderRadius: '8px',
+                  borderRadius: '30px',
                   minHeight: '400px'
                 }}
               >
@@ -455,7 +464,7 @@ const Home = () => {
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                   }}
                 >
-                  <span className="text-white font-bold text-xl sm:text-2xl" style={{ fontFamily: 'sans-serif' }}>
+                  <span className="text-white font-bold text-xl sm:text-2xl" style={{ fontFamily: 'kodchasan' }}>
                     {step.number}
                   </span>
                 </div>
@@ -465,12 +474,11 @@ const Home = () => {
                   <div 
                     className="w-full h-48 sm:h-56 md:h-64 rounded-lg"
                     style={{
-                      backgroundColor: '#C0DF16',
-                      opacity: 0.3,
-                      filter: 'blur(8px)',
-                      backgroundImage: 'url(/images/step-placeholder.jpg)',
+                      backgroundImage: 'url(' + step.image + ')',
                       backgroundSize: 'cover',
-                      backgroundPosition: 'center'
+                      backgroundPosition: 'center',
+                      width: step.imageWidth,
+                      height: step.imageHeight
                     }}
                   />
                 </div>
@@ -480,8 +488,10 @@ const Home = () => {
                   className="text-lg sm:text-xl md:text-2xl font-sans font-normal text-black text-left"
                   style={{ 
                     fontWeight: 400, 
-                    fontFamily: 'sans-serif',
-                    lineHeight: '1.4'
+                    fontFamily: 'kodchasan',
+                    lineHeight: '1.4',
+                    textAlign: 'center',
+                    fontSize: '30px'
                   }}
                 >
                   {step.title}
@@ -501,7 +511,8 @@ const Home = () => {
                 color: '#000000',
                 backgroundColor: 'transparent',
                 fontWeight: 500,
-                fontFamily: 'sans-serif'
+                fontFamily: 'kodchasan',
+                width: '50%'
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#C0DF16';
@@ -629,7 +640,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title at Top Right */}
           <div className="flex justify-end mb-12 sm:mb-16 md:mb-20">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 300, fontFamily: 'kodchasan' }}>
               Our Products
             </h2>
           </div>
@@ -689,10 +700,10 @@ const Home = () => {
                   
                   {/* Product Title and Description */}
                   <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
                       {oilProduct?.name || 'Oil'}
                     </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'sans-serif' }}>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan', minWidth: '100%' }}>
                       {oilProduct?.subtitle || oilProduct?.description || 'Increased focus and consistent performance'}
                     </p>
                   </div>
@@ -754,10 +765,10 @@ const Home = () => {
                   
                   {/* Product Title and Description */}
                   <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
                       {creamProduct?.name || 'Cream'}
                     </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'sans-serif' }}>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
                       {creamProduct?.subtitle || creamProduct?.description || 'Instant relief and fast recovery.'}
                     </p>
                   </div>
@@ -819,10 +830,10 @@ const Home = () => {
                   
                   {/* Product Title and Description */}
                   <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 700, fontFamily: 'sans-serif' }}>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontFamily: 'kodchasan' }}>
                       {gummyProduct?.name || 'Gummy'}
                     </h3>
-                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'sans-serif' }}>
+                    <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan' }}>
                       {gummyProduct?.subtitle || gummyProduct?.description || 'Deep sleep, restful nights'}
                     </p>
                   </div>
@@ -842,7 +853,8 @@ const Home = () => {
                 color: '#000000',
                 backgroundColor: 'white',
                 fontWeight: 500,
-                fontFamily: 'sans-serif'
+                fontFamily: 'kodchasan',
+                width: '50%'
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#C0DF16';
@@ -869,13 +881,13 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Heading - Left Aligned */}
           <div className="text-left mb-12 sm:mb-16 md:mb-20">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
               We are recognized.
             </h2>
-            <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
               For those who matter,
             </h3>
-            <h4 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 700, fontFamily: 'sans-serif', color: '#C0DF16' }}>
+            <h4 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 700, fontFamily: 'kodchasan', color: '#C0DF16' }}>
               YOU
             </h4>
           </div>
@@ -914,7 +926,7 @@ const Home = () => {
                   className="text-xl sm:text-2xl font-bold text-black mb-4 text-center"
                   style={{ 
                     fontWeight: 700, 
-                    fontFamily: 'sans-serif' 
+                    fontFamily: 'kodchasan' 
                   }}
                 >
                   {testimonial.name}
@@ -924,7 +936,7 @@ const Home = () => {
                 <p 
                   className="text-sm sm:text-base text-black mb-4 text-center flex-grow"
                   style={{ 
-                    fontFamily: 'sans-serif',
+                    fontFamily: 'kodchasan',
                     lineHeight: '1.6'
                   }}
                 >
@@ -1192,8 +1204,8 @@ const Home = () => {
       </section> */}
 
       {/* CTA - Your best version starts now */}
-      <section className="py-0 bg-white relative">
-        <div className="flex flex-col md:flex-row min-h-[600px] md:min-h-[700px]">
+      <section className="relative min-h-screen bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '69%'}}>
           {/* Left Side - Blurred Image (1/3 width) */}
           <div className="w-full md:w-1/3 relative overflow-hidden">
             <div 
@@ -1217,16 +1229,16 @@ const Home = () => {
           </div>
 
           {/* Right Side - Text and Buttons (2/3 width) */}
-          <div className="w-full md:w-2/3 flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-12 md:py-16">
+          <div className="w-full md:w-2/3 flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-12 md:py-16" style={{ alignItems: 'flex-end' }}>
             {/* Text Content */}
             <div className="mb-8 sm:mb-12 text-left">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ float: "right", fontWeight: 400, fontFamily: 'kodchasan' }}>
                 Your best
               </h2>
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'sans-serif' }}>
+              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
                 version starts
               </h3>
-              <h4 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ fontWeight: 700, fontFamily: 'sans-serif', color: '#C0DF16' }}>
+              <h4 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ float: "right", fontWeight: 200, fontFamily: 'kodchasan', color: '#C0DF16' }}>
                 now
               </h4>
             </div>
@@ -1243,7 +1255,7 @@ const Home = () => {
                   color: '#000000',
                   backgroundColor: 'white',
                   fontWeight: 500,
-                  fontFamily: 'sans-serif'
+                  fontFamily: 'kodchasan'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#f9f9f9';
@@ -1269,7 +1281,7 @@ const Home = () => {
                   color: '#000000',
                   backgroundColor: 'white',
                   fontWeight: 500,
-                  fontFamily: 'sans-serif'
+                  fontFamily: 'kodchasan'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#f9f9f9';
@@ -1295,7 +1307,7 @@ const Home = () => {
                   color: '#000000',
                   backgroundColor: '#C0DF16',
                   fontWeight: 500,
-                  fontFamily: 'sans-serif'
+                  fontFamily: 'kodchasan'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#b8d014';
