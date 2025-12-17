@@ -153,6 +153,21 @@ const getFolderName = (type = 'document') => {
   return 'documents';
 };
 
+// Helper function to get base URL from request or environment
+const getBaseUrl = (req) => {
+  // Try to get from request first (most reliable)
+  if (req) {
+    const protocol = req.protocol || (req.secure ? 'https' : 'http');
+    const host = req.get('host') || req.headers.host;
+    if (host) {
+      return `${protocol}://${host}`;
+    }
+  }
+  
+  // Fallback to environment variable
+  return process.env.BACKEND_URL || 'http://localhost:5000';
+};
+
 // Upload file to local storage (replaces Supabase)
 // This function is kept for backwards compatibility but now uses local storage
 export const uploadToSupabase = async (file, req, type = 'document') => {
@@ -161,8 +176,17 @@ export const uploadToSupabase = async (file, req, type = 'document') => {
   if (file.path) {
     const filename = path.basename(file.path);
     const folder = getFolderName(type);
-    const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const baseUrl = getBaseUrl(req);
     const url = `${baseUrl}/uploads/${folder}/${filename}`;
+    
+    console.log(`📁 File saved to: ${file.path}`);
+    console.log(`🔗 Generated URL: ${url}`);
+    console.log(`🌐 Base URL: ${baseUrl} (from ${req ? 'request' : 'env'})`);
+    
+    // Verify file exists
+    if (!fs.existsSync(file.path)) {
+      throw new Error(`File was not saved correctly: ${file.path}`);
+    }
     
     return {
       filename,
@@ -181,8 +205,12 @@ export const uploadToSupabase = async (file, req, type = 'document') => {
     fs.writeFileSync(filePath, file.buffer);
     
     const folder = getFolderName(type);
-    const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const baseUrl = getBaseUrl(req);
     const url = `${baseUrl}/uploads/${folder}/${filename}`;
+    
+    console.log(`📁 File saved to: ${filePath}`);
+    console.log(`🔗 Generated URL: ${url}`);
+    console.log(`🌐 Base URL: ${baseUrl} (from ${req ? 'request' : 'env'})`);
     
     return {
       filename,
@@ -190,6 +218,12 @@ export const uploadToSupabase = async (file, req, type = 'document') => {
       url
     };
   }
+  
+  console.error('❌ File object structure:', {
+    hasPath: !!file.path,
+    hasBuffer: !!file.buffer,
+    keys: Object.keys(file)
+  });
   
   throw new Error('File upload failed: no file data available');
 };

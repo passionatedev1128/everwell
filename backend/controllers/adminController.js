@@ -544,10 +544,23 @@ export const uploadProductImages = async (req, res, next) => {
       });
     }
 
+    console.log('📤 Uploading', files.length, 'image(s)...');
+    console.log('File details:', files.map(f => ({ 
+      originalname: f.originalname, 
+      path: f.path, 
+      filename: f.filename,
+      size: f.size 
+    })));
+
     // Upload all images to local storage
     const uploadPromises = files.map(file => uploadToSupabase(file, req, 'product'));
     const uploadResults = await Promise.all(uploadPromises);
-    const imageUrls = uploadResults.map(result => result.url);
+    const imageUrls = uploadResults.map(result => {
+      console.log('✅ Upload result:', result);
+      return result.url;
+    });
+
+    console.log('📋 Generated URLs:', imageUrls);
 
     res.json({
       success: true,
@@ -555,6 +568,7 @@ export const uploadProductImages = async (req, res, next) => {
       images: imageUrls
     });
   } catch (error) {
+    console.error('❌ Upload error:', error);
     next(error);
   }
 };

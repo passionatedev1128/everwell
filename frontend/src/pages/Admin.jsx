@@ -803,13 +803,18 @@ const Admin = () => {
       setUploadingImages(true);
       const response = await uploadProductImages(files);
       
+      console.log('📤 Upload response:', response);
+      
       if (response.success && response.images) {
+        console.log('✅ Received image URLs:', response.images);
+        
         // Add uploaded image URLs to the form
         // Replace empty strings first, then add to the end
         const newImages = [...productForm.images];
         let imageIndex = 0;
         
         response.images.forEach((url) => {
+          console.log('🖼️ Processing image URL:', url);
           // Find first empty string to replace
           const emptyIndex = newImages.findIndex(img => !img || img.trim() === '');
           if (emptyIndex !== -1) {
@@ -824,14 +829,20 @@ const Admin = () => {
         const filteredImages = newImages.filter(img => img && img.trim() !== '');
         const finalImages = filteredImages.length > 0 ? filteredImages : [''];
         
+        console.log('📋 Final images array:', finalImages);
+        
         // Use functional update to ensure we have the latest state
         setProductForm(prevForm => ({
           ...prevForm,
           images: finalImages
         }));
         toast.success(`${response.images.length} imagem(ns) enviada(s) com sucesso!`);
+      } else {
+        console.error('❌ Upload failed or no images in response:', response);
+        toast.error('Erro: Nenhuma imagem foi retornada do servidor.');
       }
     } catch (err) {
+      console.error('❌ Upload error:', err);
       toast.error(err.response?.data?.message || 'Erro ao enviar imagens.');
     } finally {
       setUploadingImages(false);
@@ -2948,16 +2959,23 @@ const Admin = () => {
                     </div>
                     {productForm.images.map((image, index) => (
                       <div key={`product-image-${index}`} className="flex gap-2 mb-2 items-center">
-                        <div className={`w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0 ${image ? '' : 'hidden'}`}>
-                          <img
-                            src={image || 'https://via.placeholder.com/128?text=Sem+Imagem'}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/128?text=Erro';
-                            }}
-                          />
-                        </div>
+                        {image && image.trim() && (
+                          <div className="w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0">
+                            <img
+                              src={image}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error('❌ Image failed to load:', image);
+                                e.target.src = 'https://via.placeholder.com/128?text=Erro';
+                                e.target.onerror = null; // Prevent infinite loop
+                              }}
+                              onLoad={() => {
+                                console.log('✅ Image loaded successfully:', image);
+                              }}
+                            />
+                          </div>
+                        )}
                         <input
                           type="url"
                           value={image || ''}

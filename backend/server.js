@@ -40,12 +40,13 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "blob:", process.env.BACKEND_URL, "https:"],
+      imgSrc: ["'self'", "data:", "blob:", process.env.BACKEND_URL, process.env.FRONTEND_URL, "http://localhost:5000", "https:"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
   },
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false // Disable COEP to avoid ORB issues
 }));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -72,7 +73,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Serve uploaded files statically with CORS headers (custom handler for ORB compliance)
-// NOTE: This is kept for backwards compatibility with old files. New uploads use Supabase Storage.
 const uploadsPath = path.join(__dirname, 'uploads');
 // Custom route handler for uploads to ensure proper headers for ORB compliance
 app.use('/uploads', (req, res, next) => {
@@ -80,17 +80,35 @@ app.use('/uploads', (req, res, next) => {
   
   // Handle OPTIONS request first
   if (req.method === 'OPTIONS') {
-    res.set('Access-Control-Allow-Origin', frontendUrl);
-    res.set('Access-Control-Allow-Credentials', 'true');
-    res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Origin', frontendUrl);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     return res.status(200).end();
   }
   
   // When mounted with app.use('/uploads', ...), req.path is relative to mount point
   // So /uploads/products/image.jpg becomes /products/image.jpg
-  // But we need the full path from uploads root, so use req.path as-is
   const filePath = req.path; // e.g., /products/image.jpg
+  
+  // Normalize the path to prevent directory traversal
+  const normalizedPath = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
+  const fullPath = path.join(uploadsPath, normalizedPath);
+  
+  // Security check: ensure the resolved path is within uploads directory
+  const resolvedPath = path.resolve(fullPath);
+  const resolvedUploadsPath = path.resolve(uploadsPath);
+  if (!resolvedPath.startsWith(resolvedUploadsPath)) {
+    res.status(403).json({ error: 'Access denied' });
+    return;
+  }
+  
+  // Check if file exists first
+  if (!fs.existsSync(fullPath)) {
+    res.status(404).json({ error: 'File not found' });
+    return;
+  }
   
   // Get file extension to determine Content-Type
   const ext = path.extname(filePath).toLowerCase();
@@ -106,35 +124,34 @@ app.use('/uploads', (req, res, next) => {
     '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   };
   
-  // Set CORS headers FIRST (critical for ORB)
-  res.set('Access-Control-Allow-Origin', frontendUrl);
-  res.set('Access-Control-Allow-Credentials', 'true');
-  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
-  res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  // Determine Content-Type
+  const contentType = imageTypes[ext] || 'application/octet-stream';
   
-  // Set Content-Type (critical for ORB - must be set before sending)
-  if (imageTypes[ext]) {
-    res.set('Content-Type', imageTypes[ext]);
-  } else {
-    // Default Content-Type for other files
-    res.set('Content-Type', 'application/octet-stream');
-  }
+  // Set CORS headers FIRST (critical for ORB - must be before Content-Type)
+  res.setHeader('Access-Control-Allow-Origin', frontendUrl);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // Set Content-Type header (critical for ORB - must be explicit and correct)
+  res.setHeader('Content-Type', contentType);
   
   // Set cache headers for images
   if (imageTypes[ext] && ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(imageTypes[ext])) {
-    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   }
   
-  // Send file using root option (safer, prevents directory traversal)
-  res.sendFile(filePath, { root: uploadsPath }, (err) => {
-    if (err) {
-      console.error('Error sending file:', err.message, 'Path:', filePath);
-      if (!res.headersSent) {
-        res.status(404).json({ error: 'File not found' });
-      }
+  // Use stream to send file - this ensures headers are respected
+  const fileStream = fs.createReadStream(fullPath);
+  fileStream.on('error', (err) => {
+    console.error('Error reading file:', err.message, 'Path:', filePath);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Error reading file' });
     }
   });
+  
+  fileStream.pipe(res);
 });
 
 // Health check
