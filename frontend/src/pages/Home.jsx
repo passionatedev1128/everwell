@@ -106,9 +106,6 @@ const Home = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [productHighlights, setProductHighlights] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [smokeParticles, setSmokeParticles] = useState([]);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [prevMousePos, setPrevMousePos] = useState({ x: 0, y: 0 });
   const [fireworkVisible, setFireworkVisible] = useState(false);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
@@ -134,83 +131,6 @@ const Home = () => {
       setIsClosing(false);
     }, 300); // Match animation duration
   };
-
-  // Mouse tracking and magical star particles
-  useEffect(() => {
-    let animationFrameId;
-    
-    const handleMouseMove = (e) => {
-      const newPos = { x: e.clientX, y: e.clientY };
-      
-      // Calculate mouse movement direction
-      const dx = newPos.x - prevMousePos.x;
-      const dy = newPos.y - prevMousePos.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      // Create multiple colorful star particles when mouse moves
-      if (distance > 3 && prevMousePos.x !== 0 && prevMousePos.y !== 0) {
-        const angle = Math.atan2(dy, dx);
-        const speed = Math.min(distance * 0.4, 40);
-        
-        // Colorful palette for dazzling effect
-        const colors = [
-          { main: '#C0DF16', glow: 'rgba(192, 223, 22, 0.8)' }, // Lime green
-          { main: '#FFD700', glow: 'rgba(255, 215, 0, 0.8)' },   // Gold
-          { main: '#FF6B9D', glow: 'rgba(255, 107, 157, 0.8)' }, // Pink
-          { main: '#4ECDC4', glow: 'rgba(78, 205, 196, 0.8)' },  // Turquoise
-          { main: '#FFA07A', glow: 'rgba(255, 160, 122, 0.8)' }, // Light salmon
-          { main: '#BA55D3', glow: 'rgba(186, 85, 211, 0.8)' },  // Medium orchid
-        ];
-        
-        // Create 3-5 star particles with random colors and directions
-        const particleCount = Math.floor(Math.random() * 3) + 3; // 3-5 particles
-        const newParticles = [];
-        
-        for (let i = 0; i < particleCount; i++) {
-          const colorIndex = Math.floor(Math.random() * colors.length);
-          const color = colors[colorIndex];
-          
-          // Vary the direction slightly for each particle
-          const spreadAngle = angle + (Math.random() - 0.5) * 0.8; // Spread of ~45 degrees
-          const particleSpeed = speed * (0.5 + Math.random() * 0.5); // Vary speed
-          const size = 4 + Math.random() * 4; // Random size between 4-8px
-          
-          const particle = {
-            id: Date.now() + Math.random() + i,
-            x: newPos.x,
-            y: newPos.y,
-            dx: Math.cos(spreadAngle) * particleSpeed,
-            dy: Math.sin(spreadAngle) * particleSpeed,
-            color: color.main,
-            glow: color.glow,
-            size: size,
-            rotation: Math.random() * 360,
-          };
-          
-          newParticles.push(particle);
-        }
-        
-        setSmokeParticles(prev => [...prev.slice(-30), ...newParticles]);
-        
-        // Remove particles after animation
-        newParticles.forEach(particle => {
-          setTimeout(() => {
-            setSmokeParticles(prev => prev.filter(p => p.id !== particle.id));
-          }, 800);
-        });
-      }
-      
-      setPrevMousePos(newPos);
-      setMousePos(newPos);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    };
-  }, [prevMousePos]);
 
   // Firework effect for "every day" text
   useEffect(() => {
@@ -327,48 +247,6 @@ const Home = () => {
     >
       {/* Subtle background effect - pleasing and non-stimulating */}
       <div className="homepage-bg-effect" />
-      
-      {/* Magical star particles */}
-      {smokeParticles.map(particle => (
-        <div
-          key={particle.id}
-          className="magic-star-particle"
-          style={{
-            left: `${particle.x}px`,
-            top: `${particle.y}px`,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            animation: `magicStarFloat${particle.id} 0.8s ease-out forwards`,
-          }}
-        >
-          <style>{`
-            @keyframes magicStarFloat${particle.id} {
-              0% {
-                opacity: 1;
-                transform: translate(-50%, -50%) rotate(${particle.rotation}deg) scale(1);
-              }
-              50% {
-                opacity: 0.9;
-                transform: translate(calc(-50% + ${particle.dx * 0.5}px), calc(-50% + ${particle.dy * 0.5}px)) rotate(${particle.rotation + 180}deg) scale(1.2);
-              }
-              100% {
-                opacity: 0;
-                transform: translate(calc(-50% + ${particle.dx}px), calc(-50% + ${particle.dy}px)) rotate(${particle.rotation + 360}deg) scale(0.3);
-              }
-            }
-          `}</style>
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              background: particle.color,
-              clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-              filter: `drop-shadow(0 0 4px ${particle.glow}) drop-shadow(0 0 8px ${particle.glow})`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        </div>
-      ))}
       <div className="relative z-10">
       {/* Hero Section - Focus Performance Recovery */}
       <section ref={heroSectionRef} className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
