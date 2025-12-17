@@ -110,11 +110,13 @@ const Home = () => {
   const [fallingLeaves, setFallingLeaves] = useState([]);
   const [trustBadgesVisible, setTrustBadgesVisible] = useState(false);
   const [nextLevelVisible, setNextLevelVisible] = useState(false);
+  const [productsVisible, setProductsVisible] = useState(false);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
   const heroSectionRef = useRef(null);
   const trustBadgesRef = useRef(null);
   const nextLevelRef = useRef(null);
+  const productsRef = useRef(null);
 
   // Helper function to find product by name (case-insensitive)
   const findProductByName = (productName) => {
@@ -231,6 +233,22 @@ const Home = () => {
       nextLevelObserver.observe(nextLevelRef.current);
     }
 
+    // Products section scroll observer
+    const productsObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setProductsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (productsRef.current) {
+      productsObserver.observe(productsRef.current);
+    }
+
     // Fetch products for highlights
     const fetchProducts = async () => {
       try {
@@ -306,6 +324,9 @@ const Home = () => {
       }
       if (nextLevelRef.current) {
         nextLevelObserver.unobserve(nextLevelRef.current);
+      }
+      if (productsRef.current) {
+        productsObserver.unobserve(productsRef.current);
       }
       // Reset fetch flag on unmount to allow refetch on remount
       testimonialsFetchedRef.current = false;
@@ -932,18 +953,18 @@ const Home = () => {
       )} */}
 
       {/* Our Products */}
-      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+      <section ref={productsRef} className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title at Top Right */}
           <div className="flex justify-end mb-12 sm:mb-16 md:mb-20">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 300, fontFamily: 'kodchasan' }}>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 300, fontFamily: 'kodchasan', color: '#C0DF16' }}>
               Our Products
             </h2>
           </div>
           {/* Product Cards Container with Carousel */}
           <div className="mb-12 sm:mb-16">
             <SimpleCarousel
-              items={productHighlights.map((product) => (
+              items={productHighlights.map((product, productIndex) => (
                 <div key={product.name || product.slug} className="flex flex-col items-center" style={{ minWidth: "100%"}}>
                   {/* Product Frame with Lime Green Border */}
                   <div 
@@ -951,7 +972,10 @@ const Home = () => {
                     style={{
                       border: '2px solid #C0DF16',
                       borderRadius: '12px',
-                      backgroundColor: 'white'
+                      backgroundColor: 'white',
+                      animation: productsVisible ? `productCardSlideIn 0.4s ease-out ${productIndex * 0.1}s forwards` : 'none',
+                      opacity: productsVisible ? 0 : 0,
+                      transform: productsVisible ? 'translateX(-100px)' : 'translateX(-100px)'
                     }}
                   >
                     {/* Product Image Container with White Circular Pedestal */}
@@ -966,7 +990,13 @@ const Home = () => {
                         }}
                       />
                       {/* Product Image - Only Clickable */}
-                      <div className="relative z-10">
+                      <div 
+                        className="relative z-10"
+                        style={{
+                          animation: productsVisible ? `productImageAppear 0.4s ease-out ${0.3 + productIndex * 0.1}s forwards` : 'none',
+                          opacity: productsVisible ? 0 : 0
+                        }}
+                      >
                         {product?.image ? (
                           <Link
                             to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
@@ -1394,7 +1424,7 @@ const Home = () => {
               src="/images/version.png"
               alt="Version"
               className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ width: '65%', height: '89%' }}
+              style={{ width: '55%', height: '100%' }}
             />
           </div>
 

@@ -2351,6 +2351,29 @@ select#address\\.country.country-select.form-input option:disabled {
   }
 }
 
+/* Product Cards Animations */
+@keyframes productCardSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes productImageAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 #our-products-button:hover {
   color: white !important;
   background-color: #C0DF16 !important;
