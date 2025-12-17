@@ -2378,3 +2378,95 @@ select#address\\.country.country-select.form-input option:disabled {
   color: white !important;
   background-color: #C0DF16 !important;
 }
+
+/* Version section animations */
+@keyframes versionImageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes versionTextSlideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes versionNowSmokePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(0.95);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.1);
+    opacity: 0.95;
+  }
+}
+
+@keyframes versionButtonSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Version section animations are now controlled via inline styles with scroll triggers */
+
+@keyframes buttonSlideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Button slide animations are now controlled via inline styles with scroll triggers */
+
+/* Feedback Cards Slide In From Right to Left */
+@keyframes testimonialCardSlideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* FAQ Items Slide In From Left to Right */
+@keyframes faqSlideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

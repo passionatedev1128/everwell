@@ -111,12 +111,19 @@ const Home = () => {
   const [trustBadgesVisible, setTrustBadgesVisible] = useState(false);
   const [nextLevelVisible, setNextLevelVisible] = useState(false);
   const [productsVisible, setProductsVisible] = useState(false);
+  const [testimonialsVisible, setTestimonialsVisible] = useState(false);
+  const [youDropped, setYouDropped] = useState(false);
+  const [versionSectionVisible, setVersionSectionVisible] = useState(false);
+  const [faqSectionVisible, setFaqSectionVisible] = useState(false);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
   const heroSectionRef = useRef(null);
   const trustBadgesRef = useRef(null);
   const nextLevelRef = useRef(null);
   const productsRef = useRef(null);
+  const testimonialsRef = useRef(null);
+  const versionSectionRef = useRef(null);
+  const faqSectionRef = useRef(null);
 
   // Helper function to find product by name (case-insensitive)
   const findProductByName = (productName) => {
@@ -249,6 +256,41 @@ const Home = () => {
       productsObserver.observe(productsRef.current);
     }
 
+    // Version section scroll observer
+    const versionSectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVersionSectionVisible(true);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (versionSectionRef.current) {
+      versionSectionObserver.observe(versionSectionRef.current);
+    }
+
+    // FAQ section scroll observer
+    const faqSectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setFaqSectionVisible(true);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (faqSectionRef.current) {
+      faqSectionObserver.observe(faqSectionRef.current);
+    }
+
+    // Testimonials section scroll observer - will be set up when testimonials are loaded
+    // This is handled in a separate useEffect that watches for testimonialsRef
+
     // Fetch products for highlights
     const fetchProducts = async () => {
       try {
@@ -328,11 +370,60 @@ const Home = () => {
       if (productsRef.current) {
         productsObserver.unobserve(productsRef.current);
       }
+      if (versionSectionRef.current) {
+        versionSectionObserver.unobserve(versionSectionRef.current);
+      }
+      if (faqSectionRef.current) {
+        faqSectionObserver.unobserve(faqSectionRef.current);
+      }
+      if (testimonialsRef.current) {
+        testimonialsObserver.unobserve(testimonialsRef.current);
+      }
       // Reset fetch flag on unmount to allow refetch on remount
       testimonialsFetchedRef.current = false;
     };
   }, []);
 
+  // Set up testimonials observer when testimonials section is rendered
+  useEffect(() => {
+    if (!testimonials || testimonials.length === 0) {
+      return;
+    }
+
+    let testimonialsObserver = null;
+
+    // Wait a bit for the section to render
+    const timer = setTimeout(() => {
+      if (testimonialsRef.current) {
+        testimonialsObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting && !testimonialsVisible) {
+                console.log('✅ Testimonials section is visible, triggering animations');
+                // Show testimonials section first (cards will be visible)
+                setTestimonialsVisible(true);
+                // Trigger "YOU" drop effect immediately (starts first)
+                setYouDropped(true);
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+
+        testimonialsObserver.observe(testimonialsRef.current);
+        console.log('👀 Testimonials observer set up');
+      } else {
+        console.warn('⚠️ testimonialsRef.current is null');
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (testimonialsObserver && testimonialsRef.current) {
+        testimonialsObserver.unobserve(testimonialsRef.current);
+      }
+    };
+  }, [testimonials, testimonialsVisible]);
 
   return (
     <div 
@@ -757,7 +848,7 @@ const Home = () => {
                   borderRadius: '30px',
                   minHeight: '400px',
                   borderColor: '#C0DF16',
-                  animation: nextLevelVisible ? `stepCardAppear 0.8s ease-out ${2.4 + stepIndex * 0.3}s forwards` : 'none',
+                  animation: nextLevelVisible ? `stepCardAppear 0.5s ease-out ${1.0 + stepIndex * 0.15}s forwards` : 'none',
                   opacity: nextLevelVisible ? 0 : 0
                 }}
               >
@@ -769,7 +860,7 @@ const Home = () => {
                     border: '2px solid black',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                     borderColor: '#C0DF16',
-                    animation: nextLevelVisible ? `numberThreeDrop 0.6s ease-out ${2.0 + stepIndex * 0.3}s forwards` : 'none',
+                    animation: nextLevelVisible ? `numberThreeDrop 0.5s ease-out ${0.8 + stepIndex * 0.15}s forwards` : 'none',
                     opacity: nextLevelVisible ? 0 : 0,
                     transform: nextLevelVisible ? 'translateY(-30px)' : 'translateY(-30px)'
                   }}
@@ -803,7 +894,7 @@ const Home = () => {
                     textAlign: 'center',
                     fontSize: '30px',
                     color: '#C0DF16',
-                    animation: nextLevelVisible ? `stepTitleAppear 0.8s ease-out ${3.0 + stepIndex * 0.3}s forwards` : 'none',
+                    animation: nextLevelVisible ? `stepTitleAppear 0.5s ease-out ${1.2 + stepIndex * 0.15}s forwards` : 'none',
                     opacity: nextLevelVisible ? 0 : 0
                   }}
                 >
@@ -817,7 +908,7 @@ const Home = () => {
           <div className="text-center">
             <Link
               to="/agendar"
-              className="inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider tansition-all duration-300"
+              className="start-now-button-slide inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider tansition-all duration-300"
               style={{
                 borderRadius: '8px',
                 borderColor: '#C0DF16',
@@ -825,7 +916,9 @@ const Home = () => {
                 backgroundColor: 'transparent',
                 fontWeight: 500,
                 fontFamily: 'kodchasan',
-                width: '50%'
+                width: '50%',
+                animation: nextLevelVisible ? 'buttonSlideInFromLeft 0.6s ease-out 3.3s forwards' : 'none',
+                opacity: nextLevelVisible ? 0 : 0
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#C0DF16';
@@ -838,7 +931,7 @@ const Home = () => {
               onClick={() => {
                 trackAnalyticsEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
                 trackGtmEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
-              }}r
+              }}
             >
               START NOW
             </Link>
@@ -1039,7 +1132,7 @@ const Home = () => {
           <div className="text-center">
             <Link
               to="/produtos"
-              className="inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300"
+              className="discover-products-button-slide inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300"
               style={{
                 borderRadius: '8px',
                 borderColor: '#C0DF16',
@@ -1047,7 +1140,9 @@ const Home = () => {
                 backgroundColor: 'white',
                 fontWeight: 500,
                 fontFamily: 'kodchasan',
-                width: '50%'
+                width: '50%',
+                animation: productsVisible ? 'buttonSlideInFromLeft 0.6s ease-out 0.5s forwards' : 'none',
+                opacity: productsVisible ? 0 : 0
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#C0DF16';
@@ -1070,23 +1165,217 @@ const Home = () => {
 
       {/* Testimonials - We are recognized */}
       {testimonials && testimonials.length > 0 && (
-      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }} data-testimonials-count={testimonials.length}>
+      <section 
+        ref={testimonialsRef}
+        className="py-12 sm:py-16 md:py-24" 
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }} 
+        data-testimonials-count={testimonials.length}
+      >
+        <style>{`
+          @keyframes slideUpFromBottom {
+            0% {
+              transform: translateY(100px);
+              opacity: 0;
+            }
+            100% {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+          
+          @keyframes dropAndImpact {
+            0% {
+              transform: translateY(-200px) scale(1);
+              opacity: 0;
+            }
+            40% {
+              transform: translateY(20px) scale(1.1);
+              opacity: 1;
+            }
+            50% {
+              transform: translateY(0) scale(0.95);
+            }
+            60% {
+              transform: translateY(0) scale(1.05);
+            }
+            70% {
+              transform: translateY(0) scale(1);
+            }
+            100% {
+              transform: translateY(0) scale(1);
+              opacity: 1;
+            }
+          }
+          
+          @keyframes dustRise {
+            0% {
+              transform: translateY(0) scale(0);
+              opacity: 0.8;
+            }
+            50% {
+              opacity: 0.6;
+            }
+            100% {
+              transform: translateY(-100px) scale(2);
+              opacity: 0;
+            }
+          }
+          
+          @keyframes smokeRise {
+            0% {
+              transform: translateY(0) scale(0.5);
+              opacity: 0.7;
+            }
+            100% {
+              transform: translateY(-150px) scale(3);
+              opacity: 0;
+            }
+          }
+          
+          @keyframes inkMorph {
+            0% {
+              clip-path: circle(0% at 50% 50%);
+              transform: scale(0.8) rotate(0deg);
+              opacity: 0;
+            }
+            30% {
+              clip-path: circle(30% at 50% 50%);
+              transform: scale(1.1) rotate(5deg);
+              opacity: 0.7;
+            }
+            60% {
+              clip-path: circle(60% at 50% 50%);
+              transform: scale(0.95) rotate(-3deg);
+              opacity: 0.9;
+            }
+            100% {
+              clip-path: circle(100% at 50% 50%);
+              transform: scale(1) rotate(0deg);
+              opacity: 1;
+            }
+          }
+          
+          .testimonial-recognized {
+            animation: slideUpFromBottom 0.8s ease-out forwards;
+            opacity: 0;
+          }
+          
+          .testimonial-matter {
+            animation: slideUpFromBottom 0.8s ease-out 0.3s forwards;
+            opacity: 0;
+          }
+          
+          .testimonial-you {
+            position: relative;
+            animation: dropAndImpact 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            opacity: 0;
+          }
+          
+          .dust-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(100, 100, 100, 0.6) 0%, rgba(100, 100, 100, 0) 70%);
+            border-radius: 50%;
+            animation: dustRise 1.5s ease-out forwards;
+          }
+          
+          .smoke-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(150, 150, 150, 0.4) 0%, rgba(150, 150, 150, 0) 70%);
+            border-radius: 50%;
+            animation: smokeRise 2s ease-out forwards;
+          }
+          
+          .testimonial-card-ink {
+            animation: inkMorph 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+          }
+        `}</style>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Heading - Left Aligned */}
-          <div className="text-left mb-12 sm:mb-16 md:mb-20">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
+          <div className="text-left mb-12 sm:mb-16 md:mb-20" style={{ position: 'relative' }}>
+            <h2 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2"
+              style={{ 
+                fontWeight: 400, 
+                fontFamily: 'kodchasan',
+                animation: testimonialsVisible ? 'slideUpFromBottom 0.8s ease-out forwards' : 'none',
+                opacity: testimonialsVisible ? 1 : 0,
+                transform: testimonialsVisible ? 'translateY(0)' : 'translateY(100px)'
+              }}
+            >
               We are recognized.
             </h2>
-            <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
+            <h3 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2"
+              style={{ 
+                fontWeight: 400, 
+                fontFamily: 'kodchasan',
+                animation: testimonialsVisible ? 'slideUpFromBottom 0.8s ease-out 0.3s forwards' : 'none',
+                opacity: testimonialsVisible ? 1 : 0,
+                transform: testimonialsVisible ? 'translateY(0)' : 'translateY(100px)'
+              }}
+            >
               For those who matter,
             </h3>
-            <h4 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 700, fontFamily: 'kodchasan', color: '#C0DF16' }}>
+            <h4 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold"
+              style={{ 
+                fontWeight: 700, 
+                fontFamily: 'kodchasan', 
+                color: '#C0DF16',
+                position: 'relative',
+                display: 'inline-block',
+                animation: youDropped ? 'dropAndImpact 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards' : 'none',
+                opacity: youDropped ? 1 : 0,
+                transform: youDropped ? 'translateY(0) scale(1)' : 'translateY(-200px) scale(1)'
+              }}
+            >
               YOU
+              {/* Dust particles */}
+              {youDropped && [...Array(12)].map((_, i) => {
+                const angle = (i / 12) * Math.PI * 2;
+                const distance = 30 + Math.random() * 20;
+                const x = Math.cos(angle) * distance;
+                return (
+                  <div
+                    key={`dust-${i}`}
+                    className="dust-particle"
+                    style={{
+                      left: '50%',
+                      bottom: '0',
+                      transform: `translateX(calc(-50% + ${x}px))`,
+                      animationDelay: `${0.4 + (i * 0.05)}s`,
+                    }}
+                  />
+                );
+              })}
+              {/* Smoke particles */}
+              {youDropped && [...Array(8)].map((_, i) => {
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = 20 + Math.random() * 15;
+                const x = Math.cos(angle) * distance;
+                return (
+                  <div
+                    key={`smoke-${i}`}
+                    className="smoke-particle"
+                    style={{
+                      left: '50%',
+                      bottom: '0',
+                      transform: `translateX(calc(-50% + ${x}px))`,
+                      animationDelay: `${0.5 + (i * 0.08)}s`,
+                    }}
+                  />
+                );
+              })}
             </h4>
           </div>
           {/* Testimonial Cards Container with Carousel */}
           <SimpleCarousel
-            items={testimonials.map((testimonial) => (
+            items={testimonials.map((testimonial, index) => (
               <div 
                 key={testimonial.id || testimonial.name}
                 className="flex flex-col items-center"
@@ -1099,7 +1388,9 @@ const Home = () => {
                     padding: '2rem',
                     minHeight: '400px',
                     width: '100%',
-                    color: 'white'
+                    color: 'white',
+                    animation: testimonialsVisible ? `testimonialCardSlideInFromRight 0.8s ease-out ${index * 0.15}s forwards` : 'none',
+                    opacity: testimonialsVisible ? 0 : 0
                   }}
                 >
                   {/* Person Image - Centered */}
@@ -1404,15 +1695,20 @@ const Home = () => {
       </section> */}
 
       {/* CTA - Your best version starts now */}
-      <section className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+      <section ref={versionSectionRef} className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '69%'}}>
           {/* Left Side - Blurred Image (1/3 width) */}
           <div className="w-full md:w-1/3">
             <img 
               src="/images/version.png"
               alt="Version"
-              className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ width: '50%', height: '100%' }}
+              className="version-image-slide absolute inset-0 w-full h-full bg-cover bg-center"
+              style={{ 
+                width: '50%', 
+                height: '100%',
+                animation: versionSectionVisible ? 'versionImageSlideIn 0.8s ease-out 0s forwards' : 'none',
+                opacity: versionSectionVisible ? 0 : 0
+              }}
             />
           </div>
 
@@ -1420,13 +1716,32 @@ const Home = () => {
           <div className="w-full md:w-2/3 flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-12 md:py-16" style={{ alignItems: 'flex-end' }}>
             {/* Text Content */}
             <div className="mb-8 sm:mb-12 text-left">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ float: "right", fontWeight: 400, fontFamily: 'kodchasan' }}>
+              <h2 className="version-text-your-best text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ 
+                float: "right", 
+                fontWeight: 400, 
+                fontFamily: 'kodchasan',
+                animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 0.8s forwards' : 'none',
+                opacity: versionSectionVisible ? 0 : 0
+              }}>
                 Your best
               </h2>
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
+              <h3 className="version-text-starts text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ 
+                fontWeight: 400, 
+                fontFamily: 'kodchasan',
+                animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 1.2s forwards' : 'none',
+                opacity: versionSectionVisible ? 0 : 0
+              }}>
                 version starts
               </h3>
-              <h4 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ float: "right", fontWeight: 200, fontFamily: 'kodchasan', color: '#C0DF16' }}>
+              <h4 className="version-text-now text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ 
+                float: "right", 
+                fontWeight: 200, 
+                fontFamily: 'kodchasan', 
+                color: '#C0DF16',
+                animation: versionSectionVisible ? 'versionNowSmokePulse 1.5s ease-in-out 1.6s infinite' : 'none',
+                opacity: versionSectionVisible ? 0 : 0,
+                animationFillMode: versionSectionVisible ? 'forwards' : 'none'
+              }}>
                 now
               </h4>
             </div>
@@ -1436,14 +1751,16 @@ const Home = () => {
               {/* Button 1: SCHEDULE YOUR APPOINTMENT */}
               <Link
                 to="/agendar"
-                className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
+                className="version-button-1 inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
                 style={{
                   borderRadius: '8px',
                   borderColor: '#C0DF16',
                   color: '#C0DF16',
                   backgroundColor: 'white',
                   fontWeight: 500,
-                  fontFamily: 'kodchasan'
+                  fontFamily: 'kodchasan',
+                  animation: versionSectionVisible ? 'versionButtonSlideIn 0.6s ease-out 2.4s forwards' : 'none',
+                  opacity: versionSectionVisible ? 0 : 0
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#C0DF16';
@@ -1464,14 +1781,16 @@ const Home = () => {
               {/* Button 2: DISCOVER THE PRODUCTS */}
               <Link
                 to="/produtos"
-                className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
+                className="version-button-2 inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
                 style={{
                   borderRadius: '8px',
                   borderColor: '#C0DF16',
                   color: '#C0DF16',
                   backgroundColor: 'white',
                   fontWeight: 500,
-                  fontFamily: 'kodchasan'
+                  fontFamily: 'kodchasan',
+                  animation: versionSectionVisible ? 'versionButtonSlideIn 0.6s ease-out 2.7s forwards' : 'none',
+                  opacity: versionSectionVisible ? 0 : 0
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#C0DF16';
@@ -1492,14 +1811,16 @@ const Home = () => {
               {/* Button 3: GET YOUR QUESTIONS ANSWERED */}
               <Link
                 to="/duvidas"
-                className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
+                className="version-button-3 inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
                 style={{
                   borderRadius: '8px',
                   borderColor: '#C0DF16',
                   color: '#C0DF16',
                   backgroundColor: 'transparent',
                   fontWeight: 500,
-                  fontFamily: 'kodchasan'
+                  fontFamily: 'kodchasan',
+                  animation: versionSectionVisible ? 'versionButtonSlideIn 0.6s ease-out 3.0s forwards' : 'none',
+                  opacity: versionSectionVisible ? 0 : 0
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#C0DF16';
@@ -1525,7 +1846,7 @@ const Home = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+      <section ref={faqSectionRef} className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <p className="section-heading text-xs sm:text-sm">FAQ EverWell</p>
@@ -1534,7 +1855,7 @@ const Home = () => {
               Transparência e clareza em cada etapa. Confira as respostas para as perguntas mais frequentes.
             </p>
           </div>
-          <FAQAccordion />
+          <FAQAccordion isVisible={faqSectionVisible} />
           <div className="text-center mt-10">
             <Link to="/duvidas" className="btn-secondary inline-flex items-center gap-2 primary-color-text-green">
               Ver todas as dúvidas
