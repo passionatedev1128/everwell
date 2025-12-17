@@ -976,15 +976,6 @@ const Home = () => {
                   >
                     {/* Product Image Container with White Circular Pedestal */}
                     <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
-                      {/* White Circular Pedestal with Shadow */}
-                      <div 
-                        className="absolute bottom-0 w-32 h-8 rounded-full"
-                        style={{
-                          backgroundColor: 'white',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          transform: 'translateY(50%)'
-                        }}
-                      />
                       {/* Product Image - Only Clickable */}
                       <div 
                         className="relative z-10"
