@@ -73,8 +73,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Serve uploaded files statically with CORS headers (custom handler for ORB compliance)
-const uploadsPath = path.join(__dirname, 'uploads');
+// IMPORTANT: Use the same path as upload.js to ensure consistency
+// upload.js uses path.join(__dirname, 'uploads') where __dirname is the config directory
+// So we need to use the config directory's uploads path
+const configDir = path.join(__dirname, 'config');
+const uploadsPath = path.join(configDir, 'uploads');
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+console.log(`📁 Server uploads path: ${uploadsPath}`);
+console.log(`📁 Server __dirname: ${__dirname}`);
 
 // Handle OPTIONS requests for CORS preflight
 app.options('/uploads/*', (req, res) => {
@@ -87,7 +94,51 @@ app.options('/uploads/*', (req, res) => {
 });
 
 // Custom file serving with proper headers for ORB compliance
-app.use('/uploads', express.static(uploadsPath, {
+app.use('/uploads', (req, res, next) => {
+  const filePath = req.path; // e.g., /products/image.png
+  const fullPath = path.join(uploadsPath, filePath);
+  
+  // Log the request for debugging
+  console.log(`📂 File request: ${filePath}`);
+  console.log(`📁 Full path: ${fullPath}`);
+  console.log(`📁 Uploads directory exists: ${fs.existsSync(uploadsPath)}`);
+  console.log(`📁 File exists: ${fs.existsSync(fullPath)}`);
+  
+  // Check if file exists
+  if (!fs.existsSync(fullPath)) {
+    console.error(`❌ File not found: ${fullPath}`);
+    console.error(`📂 Requested path: ${filePath}`);
+    console.error(`📁 Uploads root: ${uploadsPath}`);
+    
+    // List what's actually in the uploads directory
+    if (fs.existsSync(uploadsPath)) {
+      try {
+        const dirs = fs.readdirSync(uploadsPath);
+        console.error(`📁 Directories in uploads: ${dirs.join(', ')}`);
+        
+        // Check products directory
+        const productsPath = path.join(uploadsPath, 'products');
+        if (fs.existsSync(productsPath)) {
+          const files = fs.readdirSync(productsPath);
+          console.error(`📁 Files in products: ${files.slice(0, 10).join(', ')}${files.length > 10 ? '...' : ''}`);
+        } else {
+          console.error(`❌ Products directory does not exist: ${productsPath}`);
+        }
+      } catch (err) {
+        console.error(`❌ Error reading uploads directory: ${err.message}`);
+      }
+    }
+    
+    return res.status(404).json({ 
+      error: 'File not found',
+      path: filePath,
+      uploadsPath: uploadsPath
+    });
+  }
+  
+  // Continue to static file serving
+  next();
+}, express.static(uploadsPath, {
   setHeaders: (res, filePath, stat) => {
     // Set CORS headers (critical for ORB)
     res.setHeader('Access-Control-Allow-Origin', frontendUrl);

@@ -465,9 +465,9 @@ const Home = () => {
       
       <div className="relative z-10">
       {/* Hero Section - Focus Performance Recovery */}
-      <section ref={heroSectionRef} className="relative min-h-screen" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '95%'}}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center" style = {{marginTop: "-162px"}}>
+      <section ref={heroSectionRef} className="relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', marginBottom: '60px' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex" style = {{ alignItems: 'flex-start' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center">
             {/* Left Side - Text Content */}
             <div className="font-kodchasan flex flex-col justify-center z-10">
               {/* Stacked headline: focus, performance, recovery (lowercase) with cascading animation */}
@@ -482,7 +482,7 @@ const Home = () => {
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 {/* Firework burst effect */}
                 {fireworkVisible && (
-                  <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 100 }}>
+                  <div style={{ position: 'absolute', left: '60%', top: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 100 }}>
                     {[...Array(12)].map((_, i) => {
                       const angle = (i / 12) * Math.PI * 2;
                       const distance = 40;
@@ -559,9 +559,11 @@ const Home = () => {
             </div>
             
             {/* Right Side - Blurred Image with fade in from right */}
-            <img src="/images/focus.png" alt="Focus" className="fade-in-from-right"
-              style={{ width: '100%', height: '90%' }}
-            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <img src="/images/focus.png" alt="Focus" className="fade-in-from-right"
+                style={{ width: '90%', height: '40%', marginTop: '40px' }}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -620,51 +622,45 @@ const Home = () => {
       </section> */}
 
       {/* Value Proposition - Unlock your next level */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32" style={{ padding: '65 0 65 0', paddingTop: '30px', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ minWidth: '100%'}}>
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20" style={{ minWidth: '100%'}}>
-            {/* Left Side - Product Image */}
-            <div className="w-full md:w-1/2 flex items-center justify-center md:justify-start" style={{ minWidth: '100%'}}>
-              <div className="relative w-full max-w-md" style={{ minWidth: '20%', marginRight: '10%' }}>
-                <img 
-                  src="/images/unlock.png" 
-                  alt="CBD Oil Product - EverWell"
-                  className="unlock-image-slide w-full h-auto object-contain" 
-                  style={{ maxHeight: '700px', height: '327px' }}
-                  onError={(e) => {
-                    // Fallback if image doesn't exist - create placeholder
-                    e.target.style.display = 'none';
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg';
-                    placeholder.innerHTML = '<div class="text-gray-400 text-sm">Product Image Placeholder<br/>Add /images/unlock.png</div>';
-                    e.target.parentNode.appendChild(placeholder);
-                  }}
-                />
-              </div>
-              {/* Right Side - Text Content */}
-              <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '100%' }}>
-                <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
-                  on
-                </p>
-                <p 
-                  className="unlock-text-slide unlock-gradient-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight mb-4 md:mb-6" 
-                  style={{ 
-                    fontWeight: 400, 
-                    fontFamily: 'kodchasan', 
-                    letterSpacing: '-0.02em'
-                  }}
-                >
-                  Unlock your next level.
-                </p>
-                <h3 className="break-through text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
-                  It's every well.
-                </h3>
-                <p className="fade-in-slow text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, minWidth: '100%' }}>
-                  We create CBD-based products for those seeking constant improvement.
-                </p>
-              </div>
-            </div>
-          </div>
+      <section ref={heroSectionRef} className="relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', marginLeft: '130px', marginBottom: '60px' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex" style = {{ minWidth: '100%', justifyContent: 'center', alignItems: 'flex-start'}}>
+        {/* Left Side - Product Image */}
+        <img 
+          src="/images/unlock.png" 
+          alt="CBD Oil Product - EverWell"
+          className="unlock-image-slide h-auto object-contain" 
+          style={{ maxHeight: '450px' }}
+          onError={(e) => {
+            // Fallback if image doesn't exist - create placeholder
+            e.target.style.display = 'none';
+            const placeholder = document.createElement('div');
+            placeholder.className = 'w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg';
+            placeholder.innerHTML = '<div class="text-gray-400 text-sm">Product Image Placeholder<br/>Add /images/unlock.png</div>';
+            e.target.parentNode.appendChild(placeholder);
+          }}
+        />
+        {/* Right Side - Text Content */}
+        <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '65%', marginLeft: '60px' }}>
+          <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
+            on
+          </p>
+          <p 
+            className="unlock-text-slide unlock-gradient-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight mb-4 md:mb-6" 
+            style={{ 
+              fontWeight: 400, 
+              fontFamily: 'kodchasan', 
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Unlock your next level.
+          </p>
+          <h3 className="break-through text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
+            It's every well.
+          </h3>
+          <p className="fade-in-slow text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, minWidth: '100%' }}>
+            We create CBD-based products for those seeking constant improvement.
+          </p>
+        </div>
         </div>
       </section>
       {/* Trust Badges - Right below header */}
@@ -1425,7 +1421,7 @@ const Home = () => {
               src="/images/version.png"
               alt="Version"
               className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ width: '55%', height: '100%' }}
+              style={{ width: '50%', height: '100%' }}
             />
           </div>
 
