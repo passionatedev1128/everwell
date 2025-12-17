@@ -17,7 +17,7 @@ export const uploadUserPhoto = async (req, res, next) => {
       });
     }
 
-    // Upload to Supabase Storage
+    // Upload to local storage
     const uploadResult = await uploadToSupabase(file, req, 'user');
     const fileUrl = uploadResult.url;
 
@@ -104,7 +104,7 @@ export const uploadDocument = async (req, res, next) => {
       });
     }
 
-    // Upload to Supabase Storage
+    // Upload to local storage
     const uploadResult = await uploadToSupabase(file, req, 'document');
     const fileUrl = uploadResult.url;
 

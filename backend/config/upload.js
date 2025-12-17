@@ -1,10 +1,23 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { getSupabaseClient } from './supabase.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Ensure upload directories exist
+const uploadsDir = path.join(__dirname, 'uploads');
+const documentsDir = path.join(uploadsDir, 'documents');
+const paymentsDir = path.join(uploadsDir, 'payments');
+const productsDir = path.join(uploadsDir, 'products');
+const usersDir = path.join(uploadsDir, 'users');
+
+[uploadsDir, documentsDir, paymentsDir, productsDir, usersDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
 
 // File filter for documents
 const fileFilter = (req, file, cb) => {
@@ -39,44 +52,6 @@ const imageFilter = (req, file, cb) => {
   }
 };
 
-// Use memory storage to get file buffer for Supabase upload
-const memoryStorage = multer.memoryStorage();
-
-// Multer instances (using memory storage for Supabase)
-export const uploadDocument = multer({
-  storage: memoryStorage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB max
-  }
-});
-
-export const uploadPaymentProof = multer({
-  storage: memoryStorage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB max
-  }
-});
-
-// Multer instance for product images
-export const uploadProductImage = multer({
-  storage: memoryStorage,
-  fileFilter: imageFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max for images
-  }
-});
-
-// Multer instance for user photos
-export const uploadUserPhoto = multer({
-  storage: memoryStorage,
-  fileFilter: imageFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max for images
-  }
-});
-
 // Helper function to generate filename
 const generateFilename = (req, file, type = 'document') => {
   let filename = '';
@@ -105,8 +80,69 @@ const generateFilename = (req, file, type = 'document') => {
   return filename;
 };
 
-// Helper function to get Supabase bucket name
-const getBucketName = (type = 'document') => {
+// Helper function to get storage directory based on type
+const getStorageDir = (type = 'document') => {
+  if (type === 'payment') {
+    return paymentsDir;
+  } else if (type === 'product') {
+    return productsDir;
+  } else if (type === 'user') {
+    return usersDir;
+  }
+  return documentsDir;
+};
+
+// Configure disk storage for local file storage
+const getDiskStorage = (type = 'document') => {
+  return multer.diskStorage({
+    destination: (req, file, cb) => {
+      const dir = getStorageDir(type);
+      cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+      const filename = generateFilename(req, file, type);
+      cb(null, filename);
+    }
+  });
+};
+
+// Multer instances (using disk storage for local file storage)
+export const uploadDocument = multer({
+  storage: getDiskStorage('document'),
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB max
+  }
+});
+
+export const uploadPaymentProof = multer({
+  storage: getDiskStorage('payment'),
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB max
+  }
+});
+
+// Multer instance for product images
+export const uploadProductImage = multer({
+  storage: getDiskStorage('product'),
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max for images
+  }
+});
+
+// Multer instance for user photos
+export const uploadUserPhoto = multer({
+  storage: getDiskStorage('user'),
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max for images
+  }
+});
+
+// Helper function to get folder name for URL generation
+const getFolderName = (type = 'document') => {
   if (type === 'payment') {
     return 'payments';
   } else if (type === 'product') {
@@ -117,81 +153,69 @@ const getBucketName = (type = 'document') => {
   return 'documents';
 };
 
-// Upload file to Supabase Storage
+// Upload file to local storage (replaces Supabase)
+// This function is kept for backwards compatibility but now uses local storage
 export const uploadToSupabase = async (file, req, type = 'document') => {
-  const supabase = getSupabaseClient();
-  if (!supabase) {
-    throw new Error('Supabase client not initialized. Please check SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
-  }
-
-  const filename = generateFilename(req, file, type);
-  const bucket = getBucketName(type);
-
-  // Upload file buffer to Supabase Storage
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(filename, file.buffer, {
-      contentType: file.mimetype,
-      upsert: false // Don't overwrite existing files
-    });
-
-  if (error) {
-    console.error(`❌ Supabase upload error (${type}):`, error);
-    throw new Error(`Failed to upload file to Supabase: ${error.message}`);
-  }
-
-  // Get public URL
-  const { data: urlData } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(filename);
-
-  return {
-    filename,
-    path: data.path,
-    url: urlData.publicUrl
-  };
-};
-
-// Helper function to get file URL (now returns Supabase URL)
-export const getFileUrl = (filename, type = 'document') => {
-  const supabase = getSupabaseClient();
-  if (!supabase) {
-    // Fallback to backend URL if Supabase not configured
+  // For disk storage, multer already saved the file, so we just need to generate the URL
+  // If file.path exists, it means multer already saved it
+  if (file.path) {
+    const filename = path.basename(file.path);
+    const folder = getFolderName(type);
     const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
-    let folder = 'documents';
-    if (type === 'payment') {
-      folder = 'payments';
-    } else if (type === 'product') {
-      folder = 'products';
-    } else if (type === 'user') {
-      folder = 'users';
-    }
-    return `${baseUrl}/uploads/${folder}/${filename}`;
+    const url = `${baseUrl}/uploads/${folder}/${filename}`;
+    
+    return {
+      filename,
+      path: file.path,
+      url
+    };
   }
-
-  const bucket = getBucketName(type);
-  const { data } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(filename);
-
-  return data.publicUrl;
+  
+  // Fallback: if file is in memory (buffer), save it manually
+  if (file.buffer) {
+    const filename = generateFilename(req, file, type);
+    const storageDir = getStorageDir(type);
+    const filePath = path.join(storageDir, filename);
+    
+    // Write file to disk
+    fs.writeFileSync(filePath, file.buffer);
+    
+    const folder = getFolderName(type);
+    const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const url = `${baseUrl}/uploads/${folder}/${filename}`;
+    
+    return {
+      filename,
+      path: filePath,
+      url
+    };
+  }
+  
+  throw new Error('File upload failed: no file data available');
 };
 
-// Helper function to delete file from Supabase Storage
+// Helper function to get file URL (returns local URL)
+export const getFileUrl = (filename, type = 'document') => {
+  const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+  const folder = getFolderName(type);
+  return `${baseUrl}/uploads/${folder}/${filename}`;
+};
+
+// Helper function to delete file from local storage
 export const deleteFromSupabase = async (filename, type = 'document') => {
-  const supabase = getSupabaseClient();
-  if (!supabase) {
-    return;
-  }
-
-  const bucket = getBucketName(type);
-  const { error } = await supabase.storage
-    .from(bucket)
-    .remove([filename]);
-
-  if (error) {
-    console.error(`❌ Supabase delete error (${type}):`, error);
-    throw new Error(`Failed to delete file from Supabase: ${error.message}`);
+  try {
+    const storageDir = getStorageDir(type);
+    const filePath = path.join(storageDir, filename);
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`✅ File deleted: ${filePath}`);
+    } else {
+      console.warn(`⚠️ File not found: ${filePath}`);
+    }
+  } catch (error) {
+    console.error(`❌ Error deleting file (${type}):`, error);
+    throw new Error(`Failed to delete file: ${error.message}`);
   }
 };
 

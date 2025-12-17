@@ -173,7 +173,7 @@ export const uploadPaymentProof = async (req, res, next) => {
       });
     }
 
-    // Upload to Supabase Storage
+    // Upload to local storage
     const uploadResult = await uploadToSupabase(file, req, 'payment');
     const fileUrl = uploadResult.url;
 

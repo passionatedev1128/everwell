@@ -544,7 +544,7 @@ export const uploadProductImages = async (req, res, next) => {
       });
     }
 
-    // Upload all images to Supabase Storage
+    // Upload all images to local storage
     const uploadPromises = files.map(file => uploadToSupabase(file, req, 'product'));
     const uploadResults = await Promise.all(uploadPromises);
     const imageUrls = uploadResults.map(result => result.url);
