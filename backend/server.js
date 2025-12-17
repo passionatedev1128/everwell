@@ -98,41 +98,34 @@ app.use('/uploads', (req, res, next) => {
   const filePath = req.path; // e.g., /products/image.png
   const fullPath = path.join(uploadsPath, filePath);
   
-  // Log the request for debugging
-  console.log(`📂 File request: ${filePath}`);
-  console.log(`📁 Full path: ${fullPath}`);
-  console.log(`📁 Uploads directory exists: ${fs.existsSync(uploadsPath)}`);
-  console.log(`📁 File exists: ${fs.existsSync(fullPath)}`);
-  
   // Check if file exists
   if (!fs.existsSync(fullPath)) {
-    console.error(`❌ File not found: ${fullPath}`);
-    console.error(`📂 Requested path: ${filePath}`);
-    console.error(`📁 Uploads root: ${uploadsPath}`);
+    // For product images, serve a placeholder instead of 404
+    // This handles cases where database references old/deleted files
+    if (filePath.startsWith('/products/') && /\.(jpg|jpeg|png|gif|webp)$/i.test(filePath)) {
+      // Generate a simple SVG placeholder image
+      const placeholderSvg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#f3f4f6"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="18" fill="#9ca3af" text-anchor="middle" dominant-baseline="middle">Image not found</text>
+</svg>`;
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Access-Control-Allow-Origin', frontendUrl);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache placeholder for 1 hour
+      return res.status(200).send(placeholderSvg);
+    }
     
-    // List what's actually in the uploads directory
-    if (fs.existsSync(uploadsPath)) {
-      try {
-        const dirs = fs.readdirSync(uploadsPath);
-        console.error(`📁 Directories in uploads: ${dirs.join(', ')}`);
-        
-        // Check products directory
-        const productsPath = path.join(uploadsPath, 'products');
-        if (fs.existsSync(productsPath)) {
-          const files = fs.readdirSync(productsPath);
-          console.error(`📁 Files in products: ${files.slice(0, 10).join(', ')}${files.length > 10 ? '...' : ''}`);
-        } else {
-          console.error(`❌ Products directory does not exist: ${productsPath}`);
-        }
-      } catch (err) {
-        console.error(`❌ Error reading uploads directory: ${err.message}`);
-      }
+    // For other missing files, return 404 (but reduce logging)
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`⚠️ File not found: ${filePath}`);
     }
     
     return res.status(404).json({ 
       error: 'File not found',
-      path: filePath,
-      uploadsPath: uploadsPath
+      path: filePath
     });
   }
   

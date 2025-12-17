@@ -97,12 +97,12 @@ const getDiskStorage = (type = 'document') => {
   return multer.diskStorage({
     destination: (req, file, cb) => {
       const dir = getStorageDir(type);
-      console.log(`📁 Multer destination for ${type}: ${dir}`);
-      console.log(`📁 Directory exists: ${fs.existsSync(dir)}`);
       
       // Ensure directory exists
       if (!fs.existsSync(dir)) {
-        console.log(`📁 Creating directory: ${dir}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`📁 Creating directory: ${dir}`);
+        }
         fs.mkdirSync(dir, { recursive: true });
       }
       
@@ -110,7 +110,9 @@ const getDiskStorage = (type = 'document') => {
     },
     filename: (req, file, cb) => {
       const filename = generateFilename(req, file, type);
-      console.log(`📝 Generated filename for ${type}: ${filename}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📝 Generated filename: ${filename}`);
+      }
       cb(null, filename);
     }
   });
@@ -189,18 +191,17 @@ export const uploadToSupabase = async (file, req, type = 'document') => {
     const baseUrl = getBaseUrl(req);
     const url = `${baseUrl}/uploads/${folder}/${filename}`;
     
-    console.log(`📁 File saved to: ${file.path}`);
-    console.log(`📁 File exists: ${fs.existsSync(file.path)}`);
-    console.log(`📁 File size: ${fs.existsSync(file.path) ? fs.statSync(file.path).size : 'N/A'} bytes`);
-    console.log(`🔗 Generated URL: ${url}`);
-    console.log(`🌐 Base URL: ${baseUrl} (from ${req ? 'request' : 'env'})`);
-    console.log(`📂 Expected request path: /uploads/${folder}/${filename}`);
-    
     // Verify file exists
     if (!fs.existsSync(file.path)) {
       console.error(`❌ File was not saved correctly: ${file.path}`);
       console.error(`📁 Directory exists: ${fs.existsSync(path.dirname(file.path))}`);
       throw new Error(`File was not saved correctly: ${file.path}`);
+    }
+    
+    // Log upload success (reduced verbosity)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ File uploaded: ${filename} (${fs.statSync(file.path).size} bytes)`);
+      console.log(`🔗 URL: ${url}`);
     }
     
     return {
@@ -223,9 +224,10 @@ export const uploadToSupabase = async (file, req, type = 'document') => {
     const baseUrl = getBaseUrl(req);
     const url = `${baseUrl}/uploads/${folder}/${filename}`;
     
-    console.log(`📁 File saved to: ${filePath}`);
-    console.log(`🔗 Generated URL: ${url}`);
-    console.log(`🌐 Base URL: ${baseUrl} (from ${req ? 'request' : 'env'})`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ File saved: ${filename}`);
+      console.log(`🔗 URL: ${url}`);
+    }
     
     return {
       filename,

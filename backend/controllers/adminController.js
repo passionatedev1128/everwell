@@ -544,23 +544,18 @@ export const uploadProductImages = async (req, res, next) => {
       });
     }
 
-    console.log('📤 Uploading', files.length, 'image(s)...');
-    console.log('File details:', files.map(f => ({ 
-      originalname: f.originalname, 
-      path: f.path, 
-      filename: f.filename,
-      size: f.size 
-    })));
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📤 Uploading ${files.length} image(s)...`);
+    }
 
     // Upload all images to local storage
     const uploadPromises = files.map(file => uploadToSupabase(file, req, 'product'));
     const uploadResults = await Promise.all(uploadPromises);
-    const imageUrls = uploadResults.map(result => {
-      console.log('✅ Upload result:', result);
-      return result.url;
-    });
+    const imageUrls = uploadResults.map(result => result.url);
 
-    console.log('📋 Generated URLs:', imageUrls);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ Uploaded ${imageUrls.length} image(s) successfully`);
+    }
 
     res.json({
       success: true,
