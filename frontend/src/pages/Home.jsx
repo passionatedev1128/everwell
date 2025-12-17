@@ -107,9 +107,14 @@ const Home = () => {
   const [productHighlights, setProductHighlights] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [fireworkVisible, setFireworkVisible] = useState(false);
+  const [fallingLeaves, setFallingLeaves] = useState([]);
+  const [trustBadgesVisible, setTrustBadgesVisible] = useState(false);
+  const [nextLevelVisible, setNextLevelVisible] = useState(false);
   const backgroundSectionRef = useRef(null);
   const testimonialsFetchedRef = useRef(false);
   const heroSectionRef = useRef(null);
+  const trustBadgesRef = useRef(null);
+  const nextLevelRef = useRef(null);
 
   // Helper function to find product by name (case-insensitive)
   const findProductByName = (productName) => {
@@ -142,6 +147,39 @@ const Home = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Falling leaves effect on homepage load
+  useEffect(() => {
+    const createLeaves = () => {
+      const leaves = [];
+      const leafCount = 20; // Increased number of leaves
+      
+      for (let i = 0; i < leafCount; i++) {
+        leaves.push({
+          id: `leaf-${i}-${Date.now()}`,
+          startX: Math.random() * 100, // Random horizontal position (0-100%)
+          appearDelay: Math.random() * 0.5, // Delay before first appearance (0-0.5s)
+          disappearDelay: 1 + Math.random() * 0.5, // When to disappear (1-1.5s after appear)
+          reappearDelay: 2 + Math.random() * 0.5, // When to reappear (2-2.5s after appear)
+          fallDelay: 2.5 + Math.random() * 0.5, // When to start falling (2.5-3s after appear)
+          duration: 6 + Math.random() * 3, // Fall duration (6-9 seconds)
+          rotation: Math.random() * 360, // Random initial rotation
+          rotationSpeed: (Math.random() - 0.5) * 3, // Random rotation speed (increased)
+          size: 70 + Math.random() * 50, // Random size (70-120px, larger)
+        });
+      }
+      
+      setFallingLeaves(leaves);
+      
+      // Remove leaves after animation completes
+      const maxDuration = Math.max(...leaves.map(l => l.fallDelay + l.duration));
+      setTimeout(() => {
+        setFallingLeaves([]);
+      }, (maxDuration + 1) * 1000);
+    };
+    
+    createLeaves();
+  }, []);
+
   useEffect(() => {
     initScrollAnimations();
 
@@ -159,6 +197,38 @@ const Home = () => {
 
     if (backgroundSectionRef.current) {
       observer.observe(backgroundSectionRef.current);
+    }
+
+    // Trust Badges scroll observer
+    const trustBadgesObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setTrustBadgesVisible(true);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (trustBadgesRef.current) {
+      trustBadgesObserver.observe(trustBadgesRef.current);
+    }
+
+    // Your next level section scroll observer
+    const nextLevelObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setNextLevelVisible(true);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (nextLevelRef.current) {
+      nextLevelObserver.observe(nextLevelRef.current);
     }
 
     // Fetch products for highlights
@@ -231,6 +301,12 @@ const Home = () => {
       if (backgroundSectionRef.current) {
         observer.unobserve(backgroundSectionRef.current);
       }
+      if (trustBadgesRef.current) {
+        trustBadgesObserver.unobserve(trustBadgesRef.current);
+      }
+      if (nextLevelRef.current) {
+        nextLevelObserver.unobserve(nextLevelRef.current);
+      }
       // Reset fetch flag on unmount to allow refetch on remount
       testimonialsFetchedRef.current = false;
     };
@@ -247,6 +323,125 @@ const Home = () => {
     >
       {/* Subtle background effect - pleasing and non-stimulating */}
       <div className="homepage-bg-effect" />
+      
+      {/* Falling leaves with "Everwell" text */}
+      {fallingLeaves.map(leaf => (
+        <div
+          key={leaf.id}
+          className="falling-leaf"
+          style={{
+            position: 'fixed',
+            left: `${leaf.startX}%`,
+            top: '-100px',
+            width: `${leaf.size}px`,
+            height: `${leaf.size}px`,
+            zIndex: 9998,
+            pointerEvents: 'none',
+            animation: `fallLeafSequence${leaf.id} ${leaf.fallDelay + leaf.duration}s ease-in-out ${leaf.appearDelay}s forwards`,
+          }}
+        >
+          <style>{`
+            @keyframes fallLeafSequence${leaf.id} {
+              /* Stage 1: Appear at top */
+              0% {
+                transform: translateY(0) rotate(${leaf.rotation}deg);
+                opacity: 0;
+              }
+              ${(leaf.appearDelay / (leaf.fallDelay + leaf.duration) * 100)}% {
+                transform: translateY(0) rotate(${leaf.rotation}deg);
+                opacity: 1;
+              }
+              /* Stage 2: Disappear */
+              ${(leaf.disappearDelay / (leaf.fallDelay + leaf.duration) * 100)}% {
+                transform: translateY(0) rotate(${leaf.rotation}deg);
+                opacity: 0;
+              }
+              /* Stage 3: Reappear */
+              ${(leaf.reappearDelay / (leaf.fallDelay + leaf.duration) * 100)}% {
+                transform: translateY(0) rotate(${leaf.rotation}deg);
+                opacity: 1;
+              }
+              /* Stage 4: Start falling */
+              ${(leaf.fallDelay / (leaf.fallDelay + leaf.duration) * 100)}% {
+                transform: translateY(0) rotate(${leaf.rotation}deg);
+                opacity: 1;
+              }
+              /* Stage 5: Fall down */
+              100% {
+                transform: translateY(calc(100vh + 200px)) rotate(${leaf.rotation + leaf.rotationSpeed * 360}deg);
+                opacity: 0;
+              }
+            }
+          `}</style>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#C0DF16',
+              clipPath: 'polygon(50% 0%, 60% 5%, 75% 15%, 85% 30%, 90% 45%, 88% 60%, 82% 70%, 75% 78%, 65% 85%, 50% 90%, 35% 85%, 25% 78%, 18% 70%, 12% 60%, 10% 45%, 15% 30%, 25% 15%, 40% 5%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 6px 16px rgba(192, 223, 22, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(192, 223, 22, 0.4)',
+              position: 'relative',
+              filter: 'brightness(1.1) saturate(1.2)',
+            }}
+          >
+            {/* Leaf vein lines for more realism - more vivid */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '0',
+                left: '50%',
+                width: '2px',
+                height: '90%',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                transform: 'translateX(-50%)',
+                boxShadow: '0 0 4px rgba(255, 255, 255, 0.3)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                width: '1.5px',
+                height: '40%',
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                transform: 'translateX(-50%) rotate(-25deg)',
+                boxShadow: '0 0 3px rgba(255, 255, 255, 0.2)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                width: '1.5px',
+                height: '40%',
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                transform: 'translateX(-50%) rotate(25deg)',
+                boxShadow: '0 0 3px rgba(255, 255, 255, 0.2)',
+              }}
+            />
+            <span
+              style={{
+                color: 'white',
+                fontSize: `${leaf.size * 0.18}px`,
+                fontWeight: 'bold',
+                fontFamily: 'kodchasan',
+                textShadow: '0 2px 6px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.3)',
+                zIndex: 1,
+                position: 'relative',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Everwell
+            </span>
+          </div>
+        </div>
+      ))}
+      
       <div className="relative z-10">
       {/* Hero Section - Focus Performance Recovery */}
       <section ref={heroSectionRef} className="relative min-h-screen" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
@@ -413,7 +608,7 @@ const Home = () => {
                 <img 
                   src="/images/unlock.png" 
                   alt="CBD Oil Product - EverWell"
-                  className="w-full h-auto object-contain" 
+                  className="unlock-image-slide w-full h-auto object-contain" 
                   style={{ maxHeight: '700px', height: '327px' }}
                   onError={(e) => {
                     // Fallback if image doesn't exist - create placeholder
@@ -427,11 +622,11 @@ const Home = () => {
               </div>
               {/* Right Side - Text Content */}
               <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '100%' }}>
-                <p className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
+                <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
                   on
                 </p>
                 <p 
-                  className="unlock-gradient-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight mb-4 md:mb-6" 
+                  className="unlock-text-slide unlock-gradient-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight mb-4 md:mb-6" 
                   style={{ 
                     fontWeight: 400, 
                     fontFamily: 'kodchasan', 
@@ -440,10 +635,10 @@ const Home = () => {
                 >
                   Unlock your next level.
                 </p>
-                <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
+                <h3 className="break-through text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
                   It's every well.
                 </h3>
-                <p className="text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, minWidth: '100%' }}>
+                <p className="fade-in-slow text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, minWidth: '100%' }}>
                   We create CBD-based products for those seeking constant improvement.
                 </p>
               </div>
@@ -452,14 +647,19 @@ const Home = () => {
         </div>
       </section>
       {/* Trust Badges - Right below header */}
-      <section className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#C0DF16', padding: '15px' }}>
+      <section ref={trustBadgesRef} className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#C0DF16', padding: '15px' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12">
             {trustBadges.map((badge, index) => (
               <div 
                 key={index} 
-                className="flex items-center gap-3 sm:gap-4"
-                style={{ minWidth: '150px', flex: '1 1 auto' }}
+                className={`trust-badge-slide flex items-center gap-3 sm:gap-4`}
+                style={{ 
+                  minWidth: '150px', 
+                  flex: '1 1 auto',
+                  animation: trustBadgesVisible ? `trustBadgeSlideIn 0.6s ease-out ${index * 0.1}s forwards` : 'none',
+                  opacity: trustBadgesVisible ? 0 : 0
+                }}
               >
                 <div className="flex-shrink-0" style={{ color: '#C0DF16' }}>
                   <img src={badge.icon} alt={badge.alt} className={badge.size} />
@@ -474,28 +674,74 @@ const Home = () => {
         </div>
       </section>
       {/* Your next level in 3 Steps */}
-      <section className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+      <section ref={nextLevelRef} className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title Section - Left Aligned */}
           <div className="mb-12 sm:mb-16 md:mb-20 text-left">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-black mb-2" style={{ fontWeight: 400, fontFamily: 'kodchasan' }}>
+            <h2 
+              className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-black mb-2" 
+              style={{ 
+                fontWeight: 400, 
+                fontFamily: 'kodchasan',
+                animation: nextLevelVisible ? 'nextLevelTitleSlide 0.8s ease-out 0s forwards' : 'none',
+                opacity: nextLevelVisible ? 0 : 0
+              }}
+            >
               Your next level
             </h2>
-            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" style={{ fontWeight: 500, fontFamily: 'kodchasan' }}>
-              in 3 Steps
+            <h3 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" 
+              style={{ 
+                fontWeight: 500, 
+                fontFamily: 'kodchasan',
+                display: 'inline-block'
+              }}
+            >
+              <span
+                style={{
+                  animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 0.8s forwards' : 'none',
+                  opacity: nextLevelVisible ? 0 : 0,
+                  display: 'inline-block'
+                }}
+              >
+                in
+              </span>
+              {' '}
+              <span
+                style={{
+                  animation: nextLevelVisible ? 'numberThreeDrop 0.6s ease-out 2.0s forwards' : 'none',
+                  opacity: nextLevelVisible ? 0 : 0,
+                  display: 'inline-block',
+                  transform: nextLevelVisible ? 'translateY(-30px)' : 'translateY(-30px)'
+                }}
+              >
+                3
+              </span>
+              {' '}
+              <span
+                style={{
+                  animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 1.2s forwards' : 'none',
+                  opacity: nextLevelVisible ? 0 : 0,
+                  display: 'inline-block'
+                }}
+              >
+                Steps
+              </span>
             </h3>
           </div>
 
           {/* Three Step Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 mb-12 sm:mb-16">
-            {processSteps.map((step) => (
+            {processSteps.map((step, stepIndex) => (
               <div 
                 key={step.number}
                 className="relative bg-white border-2 border-black rounded-lg p-6 sm:p-8 flex flex-col"
                 style={{
                   borderRadius: '30px',
                   minHeight: '400px',
-                  borderColor: '#C0DF16'
+                  borderColor: '#C0DF16',
+                  animation: nextLevelVisible ? `stepCardAppear 0.8s ease-out ${2.4 + stepIndex * 0.3}s forwards` : 'none',
+                  opacity: nextLevelVisible ? 0 : 0
                 }}
               >
                 {/* Circular Lime Green Badge - Top Left, Overlapping Border */}
@@ -505,7 +751,10 @@ const Home = () => {
                     backgroundColor: 'white',
                     border: '2px solid black',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                    borderColor: '#C0DF16'
+                    borderColor: '#C0DF16',
+                    animation: nextLevelVisible ? `numberThreeDrop 0.6s ease-out ${2.0 + stepIndex * 0.3}s forwards` : 'none',
+                    opacity: nextLevelVisible ? 0 : 0,
+                    transform: nextLevelVisible ? 'translateY(-30px)' : 'translateY(-30px)'
                   }}
                 >
                   <span className="text-white font-bold text-xl sm:text-2xl" style={{ fontFamily: 'kodchasan', color: '#C0DF16' }}>
@@ -536,7 +785,9 @@ const Home = () => {
                     lineHeight: '1.4',
                     textAlign: 'center',
                     fontSize: '30px',
-                    color: '#C0DF16'
+                    color: '#C0DF16',
+                    animation: nextLevelVisible ? `stepTitleAppear 0.8s ease-out ${3.0 + stepIndex * 0.3}s forwards` : 'none',
+                    opacity: nextLevelVisible ? 0 : 0
                   }}
                 >
                   {step.title}

@@ -2196,6 +2196,161 @@ select#address\\.country.country-select.form-input option:disabled {
   }
 }
 
+/* Unlock section animations */
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeftQuick {
+  0% {
+    opacity: 0;
+    transform: translateX(-200px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  70% {
+    transform: translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes breakThroughGround {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.8);
+  }
+  60% {
+    transform: translateY(-5px) scale(1.05);
+  }
+  80% {
+    transform: translateY(2px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeInSlow {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.unlock-image-slide {
+  animation: slideInFromLeft 1.5s ease-out 0.5s forwards;
+  opacity: 0;
+}
+
+.unlock-text-slide {
+  animation: slideInFromLeftQuick 0.8s ease-out 2s forwards;
+  opacity: 0;
+}
+
+.on-bounce {
+  animation: bounceUp 0.6s ease-out 2.8s forwards;
+  opacity: 0;
+}
+
+.break-through {
+  animation: breakThroughGround 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 3.4s forwards;
+  opacity: 0;
+}
+
+.fade-in-slow {
+  animation: fadeInSlow 1.2s ease-out 4.2s forwards;
+  opacity: 0;
+}
+
+/* Trust Badges Animation */
+@keyframes trustBadgeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Your next level section animations */
+@keyframes nextLevelTitleSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes inStepsSlow {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes numberThreeDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stepCardAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stepTitleAppear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 #our-products-button:hover {
   color: white !important;
   background-color: #C0DF16 !important;
