@@ -2075,6 +2075,280 @@ select#address\\.country.country-select.form-input option:disabled {
   animation: subtleBgPulse 8s ease-in-out infinite;
 }
 
+/* Plant Background Animation */
+.plant-background-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.12;
+}
+
+/* Stems - Growing from bottom */
+@keyframes growStem {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.3;
+  }
+  100% {
+    height: var(--stem-height);
+    opacity: 0.4;
+  }
+}
+
+.plant-stem {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to top, #C0DF16, rgba(192, 223, 22, 0.6));
+  border-radius: 2px;
+  transform-origin: bottom;
+  animation: growStem 6s ease-out forwards;
+}
+
+.stem-1 {
+  left: 10%;
+  --stem-height: 200px;
+  animation-delay: 0.5s;
+  transform: rotate(-5deg);
+}
+
+.stem-2 {
+  left: 25%;
+  --stem-height: 280px;
+  animation-delay: 1s;
+  transform: rotate(3deg);
+}
+
+.stem-3 {
+  left: 50%;
+  --stem-height: 320px;
+  animation-delay: 1.5s;
+  transform: rotate(-2deg);
+}
+
+.stem-4 {
+  left: 75%;
+  --stem-height: 250px;
+  animation-delay: 2s;
+  transform: rotate(4deg);
+}
+
+.stem-5 {
+  left: 90%;
+  --stem-height: 180px;
+  animation-delay: 2.5s;
+  transform: rotate(-3deg);
+}
+
+/* Leaves - Growing on stems */
+@keyframes growLeaf {
+  0% {
+    transform: scale(0) rotate(var(--leaf-rotation));
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1) rotate(var(--leaf-rotation));
+    opacity: 0.6;
+  }
+}
+
+.plant-leaf {
+  position: absolute;
+  width: 40px;
+  height: 60px;
+  background: #C0DF16;
+  clip-path: ellipse(50% 50% at 50% 50%);
+  border-radius: 50% 0;
+  opacity: 0.5;
+  animation: growLeaf 4s ease-out forwards;
+  filter: blur(0.5px);
+}
+
+.leaf-1 {
+  bottom: 150px;
+  left: 8%;
+  --leaf-rotation: -25deg;
+  animation-delay: 2.5s;
+}
+
+.leaf-2 {
+  bottom: 200px;
+  left: 23%;
+  --leaf-rotation: 30deg;
+  animation-delay: 3s;
+}
+
+.leaf-3 {
+  bottom: 180px;
+  left: 48%;
+  --leaf-rotation: -20deg;
+  animation-delay: 3.5s;
+}
+
+.leaf-4 {
+  bottom: 220px;
+  left: 52%;
+  --leaf-rotation: 25deg;
+  animation-delay: 4s;
+}
+
+.leaf-5 {
+  bottom: 160px;
+  left: 73%;
+  --leaf-rotation: -30deg;
+  animation-delay: 4.5s;
+}
+
+.leaf-6 {
+  bottom: 100px;
+  left: 15%;
+  --leaf-rotation: 20deg;
+  animation-delay: 3.2s;
+}
+
+.leaf-7 {
+  bottom: 120px;
+  left: 55%;
+  --leaf-rotation: -15deg;
+  animation-delay: 4.2s;
+}
+
+.leaf-8 {
+  bottom: 90px;
+  left: 88%;
+  --leaf-rotation: 35deg;
+  animation-delay: 5s;
+}
+
+/* Flowers - Blooming */
+@keyframes bloomFlower {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 0.5;
+  }
+}
+
+.plant-flower {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #C0DF16 30%, rgba(192, 223, 22, 0.3) 70%);
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: bloomFlower 3s ease-out forwards;
+  filter: blur(0.5px);
+}
+
+.flower-1 {
+  bottom: 250px;
+  left: 25%;
+  animation-delay: 5.5s;
+}
+
+.flower-2 {
+  bottom: 300px;
+  left: 50%;
+  animation-delay: 6s;
+}
+
+.flower-3 {
+  bottom: 240px;
+  left: 75%;
+  animation-delay: 6.5s;
+}
+
+.flower-4 {
+  bottom: 280px;
+  left: 10%;
+  animation-delay: 7s;
+}
+
+/* Everwell as Fruit - Appearing at the end */
+@keyframes fruitAppear {
+  0% {
+    transform: scale(0) translateY(20px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) translateY(-5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes fruitGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(192, 223, 22, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(192, 223, 22, 0.5));
+  }
+}
+
+.everwell-fruit {
+  position: absolute;
+  bottom: 350px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: fruitAppear 1.5s ease-out forwards, fruitGlow 3s ease-in-out 1.5s infinite;
+  z-index: 1;
+}
+
+.everwell-fruit-text {
+  font-family: 'kodchasan', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: #C0DF16;
+  text-shadow: 
+    0 2px 10px rgba(192, 223, 22, 0.4),
+    0 4px 20px rgba(192, 223, 22, 0.2);
+  letter-spacing: 2px;
+  display: block;
+  opacity: 0.8;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .plant-stem {
+    width: 2px;
+  }
+  
+  .plant-leaf {
+    width: 30px;
+    height: 45px;
+  }
+  
+  .plant-flower {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .everwell-fruit-text {
+    font-size: 32px;
+  }
+  
+  .stem-1, .stem-2, .stem-3, .stem-4, .stem-5 {
+    --stem-height: calc(var(--stem-height) * 0.7);
+  }
+}
+
 /* Magical Star Particles - Dazzling effect */
 .magic-star-particle {
   position: fixed;

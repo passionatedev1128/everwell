@@ -5,6 +5,7 @@ import GoalForm from '../components/GoalForm';
 import JotForm from '../components/JotForm';
 import Carousel from '../components/Carousel';
 import SimpleCarousel from '../components/SimpleCarousel';
+import PlantBackground from '../components/PlantBackground';
 import { initScrollAnimations } from '../utils/scrollAnimations';
 import { trackEvent as trackAnalyticsEvent } from '../utils/analytics';
 import { trackEvent as trackGtmEvent } from '../utils/gtm';
@@ -435,6 +436,8 @@ const Home = () => {
     >
       {/* Subtle background effect - pleasing and non-stimulating */}
       <div className="homepage-bg-effect" />
+      {/* Plant growth background animation */}
+      <PlantBackground />
       
       {/* Falling leaves with "Everwell" text */}
       {fallingLeaves.map(leaf => (

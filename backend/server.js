@@ -92,7 +92,7 @@ app.options('/uploads/*', (req, res) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.status(200).end();
 });
-
+                            
 // Custom file serving with proper headers for ORB compliance
 app.use('/uploads', (req, res, next) => {
   const filePath = req.path; // e.g., /products/image.png

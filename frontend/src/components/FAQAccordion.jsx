@@ -67,7 +67,7 @@ const FAQAccordion = ({ isVisible = false }) => {
               ? '0 12px 40px rgba(192, 223, 22, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04)' 
               : '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
             animation: isVisible ? `faqSlideInFromLeft 0.6s ease-out ${index * 0.1}s forwards` : 'none',
-            opacity: isVisible ? 0 : 0
+            opacity: isVisible ? 0 : 1
           }}
         >
           <button
