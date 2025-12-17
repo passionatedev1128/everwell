@@ -249,7 +249,7 @@ const Home = () => {
       <div className="homepage-bg-effect" />
       <div className="relative z-10">
       {/* Hero Section - Focus Performance Recovery */}
-      <section ref={heroSectionRef} className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+      <section ref={heroSectionRef} className="relative min-h-screen" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '95%'}}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 w-full items-center" style = {{marginTop: "-162px"}}>
             {/* Left Side - Text Content */}
@@ -343,42 +343,9 @@ const Home = () => {
             </div>
             
             {/* Right Side - Blurred Image with fade in from right */}
-            <div className="fade-in-from-right relative w-full h-full min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-lg">
-              <div 
-                className="absolute inset-0 w-full h-full bg-cover bg-center"
-                style={{
-                  backgroundImage: 'url(/images/focus_.png)',
-                  filter: 'blur(30px) brightness(1.1)',
-                  transform: 'scale(1.2)',
-                  backgroundPosition: 'center',
-                  backgroundSize: 'cover'
-                }}
-              />
-              {/* Overlay with warm earthy tones (browns, beiges) */}
-              <div 
-                className="absolute inset-0"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(139, 90, 43, 0.25) 0%, rgba(205, 133, 63, 0.2) 30%, rgba(192, 223, 22, 0.3) 60%, rgba(139, 90, 43, 0.15) 100%)',
-                  mixBlendMode: 'multiply'
-                }}
-              />
-              {/* Light blues, greys, whites overlay */}
-              <div 
-                className="absolute inset-0"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(173, 216, 230, 0.15) 0%, rgba(192, 192, 192, 0.1) 50%, rgba(255, 255, 255, 0.1) 100%)',
-                  mixBlendMode: 'overlay'
-                }}
-              />
-              {/* Prominent lime green accent at bottom right */}
-              <div 
-                className="absolute bottom-0 right-0 w-2/3 h-2/3"
-                style={{
-                  background: 'radial-gradient(ellipse at bottom right, rgba(192, 223, 22, 0.6) 0%, rgba(192, 223, 22, 0.2) 50%, transparent 80%)',
-                  mixBlendMode: 'screen'
-                }}
-              />
-            </div>
+            <img src="/images/focus.png" alt="Focus" className="fade-in-from-right"
+              style={{ width: '100%', height: '90%' }}
+            />
           </div>
         </div>
       </section>
@@ -444,10 +411,10 @@ const Home = () => {
             <div className="w-full md:w-1/2 flex items-center justify-center md:justify-start" style={{ minWidth: '100%'}}>
               <div className="relative w-full max-w-md" style={{ minWidth: '20%', marginRight: '10%' }}>
                 <img 
-                  src="/images/unlock_.png" 
+                  src="/images/unlock.png" 
                   alt="CBD Oil Product - EverWell"
                   className="w-full h-auto object-contain" 
-                  style={{ maxHeight: '600px' }}
+                  style={{ maxHeight: '700px', height: '327px' }}
                   onError={(e) => {
                     // Fallback if image doesn't exist - create placeholder
                     e.target.style.display = 'none';
@@ -1171,24 +1138,12 @@ const Home = () => {
       <section className="relative min-h-screen overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center" style={{ minWidth: '69%'}}>
           {/* Left Side - Blurred Image (1/3 width) */}
-          <div className="w-full md:w-1/3 relative overflow-hidden">
-            <div 
+          <div className="w-full md:w-1/3">
+            <img 
+              src="/images/version.png"
+              alt="Version"
               className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{
-                backgroundImage: 'url(/images/version_.png)',
-                filter: 'blur(20px) brightness(1.1)',
-                transform: 'scale(1.1)',
-                backgroundPosition: 'center',
-                backgroundSize: 'cover'
-              }}
-            />
-            {/* Overlay with green/yellow tones blending to brown */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(180deg, rgba(192, 223, 22, 0.3) 0%, rgba(255, 255, 0, 0.2) 30%, rgba(139, 90, 43, 0.4) 70%, rgba(101, 67, 33, 0.5) 100%)',
-                mixBlendMode: 'multiply'
-              }}
+              style={{ width: '65%', height: '89%' }}
             />
           </div>
 
