@@ -135,7 +135,7 @@ const Home = () => {
     }, 300); // Match animation duration
   };
 
-  // Mouse tracking and smoke particles
+  // Mouse tracking and magical star particles
   useEffect(() => {
     let animationFrameId;
     
@@ -147,26 +147,57 @@ const Home = () => {
       const dy = newPos.y - prevMousePos.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      // Only create smoke particles if mouse moved enough
-      if (distance > 5 && prevMousePos.x !== 0 && prevMousePos.y !== 0) {
-        // Create a small smoke particle
+      // Create multiple colorful star particles when mouse moves
+      if (distance > 3 && prevMousePos.x !== 0 && prevMousePos.y !== 0) {
         const angle = Math.atan2(dy, dx);
-        const speed = Math.min(distance * 0.5, 30);
+        const speed = Math.min(distance * 0.4, 40);
         
-        const particle = {
-          id: Date.now() + Math.random(),
-          x: newPos.x,
-          y: newPos.y,
-          dx: Math.cos(angle) * speed,
-          dy: Math.sin(angle) * speed,
-        };
+        // Colorful palette for dazzling effect
+        const colors = [
+          { main: '#C0DF16', glow: 'rgba(192, 223, 22, 0.8)' }, // Lime green
+          { main: '#FFD700', glow: 'rgba(255, 215, 0, 0.8)' },   // Gold
+          { main: '#FF6B9D', glow: 'rgba(255, 107, 157, 0.8)' }, // Pink
+          { main: '#4ECDC4', glow: 'rgba(78, 205, 196, 0.8)' },  // Turquoise
+          { main: '#FFA07A', glow: 'rgba(255, 160, 122, 0.8)' }, // Light salmon
+          { main: '#BA55D3', glow: 'rgba(186, 85, 211, 0.8)' },  // Medium orchid
+        ];
         
-        setSmokeParticles(prev => [...prev.slice(-15), particle]);
+        // Create 3-5 star particles with random colors and directions
+        const particleCount = Math.floor(Math.random() * 3) + 3; // 3-5 particles
+        const newParticles = [];
         
-        // Remove particle after animation
-        setTimeout(() => {
-          setSmokeParticles(prev => prev.filter(p => p.id !== particle.id));
-        }, 600);
+        for (let i = 0; i < particleCount; i++) {
+          const colorIndex = Math.floor(Math.random() * colors.length);
+          const color = colors[colorIndex];
+          
+          // Vary the direction slightly for each particle
+          const spreadAngle = angle + (Math.random() - 0.5) * 0.8; // Spread of ~45 degrees
+          const particleSpeed = speed * (0.5 + Math.random() * 0.5); // Vary speed
+          const size = 4 + Math.random() * 4; // Random size between 4-8px
+          
+          const particle = {
+            id: Date.now() + Math.random() + i,
+            x: newPos.x,
+            y: newPos.y,
+            dx: Math.cos(spreadAngle) * particleSpeed,
+            dy: Math.sin(spreadAngle) * particleSpeed,
+            color: color.main,
+            glow: color.glow,
+            size: size,
+            rotation: Math.random() * 360,
+          };
+          
+          newParticles.push(particle);
+        }
+        
+        setSmokeParticles(prev => [...prev.slice(-30), ...newParticles]);
+        
+        // Remove particles after animation
+        newParticles.forEach(particle => {
+          setTimeout(() => {
+            setSmokeParticles(prev => prev.filter(p => p.id !== particle.id));
+          }, 800);
+        });
       }
       
       setPrevMousePos(newPos);
@@ -262,18 +293,12 @@ const Home = () => {
             title: feedback.userId?.email ? feedback.userId.email.split('@')[0] : 'Cliente',
             avatar: feedback.userId?.photo || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
           }));
-          console.log('Mapped testimonials:', mappedTestimonials); // Debug log
-          console.log('Setting testimonials state, count:', mappedTestimonials.length); // Debug log
           setTestimonials(mappedTestimonials);
         } else {
-          console.log('No testimonials found. Response:', response); // Debug log
-          console.log('Feedbacks array:', feedbacks);
           setTestimonials([]);
           testimonialsFetchedRef.current = false; // Reset to allow retry
         }
       } catch (error) {
-        console.error('Error fetching testimonials:', error);
-        console.error('Error details:', error.response?.data || error.message);
         setTestimonials([]);
         testimonialsFetchedRef.current = false; // Reset on error to allow retry
       }
@@ -303,31 +328,45 @@ const Home = () => {
       {/* Subtle background effect - pleasing and non-stimulating */}
       <div className="homepage-bg-effect" />
       
-      {/* Mouse smoke particles */}
+      {/* Magical star particles */}
       {smokeParticles.map(particle => (
         <div
           key={particle.id}
-          className="mouse-smoke-particle"
+          className="magic-star-particle"
           style={{
             left: `${particle.x}px`,
             top: `${particle.y}px`,
-            opacity: 0.8,
-            transform: 'translate(0, 0) scale(1)',
-            animation: `smokeFloat${particle.id} 0.6s ease-out forwards`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            animation: `magicStarFloat${particle.id} 0.8s ease-out forwards`,
           }}
         >
           <style>{`
-            @keyframes smokeFloat${particle.id} {
+            @keyframes magicStarFloat${particle.id} {
               0% {
-                opacity: 0.8;
-                transform: translate(0, 0) scale(1);
+                opacity: 1;
+                transform: translate(-50%, -50%) rotate(${particle.rotation}deg) scale(1);
+              }
+              50% {
+                opacity: 0.9;
+                transform: translate(calc(-50% + ${particle.dx * 0.5}px), calc(-50% + ${particle.dy * 0.5}px)) rotate(${particle.rotation + 180}deg) scale(1.2);
               }
               100% {
                 opacity: 0;
-                transform: translate(${particle.dx}px, ${particle.dy}px) scale(2.5);
+                transform: translate(calc(-50% + ${particle.dx}px), calc(-50% + ${particle.dy}px)) rotate(${particle.rotation + 360}deg) scale(0.3);
               }
             }
           `}</style>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background: particle.color,
+              clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+              filter: `drop-shadow(0 0 4px ${particle.glow}) drop-shadow(0 0 8px ${particle.glow})`,
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
         </div>
       ))}
       <div className="relative z-10">
@@ -397,7 +436,7 @@ const Home = () => {
                   every day
                 </p>
               </div>
-              <br />
+              <br />                                
               {/* OUR PRODUCTS Button - descends after "every day" */}
               <Link
                 to="/produtos"
@@ -407,6 +446,14 @@ const Home = () => {
                   maxWidth: 'fit-content',
                   color: '#C0DF16',
                   borderColor: '#C0DF16'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#C0DF16';
+                  e.target.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.color = '#C0DF16';
                 }}
                 onClick={() => {
                   trackAnalyticsEvent('cta_click', { cta: 'our_products', location: 'hero' });
@@ -422,7 +469,7 @@ const Home = () => {
               <div 
                 className="absolute inset-0 w-full h-full bg-cover bg-center"
                 style={{
-                  backgroundImage: 'url(/images/landing_image.jpg)',
+                  backgroundImage: 'url(/images/focus_.png)',
                   filter: 'blur(30px) brightness(1.1)',
                   transform: 'scale(1.2)',
                   backgroundPosition: 'center',
@@ -519,7 +566,7 @@ const Home = () => {
             <div className="w-full md:w-1/2 flex items-center justify-center md:justify-start" style={{ minWidth: '100%'}}>
               <div className="relative w-full max-w-md" style={{ minWidth: '20%', marginRight: '10%' }}>
                 <img 
-                  src="/images/cbd-oil-product.png" 
+                  src="/images/unlock_.png" 
                   alt="CBD Oil Product - EverWell"
                   className="w-full h-auto object-contain" 
                   style={{ maxHeight: '600px' }}
@@ -528,7 +575,7 @@ const Home = () => {
                     e.target.style.display = 'none';
                     const placeholder = document.createElement('div');
                     placeholder.className = 'w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg';
-                    placeholder.innerHTML = '<div class="text-gray-400 text-sm">Product Image Placeholder<br/>Add /images/cbd-oil-product.png</div>';
+                    placeholder.innerHTML = '<div class="text-gray-400 text-sm">Product Image Placeholder<br/>Add /images/unlock.png</div>';
                     e.target.parentNode.appendChild(placeholder);
                   }}
                 />
@@ -598,23 +645,25 @@ const Home = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 md:gap-10 mb-12 sm:mb-16">
             {processSteps.map((step) => (
               <div 
-                key={step.number} 
+                key={step.number}
                 className="relative bg-white border-2 border-black rounded-lg p-6 sm:p-8 flex flex-col"
                 style={{
                   borderRadius: '30px',
-                  minHeight: '400px'
+                  minHeight: '400px',
+                  borderColor: '#C0DF16'
                 }}
               >
                 {/* Circular Lime Green Badge - Top Left, Overlapping Border */}
                 <div 
                   className="absolute -top-4 -left-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-10"
                   style={{
-                    backgroundColor: '#C0DF16',
+                    backgroundColor: 'white',
                     border: '2px solid black',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    borderColor: '#C0DF16'
                   }}
                 >
-                  <span className="text-white font-bold text-xl sm:text-2xl" style={{ fontFamily: 'kodchasan' }}>
+                  <span className="text-white font-bold text-xl sm:text-2xl" style={{ fontFamily: 'kodchasan', color: '#C0DF16' }}>
                     {step.number}
                   </span>
                 </div>
@@ -641,7 +690,8 @@ const Home = () => {
                     fontFamily: 'kodchasan',
                     lineHeight: '1.4',
                     textAlign: 'center',
-                    fontSize: '30px'
+                    fontSize: '30px',
+                    color: '#C0DF16'
                   }}
                 >
                   {step.title}
@@ -654,11 +704,11 @@ const Home = () => {
           <div className="text-center">
             <Link
               to="/agendar"
-              className="inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300"
+              className="inline-block border-2 px-8 sm:px-12 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider tansition-all duration-300"
               style={{
                 borderRadius: '8px',
                 borderColor: '#C0DF16',
-                color: '#000000',
+                color: '#C0DF16',
                 backgroundColor: 'transparent',
                 fontWeight: 500,
                 fontFamily: 'kodchasan',
@@ -666,16 +716,16 @@ const Home = () => {
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#C0DF16';
-                e.target.style.color = '#000000';
+                e.target.style.color = 'white';
               }}
               onMouseLeave={(e) => {
                 e.target.style.backgroundColor = 'transparent';
-                e.target.style.color = '#000000';
+                e.target.style.color = '#C0DF16';
               }}
               onClick={() => {
                 trackAnalyticsEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
                 trackGtmEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
-              }}
+              }}r
             >
               START NOW
             </Link>
@@ -857,7 +907,7 @@ const Home = () => {
                   
                   {/* Product Title and Description - Not Clickable */}
                   <div className="text-center w-full">
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontSize: '40px', fontFamily: 'kodchasan' }}>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold text-black mb-3" style={{ fontWeight: 200, fontSize: '40px', fontFamily: 'kodchasan', color: '#C0DF16' }}>
                       {product?.name || 'Product'}
                     </h3>
                     <p className="text-base sm:text-lg text-black font-normal" style={{ fontFamily: 'kodchasan', fontSize: '15px' }}>
@@ -879,7 +929,7 @@ const Home = () => {
               style={{
                 borderRadius: '8px',
                 borderColor: '#C0DF16',
-                color: '#000000',
+                color: '#C0DF16',
                 backgroundColor: 'white',
                 fontWeight: 500,
                 fontFamily: 'kodchasan',
@@ -887,11 +937,11 @@ const Home = () => {
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#C0DF16';
-                e.target.style.color = '#000000';
+                e.target.style.color = 'white';
               }}
               onMouseLeave={(e) => {
                 e.target.style.backgroundColor = 'white';
-                e.target.style.color = '#000000';
+                e.target.style.color = '#C0DF16';
               }}
               onClick={() => {
                 trackAnalyticsEvent('cta_click', { cta: 'discover_products', location: 'products_preview' });
@@ -930,12 +980,12 @@ const Home = () => {
                 <div 
                   className="flex flex-col items-center"
                   style={{
-                    border: '2px solid black',
                     borderRadius: '12px',
                     backgroundColor: '#C0DF16',
                     padding: '2rem',
                     minHeight: '400px',
-                    width: '100%'
+                    width: '100%',
+                    color: 'white'
                   }}
                 >
                   {/* Person Image - Centered */}
@@ -956,7 +1006,7 @@ const Home = () => {
 
                   {/* Name - Bold Black */}
                   <h3 
-                    className="text-xl sm:text-2xl font-bold text-black mb-4 text-center"
+                    className="text-xl sm:text-2xl font-bold text-white mb-4 text-center"
                     style={{ 
                       fontWeight: 700, 
                       fontFamily: 'kodchasan' 
@@ -967,7 +1017,7 @@ const Home = () => {
 
                   {/* Testimonial Text */}
                   <p 
-                    className="text-sm sm:text-base text-black mb-4 text-center flex-grow"
+                    className="text-sm sm:text-base text-white mb-4 text-center flex-grow"
                     style={{ 
                       fontFamily: 'kodchasan',
                       lineHeight: '1.6'
@@ -1247,7 +1297,7 @@ const Home = () => {
             <div 
               className="absolute inset-0 w-full h-full bg-cover bg-center"
               style={{
-                backgroundImage: 'url(/images/cta-background.jpg)',
+                backgroundImage: 'url(/images/version_.png)',
                 filter: 'blur(20px) brightness(1.1)',
                 transform: 'scale(1.1)',
                 backgroundPosition: 'center',
@@ -1278,7 +1328,7 @@ const Home = () => {
                 now
               </h4>
             </div>
-
+                     
             {/* Three Buttons Stacked */}
             <div className="flex flex-col gap-4 sm:gap-5">
               {/* Button 1: SCHEDULE YOUR APPOINTMENT */}
@@ -1288,16 +1338,18 @@ const Home = () => {
                 style={{
                   borderRadius: '8px',
                   borderColor: '#C0DF16',
-                  color: '#000000',
+                  color: '#C0DF16',
                   backgroundColor: 'white',
                   fontWeight: 500,
                   fontFamily: 'kodchasan'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f9f9f9';
+                  e.target.style.backgroundColor = '#C0DF16';
+                  e.target.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#C0DF16';
                 }}
                 onClick={() => {
                   trackAnalyticsEvent('cta_click', { cta: 'schedule_appointment', location: 'cta' });
@@ -1314,16 +1366,18 @@ const Home = () => {
                 style={{
                   borderRadius: '8px',
                   borderColor: '#C0DF16',
-                  color: '#000000',
+                  color: '#C0DF16',
                   backgroundColor: 'white',
                   fontWeight: 500,
                   fontFamily: 'kodchasan'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f9f9f9';
+                  e.target.style.backgroundColor = '#C0DF16';
+                  e.target.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#C0DF16';
                 }}
                 onClick={() => {
                   trackAnalyticsEvent('cta_click', { cta: 'discover_products', location: 'cta' });
@@ -1339,17 +1393,19 @@ const Home = () => {
                 className="inline-block border-2 px-6 sm:px-8 py-3 sm:py-4 uppercase font-sans font-medium text-sm sm:text-base tracking-wider transition-all duration-300 text-left"
                 style={{
                   borderRadius: '8px',
-                  borderColor: '#000000',
-                  color: '#000000',
-                  backgroundColor: '#C0DF16',
+                  borderColor: '#C0DF16',
+                  color: '#C0DF16',
+                  backgroundColor: 'transparent',
                   fontWeight: 500,
                   fontFamily: 'kodchasan'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#b8d014';
+                  e.target.style.backgroundColor = '#C0DF16';
+                  e.target.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#C0DF16';
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.color = '#C0DF16';
                 }}
                 onClick={() => {
                   trackAnalyticsEvent('cta_click', { cta: 'get_questions_answered', location: 'cta' });
@@ -1363,7 +1419,7 @@ const Home = () => {
         </div>
 
         {/* Thin Dark Horizontal Line at Bottom */}
-        <div className="w-full h-px bg-black" style={{ height: '1px' }} />
+        <div className="w-full h-px bg-black" style={{ height: '1px', borderColor: '#C0DF16' }} />
       </section>
 
       {/* FAQ */}

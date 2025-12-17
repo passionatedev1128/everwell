@@ -122,13 +122,14 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
       <div 
         style={{
           position: 'absolute',
-          left: '1.5rem',
+          left: '-15px',
           top: '50%',
           transform: 'translateY(-50%)',
           pointerEvents: 'none',
           isolation: 'isolate',
           contain: 'layout style paint',
-          zIndex: 50
+          zIndex: 50,
+          padding: '12px'
         }}
       >
         <button
@@ -147,7 +148,7 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
           onMouseOver={(e) => {
             e.stopPropagation();
           }}
-          className="w-12 h-12 rounded-full bg-white border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-brandBlack hidden md:flex"
+          className="w-12 h-12 rounded-full bg-white border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-brandBlack hidden md:flex shadow-lg"
           style={{ 
             isolation: 'isolate', 
             contain: 'layout style paint',
@@ -157,7 +158,8 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             pointerEvents: 'auto',
-            zIndex: 50
+            zIndex: 50,
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
           }}
           aria-label="Previous"
         >
@@ -170,13 +172,14 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
       <div 
         style={{ 
           position: 'absolute',
-          right: '1.5rem',
+          right: '-15px',
           top: '50%',
           transform: 'translateY(-50%)',
           pointerEvents: 'none',
           isolation: 'isolate',
           contain: 'layout style paint',
-          zIndex: 50
+          zIndex: 50,
+          padding: '12px'
         }}
       >
         <button
@@ -195,7 +198,7 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
           onMouseOver={(e) => {
             e.stopPropagation();
           }}
-          className="w-12 h-12 rounded-full bg-white border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-brandBlack hidden md:flex"
+          className="w-12 h-12 rounded-full bg-white border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-brandBlack hidden md:flex shadow-lg"
           style={{ 
             isolation: 'isolate', 
             contain: 'layout style paint',
@@ -205,7 +208,8 @@ const Carousel = ({ items, itemsPerView = 3, className = '' }) => {
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             pointerEvents: 'auto',
-            zIndex: 50
+            zIndex: 50,
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
           }}
           aria-label="Next"
         >

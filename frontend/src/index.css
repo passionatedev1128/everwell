@@ -2075,17 +2075,14 @@ select#address\\.country.country-select.form-input option:disabled {
   animation: subtleBgPulse 8s ease-in-out infinite;
 }
 
-/* Mouse Smoke Cloud Particles */
-.mouse-smoke-particle {
+/* Magical Star Particles - Dazzling effect */
+.magic-star-particle {
   position: fixed;
   pointer-events: none;
   z-index: 9999;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(192, 223, 22, 0.8), rgba(168, 197, 18, 0.4));
-  box-shadow: 0 0 8px rgba(192, 223, 22, 0.6);
   transform-origin: center;
+  top: 0;
+  left: 0;
 }
 
 /* Cascading Text Animation - Left to Right */

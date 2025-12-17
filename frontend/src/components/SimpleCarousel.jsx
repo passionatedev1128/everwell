@@ -96,7 +96,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
   // Button styles that prevent blinking
   const buttonBaseStyle = {
     fontFamily: 'kodchasan',
-    color: 'black',
+    color: '#C0DF16',
     backgroundColor: 'white',
     transition: 'background-color 0.2s ease, color 0.2s ease',
     pointerEvents: 'auto',
@@ -109,7 +109,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
     maxWidth: '48px',
     maxHeight: '48px',
     outline: 'none',
-    border: '2px solid black',
+    border: '2px solid #C0DF16',
     borderRadius: '9999px'
   };
 
@@ -155,7 +155,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
           transition: background-color 0.2s ease, color 0.2s ease !important;
         }
         .simple-carousel-button:hover {
-          background-color: black !important;
+          background-color: #C0DF16 !important;
           color: white !important;
         }
       `}</style>
@@ -176,7 +176,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
         >
           <button
             onClick={() => scroll('left')}
-            className="simple-carousel-button w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center shadow-lg"
+            className="simple-carousel-button w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg"
             style={buttonBaseStyle}
             aria-label="Previous items"
           >
@@ -257,7 +257,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
         >
           <button
             onClick={() => scroll('right')}
-            className="simple-carousel-button w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center shadow-lg"
+            className="simple-carousel-button w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg"
             style={buttonBaseStyle}
             aria-label="Next items"
           >

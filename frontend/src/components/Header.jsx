@@ -117,7 +117,7 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-primary/20 backdrop-blur-xl shadow-lg header-extra-effect">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between h-20 sm:h-24">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex items-center justify-center rounded-lg text-white font-semibold text-base sm:text-lg" style={{ width: "148px" }}>
               <img src = "/logos/logo_everwell_colored_green.png" />
