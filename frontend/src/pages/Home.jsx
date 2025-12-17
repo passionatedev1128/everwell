@@ -1014,7 +1014,8 @@ const Home = () => {
                               style={{ 
                                 filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
                                 cursor: 'pointer'
-                              }}                   
+                              }}
+                              crossOrigin="anonymous"
                               onError={(e) => {
                                 e.target.style.display = 'none';
                                 const placeholder = e.target.parentNode;

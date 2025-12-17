@@ -105,6 +105,7 @@ const BlogPost = () => {
               src={blog.imageUrl}
               alt={blog.title}
               className="w-full h-[400px] md:h-[500px] object-cover"
+              crossOrigin="anonymous"
             />
           </div>
         )}

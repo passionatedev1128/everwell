@@ -74,85 +74,51 @@ app.use(passport.session());
 
 // Serve uploaded files statically with CORS headers (custom handler for ORB compliance)
 const uploadsPath = path.join(__dirname, 'uploads');
-// Custom route handler for uploads to ensure proper headers for ORB compliance
-app.use('/uploads', (req, res, next) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  
-  // Handle OPTIONS request first
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', frontendUrl);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    return res.status(200).end();
-  }
-  
-  // When mounted with app.use('/uploads', ...), req.path is relative to mount point
-  // So /uploads/products/image.jpg becomes /products/image.jpg
-  const filePath = req.path; // e.g., /products/image.jpg
-  
-  // Normalize the path to prevent directory traversal
-  const normalizedPath = path.normalize(filePath).replace(/^(\.\.[\/\\])+/, '');
-  const fullPath = path.join(uploadsPath, normalizedPath);
-  
-  // Security check: ensure the resolved path is within uploads directory
-  const resolvedPath = path.resolve(fullPath);
-  const resolvedUploadsPath = path.resolve(uploadsPath);
-  if (!resolvedPath.startsWith(resolvedUploadsPath)) {
-    res.status(403).json({ error: 'Access denied' });
-    return;
-  }
-  
-  // Check if file exists first
-  if (!fs.existsSync(fullPath)) {
-    res.status(404).json({ error: 'File not found' });
-    return;
-  }
-  
-  // Get file extension to determine Content-Type
-  const ext = path.extname(filePath).toLowerCase();
-  const imageTypes = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-    '.pdf': 'application/pdf',
-    '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  };
-  
-  // Determine Content-Type
-  const contentType = imageTypes[ext] || 'application/octet-stream';
-  
-  // Set CORS headers FIRST (critical for ORB - must be before Content-Type)
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+// Handle OPTIONS requests for CORS preflight
+app.options('/uploads/*', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', frontendUrl);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  
-  // Set Content-Type header (critical for ORB - must be explicit and correct)
-  res.setHeader('Content-Type', contentType);
-  
-  // Set cache headers for images
-  if (imageTypes[ext] && ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(imageTypes[ext])) {
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  }
-  
-  // Use stream to send file - this ensures headers are respected
-  const fileStream = fs.createReadStream(fullPath);
-  fileStream.on('error', (err) => {
-    console.error('Error reading file:', err.message, 'Path:', filePath);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Error reading file' });
-    }
-  });
-  
-  fileStream.pipe(res);
+  res.status(200).end();
 });
+
+// Custom file serving with proper headers for ORB compliance
+app.use('/uploads', express.static(uploadsPath, {
+  setHeaders: (res, filePath, stat) => {
+    // Set CORS headers (critical for ORB)
+    res.setHeader('Access-Control-Allow-Origin', frontendUrl);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    
+    // Determine Content-Type from file extension
+    const ext = path.extname(filePath).toLowerCase();
+    const imageTypes = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml',
+      '.pdf': 'application/pdf',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    };
+    
+    // Set explicit Content-Type (critical for ORB)
+    if (imageTypes[ext]) {
+      res.setHeader('Content-Type', imageTypes[ext]);
+    }
+    
+    // Set cache headers for images
+    if (imageTypes[ext] && ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(imageTypes[ext])) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }
+}));
 
 // Health check
 app.get('/api/health', (req, res) => {

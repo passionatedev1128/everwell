@@ -144,6 +144,7 @@ const Blog = () => {
                             src={blog.imageUrl}
                             alt={blog.title}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            crossOrigin="anonymous"
                           />
                           {/* Overlay gradient on hover */}
                           <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors duration-300 z-20"></div>

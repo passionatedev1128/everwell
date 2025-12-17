@@ -541,6 +541,7 @@ const Orders = () => {
                               src={item.productId.images[0]}
                               alt={item.name}
                               className="w-20 h-20 object-cover rounded-md flex-shrink-0"
+                              crossOrigin="anonymous"
                             />
                           ) : (
                             <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center flex-shrink-0">

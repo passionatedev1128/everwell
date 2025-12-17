@@ -1630,6 +1630,7 @@ const Admin = () => {
                         <div className="mb-3">
                           <img
                             src={product.images[0]}
+                            crossOrigin="anonymous"
                             alt={product.name}
                             className="w-full h-48 object-contain rounded-md"
                             style={{ width: '100%', height: '200px', objectFit: 'contain' }}
@@ -1755,6 +1756,7 @@ const Admin = () => {
                             src={blog.imageUrl}
                             alt={blog.title}
                             className="w-full h-48 object-cover rounded-md"
+                            crossOrigin="anonymous"
                             onError={(e) => {
                               e.target.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
                             }}
@@ -2965,6 +2967,7 @@ const Admin = () => {
                               src={image}
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"
+                              crossOrigin="anonymous"
                               onError={(e) => {
                                 console.error('❌ Image failed to load:', image);
                                 e.target.src = 'https://via.placeholder.com/128?text=Erro';
@@ -3241,6 +3244,7 @@ const Admin = () => {
                           <div className="w-32 h-32 rounded-md overflow-hidden border border-primary/20 flex-shrink-0">
                             <img
                               src={blogForm.imageUrl}
+                              crossOrigin="anonymous"
                               alt="Preview"
                               className="w-full h-full object-cover"
                               onError={(e) => {

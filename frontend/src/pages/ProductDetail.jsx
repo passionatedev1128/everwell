@@ -78,6 +78,7 @@ const ProductDetail = () => {
                 src={product.images[0]}
                 alt={product.name}
                 className="max-w-full max-h-[600px] w-auto h-auto object-contain rounded-lg"
+                crossOrigin="anonymous"
                 style={{ width: '100%', height: 'auto', maxWidth: '800px' }}
               />
             </div>
