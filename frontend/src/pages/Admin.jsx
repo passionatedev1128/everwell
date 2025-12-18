@@ -2479,7 +2479,7 @@ const Admin = () => {
                       value={messageForm.type}
                       onChange={(type) => setMessageForm({ ...messageForm, type })}
                       options={[
-                        { value: 'info', label: 'Info' },
+                        { value: 'info', label: 'Informação' },
                         { value: 'success', label: 'Sucesso' },
                         { value: 'warning', label: 'Aviso' },
                         { value: 'error', label: 'Erro' }

@@ -48,21 +48,21 @@ const trustBadges = [
 const processSteps = [
   {
     number: '1',
-    title: 'Schedule your online consultation',
+    title: 'Agende sua consulta online',
     image: '/images/schedule.png',
     imageWidth: '159px',
     imageHeight: '145px'
   },
   {
     number: '2',
-    title: 'Talk to an Expert',
+    title: 'Fale com um Especialista',
     image: '/images/expert.svg',
     imageWidth: '159px',
     imageHeight: '157px'
   },
   {
     number: '3',
-    title: 'Receive your products at home',
+    title: 'Receba seus produtos em casa',
     image: '/images/deliverable.png',
     imageWidth: '178px',
     imageHeight: '145px'
@@ -947,13 +947,13 @@ const Home = () => {
               paddingBottom: '14px'
             }}
           >
-            Unlock your next level.
+            Desbloqueie seu próximo nível.
           </p>
           <h3 className="break-through text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em', color: '#b3cf19' }}>
-            It's every well.
+            É todo bem-estar.
           </h3>
           <p className="fade-in-slow text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, color: 'gray', minWidth: '100%' }}>
-            We create CBD-based products for those seeking constant improvement.
+            Criamos produtos à base de CBD para quem busca melhoria constante.
           </p>
         </div>
         </div>                      
@@ -1160,7 +1160,7 @@ const Home = () => {
                 trackGtmEvent('cta_click', { cta: 'start_now', location: 'purchase_process' });
               }}
             >
-              START NOW
+              COMECE AGORA
             </Link>
           </div>
         </div>
@@ -2172,7 +2172,7 @@ const Home = () => {
                 backgroundSize: '200% 200%',
                 animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 1.2s forwards, gradientShift 3s ease infinite' : 'none'
               }}>
-                version starts
+                sua melhor versão começa
               </h3>
               <h4 className="version-text-now text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ 
                 float: "right", 
@@ -2183,7 +2183,7 @@ const Home = () => {
                 opacity: versionSectionVisible ? 0 : 0,
                 animationFillMode: versionSectionVisible ? 'forwards' : 'none'
               }}>
-                now
+                agora
               </h4>
             </div>
                      
@@ -2216,7 +2216,7 @@ const Home = () => {
                   trackGtmEvent('cta_click', { cta: 'schedule_appointment', location: 'cta' });
                 }}
               >
-                SCHEDULE YOUR APPOINTMENT.
+                AGENDE SUA CONSULTA.
               </Link>
 
               {/* Button 2: DISCOVER THE PRODUCTS */}

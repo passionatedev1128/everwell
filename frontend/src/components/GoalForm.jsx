@@ -56,7 +56,7 @@ const GoalForm = () => {
     // Custom validation with elegant messages
     const missingFields = [];
     if (!formData.name.trim()) missingFields.push('Nome completo');
-    if (!formData.email.trim()) missingFields.push('Email');
+    if (!formData.email.trim()) missingFields.push('E-mail');
     if (!formData.objective.trim()) missingFields.push('Objetivo principal');
 
     if (missingFields.length > 0) {

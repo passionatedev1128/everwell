@@ -179,7 +179,7 @@ const Login = () => {
       <div className={`w-full ${isLogin ? 'max-w-md' : 'max-w-md'}`}>
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <h2 className="text-3xl font-bold text-center text-text-dark mb-2">
-            {isLogin ? 'Login' : 'Criar Conta'}
+            {isLogin ? 'Entrar' : 'Criar Conta'}
           </h2>
           {!isLogin && (
             <p className="text-center text-mediumTeal text-sm mb-6">
