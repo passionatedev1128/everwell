@@ -4,30 +4,27 @@ export const getToken = () => {
   return localStorage.getItem('token');
 };
 
-// Helper to dispatch storage event for cross-tab sync
-const dispatchStorageEvent = (key, newValue) => {
-  // Dispatch storage event manually to notify other tabs
-  window.dispatchEvent(new StorageEvent('storage', {
-    key: key,
-    newValue: newValue,
-    oldValue: localStorage.getItem(key),
-    storageArea: localStorage,
-    url: window.location.href
-  }));
-};
+// BroadcastChannel for cross-tab communication (more reliable than storage events)
+let authChannel = null;
+if (typeof window !== 'undefined' && window.BroadcastChannel) {
+  authChannel = new BroadcastChannel('auth-sync');
+}
 
 export const setToken = (token) => {
   localStorage.setItem('token', token);
-  dispatchStorageEvent('token', token);
+  // Notify other tabs via BroadcastChannel
+  if (authChannel) {
+    authChannel.postMessage({ type: 'tokenChanged', token });
+  }
 };
 
 export const removeToken = () => {
-  const oldToken = localStorage.getItem('token');
-  const oldUser = localStorage.getItem('user');
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  dispatchStorageEvent('token', null);
-  dispatchStorageEvent('user', null);
+  // Notify other tabs via BroadcastChannel
+  if (authChannel) {
+    authChannel.postMessage({ type: 'tokenRemoved' });
+  }
 };
 
 export const getUser = () => {
@@ -38,7 +35,10 @@ export const getUser = () => {
 export const setUser = (user) => {
   const userStr = JSON.stringify(user);
   localStorage.setItem('user', userStr);
-  dispatchStorageEvent('user', userStr);
+  // Notify other tabs via BroadcastChannel
+  if (authChannel) {
+    authChannel.postMessage({ type: 'userChanged', user });
+  }
 };
 
 export const isAuthenticated = () => {

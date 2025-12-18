@@ -484,7 +484,24 @@ const Dashboard = () => {
                         };
                         const badge = getStatusBadge(order.status);
                         return (
-                          <div key={order._id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all">
+                          <div 
+                            key={order._id} 
+                            className="bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-out"
+                            style={{
+                              borderRadius: '12px',
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform = 'translateY(-4px) scale(1.01)';
+                              e.currentTarget.style.boxShadow = '0 12px 32px rgba(192, 223, 22, 0.15), 0 0 0 1px rgba(192, 223, 22, 0.1)';
+                              e.currentTarget.style.border = '1px solid rgba(192, 223, 22, 0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                              e.currentTarget.style.boxShadow = '';
+                              e.currentTarget.style.border = '';
+                            }}
+                          >
                             <div className="flex justify-between items-start mb-4">
                               <div>
                                 <h3 className="text-xl font-semibold text-darkTeal mb-2">

@@ -46,13 +46,28 @@ const Header = () => {
     fetchUserData();
   }, [authenticated]);
 
-  // Listen for user updates
+  // Listen for user updates and auth state changes
   useEffect(() => {
     const handleUserUpdate = () => {
       const updatedUser = getUser();
       setUserState(updatedUser);
     };
+    
+    const handleAuthStateChange = () => {
+      // Refresh user state when auth changes in another tab
+      const updatedUser = getUser();
+      setUserState(updatedUser);
+      // Force re-render by checking auth state
+      const newAuth = isAuthenticated();
+      if (newAuth !== authenticated) {
+        // Auth state changed - will trigger re-render via authenticated prop
+        window.location.reload();
+      }
+    };
+    
     window.addEventListener('userUpdated', handleUserUpdate);
+    window.addEventListener('authStateChanged', handleAuthStateChange);
+    
     // Also refresh on location change (in case user data was updated elsewhere)
     const interval = setInterval(() => {
       const currentUser = getUser();
@@ -60,11 +75,13 @@ const Header = () => {
         setUserState(currentUser);
       }
     }, 1000);
+    
     return () => {
       window.removeEventListener('userUpdated', handleUserUpdate);
+      window.removeEventListener('authStateChanged', handleAuthStateChange);
       clearInterval(interval);
     };
-  }, [user]);
+  }, [user, authenticated]);
 
   const navLinks = [
     { label: 'Home', path: '/' },

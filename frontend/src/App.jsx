@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -55,6 +55,8 @@ function PageViewTracker() {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const authStateRef = useRef(null);
+  const isHandlingAuthChangeRef = useRef(false);
 
   useEffect(() => {
     // Check token expiration on mount
@@ -74,32 +76,89 @@ function App() {
     
     // Store initial auth state for comparison
     const initialAuthState = !!initialToken;
+    authStateRef.current = initialAuthState;
     
     // Listen for storage changes to sync authentication state across tabs
+    // Storage events only fire in OTHER tabs when localStorage changes, not the current tab
     const handleStorageChange = (e) => {
-      if (e.key === 'token' || e.key === 'user') {
-        // Reload the page to reflect the new authentication state
-        window.location.reload();
+      // Only handle storage events from other tabs (e.key will be 'token' or 'user')
+      if ((e.key === 'token' || e.key === 'user') && !isHandlingAuthChangeRef.current) {
+        isHandlingAuthChangeRef.current = true;
+        
+        // Small delay to ensure localStorage is updated
+        setTimeout(() => {
+          const newToken = localStorage.getItem('token');
+          const newAuthState = !!newToken;
+          const oldAuthState = authStateRef.current;
+          
+          // Only navigate if auth state actually changed
+          if (oldAuthState !== newAuthState) {
+            authStateRef.current = newAuthState;
+            
+            // Dispatch custom event to update UI components (like Header)
+            window.dispatchEvent(new CustomEvent('authStateChanged', { 
+              detail: { isAuthenticated: newAuthState } 
+            }));
+            
+            // Always navigate to homepage when auth state changes in another tab
+            // This ensures the UI reflects the new auth state
+            // If already on homepage, reload to refresh the state
+            if (window.location.pathname === '/') {
+              window.location.reload();
+            } else {
+              window.location.href = '/';
+            }
+          } else {
+            // Even if auth state didn't change, dispatch event to update UI
+            // (in case user data was updated)
+            window.dispatchEvent(new CustomEvent('authStateChanged', { 
+              detail: { isAuthenticated: newAuthState } 
+            }));
+          }
+          
+          isHandlingAuthChangeRef.current = false;
+        }, 100);
       }
     };
     
-    // Check authentication state when tab becomes visible
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // Check if auth state changed in another tab
-        const currentToken = localStorage.getItem('token');
-        const currentAuthState = !!currentToken;
+    // Listen for BroadcastChannel messages (more reliable cross-tab communication)
+    const handleBroadcastMessage = (e) => {
+      if ((e.data.type === 'tokenChanged' || e.data.type === 'tokenRemoved' || e.data.type === 'userChanged') && !isHandlingAuthChangeRef.current) {
+        isHandlingAuthChangeRef.current = true;
         
-        // If we were authenticated but now we're not (or vice versa), reload
-        // This handles the case where user logged in/out in another tab
-        if (initialAuthState !== currentAuthState) {
-          window.location.reload();
-        }
+        setTimeout(() => {
+          const newToken = localStorage.getItem('token');
+          const newAuthState = !!newToken;
+          const oldAuthState = authStateRef.current;
+          
+          if (oldAuthState !== newAuthState) {
+            authStateRef.current = newAuthState;
+            
+            window.dispatchEvent(new CustomEvent('authStateChanged', { 
+              detail: { isAuthenticated: newAuthState } 
+            }));
+            
+            // Navigate to homepage
+            if (window.location.pathname === '/') {
+              window.location.reload();
+            } else {
+              window.location.href = '/';
+            }
+          }
+          
+          isHandlingAuthChangeRef.current = false;
+        }, 100);
       }
     };
     
     window.addEventListener('storage', handleStorageChange);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Set up BroadcastChannel listener
+    let authChannel = null;
+    if (window.BroadcastChannel) {
+      authChannel = new BroadcastChannel('auth-sync');
+      authChannel.addEventListener('message', handleBroadcastMessage);
+    }
     
     // Show loading animation
     setTimeout(() => {
@@ -108,7 +167,10 @@ function App() {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (authChannel) {
+        authChannel.removeEventListener('message', handleBroadcastMessage);
+        authChannel.close();
+      }
     };
   }, []);
 
