@@ -69,25 +69,13 @@ const Dashboard = () => {
     }
   };
 
-  // Get deleted notification IDs from localStorage
-  const getDeletedNotificationIds = () => {
-    try {
-      const deleted = localStorage.getItem('deletedNotifications');
-      return deleted ? JSON.parse(deleted) : [];
-    } catch (error) {
-      return [];
-    }
-  };
-
   const fetchNotifications = async () => {
     try {
       const response = await getNotifications();
       if (response.success) {
         const allNotifications = response.notifications || [];
-        // Filter out notifications that were deleted by user (stored in localStorage)
-        const deletedIds = getDeletedNotificationIds();
-        const filteredNotifications = allNotifications.filter(n => n && n._id && !deletedIds.includes(n._id));
-        setNotifications(filteredNotifications);
+        // Show all notifications in messages tab, even if deleted from dropdown
+        setNotifications(allNotifications.filter(n => n && n._id));
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -466,10 +454,94 @@ const Dashboard = () => {
 
               {activeTab === 'orders' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-darkTeal mb-6 font-heading">Pedidos</h2>
-                  <Link to="/pedidos" className="btn-primary">
-                    Ver Todos os Pedidos
-                  </Link>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-darkTeal font-heading">Pedidos</h2>
+                    <Link to="/pedidos" className="btn-primary">
+                      Ver Todos os Pedidos
+                    </Link>
+                  </div>
+                  {orders.length === 0 ? (
+                    <div className="text-center py-12 bg-white rounded-lg shadow-md">
+                      <svg className="mx-auto h-12 w-12 text-primary/40 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <h3 className="text-sm font-medium text-darkTeal mb-1">Nenhum pedido</h3>
+                      <p className="text-sm text-mediumTeal">Você ainda não realizou nenhum pedido.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.slice(0, 5).map((order) => {
+                        const getStatusBadge = (status) => {
+                          const badges = {
+                            pending: { class: 'badge-warning', label: 'Pendente' },
+                            paid: { class: 'badge-info', label: 'Pago' },
+                            processing: { class: 'badge-info', label: 'Processando' },
+                            shipped: { class: 'badge-success', label: 'Enviado' },
+                            delivered: { class: 'badge-success', label: 'Entregue' },
+                            cancelled: { class: 'badge-error', label: 'Cancelado' }
+                          };
+                          return badges[status] || { class: 'badge-secondary', label: status };
+                        };
+                        const badge = getStatusBadge(order.status);
+                        return (
+                          <div key={order._id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all">
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h3 className="text-xl font-semibold text-darkTeal mb-2">
+                                  Pedido #{order._id.slice(-8).toUpperCase()}
+                                </h3>
+                                <p className="text-sm text-mediumTeal">
+                                  {new Date(order.createdAt).toLocaleDateString('pt-BR', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </p>
+                              </div>
+                              <span className={`badge ${badge.class}`}>{badge.label}</span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <p className="text-sm text-mediumTeal mb-1">Itens</p>
+                                <p className="text-darkTeal font-semibold">
+                                  {order.products?.length || 0} produto(s)
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-mediumTeal mb-1">Total</p>
+                                <p className="text-xl font-bold text-primary">
+                                  R$ {order.totalAmount?.toFixed(2) || '0.00'}
+                                </p>
+                              </div>
+                              {order.shippingAddress && (
+                                <div>
+                                  <p className="text-sm text-mediumTeal mb-1">Entrega</p>
+                                  <p className="text-darkTeal text-sm">
+                                    {order.shippingAddress.city}, {order.shippingAddress.state}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                            <Link
+                              to={`/pedidos`}
+                              className="text-sm text-primary hover:underline"
+                            >
+                              Ver detalhes →
+                            </Link>
+                          </div>
+                        );
+                      })}
+                      {orders.length > 5 && (
+                        <div className="text-center pt-4">
+                          <Link to="/pedidos" className="text-primary hover:underline">
+                            Ver mais {orders.length - 5} pedido(s) →
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -597,6 +669,17 @@ const Dashboard = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
+                                {feedback.userId?.photo ? (
+                                  <img
+                                    src={feedback.userId.photo}
+                                    alt={feedback.name}
+                                    className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 flex-shrink-0"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                                    {feedback.name.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
                                 <p className="font-semibold text-darkTeal">{feedback.name}</p>
                                 <div className="flex items-center gap-1">
                                   {[...Array(5)].map((_, i) => (

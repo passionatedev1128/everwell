@@ -71,7 +71,11 @@ export const EmptyProducts = () => (
 
 export const EmptySearch = ({ onClear }) => (
   <EmptyState
-    icon="🔍"
+    icon={
+      <svg className="w-24 h-24 mx-auto text-primary/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    }
     title="Nenhum resultado encontrado"
     description="Não encontramos resultados para sua busca. Tente usar outros termos ou limpar os filtros."
     actionLabel="Limpar Filtros"

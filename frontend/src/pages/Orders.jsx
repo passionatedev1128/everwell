@@ -6,6 +6,7 @@ import { OrderCardSkeleton } from '../components/SkeletonLoader';
 import { EmptyOrders, EmptySearch } from '../components/EmptyState';
 import PaymentProofUpload from '../components/PaymentProofUpload';
 import DatePicker from '../components/DatePicker';
+import ElegantSelect from '../components/ElegantSelect';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -267,8 +268,8 @@ const Orders = () => {
               />
             </div>
 
-            {/* Date Range Filter */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Date Range Filter and Sort in One Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-darkTeal mb-2">
                   Data Inicial
@@ -282,33 +283,34 @@ const Orders = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-darkTeal mb-2">
-                  Final Date
+                  Data Final
                 </label>
                 <DatePicker
                   value={dateFilter.to}
                   onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                  placeholder="Final Date"
+                  placeholder="Data Final"
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <ElegantSelect
+                  label="Ordenar por"
+                  value={sortBy}
+                  onChange={(value) => setSortBy(value)}
+                  options={[
+                    { value: 'date-desc', label: 'Data (Mais Recente)' },
+                    { value: 'date-asc', label: 'Data (Mais Antigo)' },
+                    { value: 'amount-desc', label: 'Valor (Maior)' },
+                    { value: 'amount-asc', label: 'Valor (Menor)' },
+                    { value: 'status', label: 'Status' }
+                  ]}
                   className="w-full"
                 />
               </div>
             </div>
 
-            {/* Sort Options */}
+            {/* Clear Filters */}
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-darkTeal">Ordenar por:</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="input-field"
-                >
-                  <option value="date-desc">Data (Mais Recente)</option>
-                  <option value="date-asc">Data (Mais Antigo)</option>
-                  <option value="amount-desc">Valor (Maior)</option>
-                  <option value="amount-asc">Valor (Menor)</option>
-                  <option value="status">Status</option>
-                </select>
-              </div>
               {(dateFilter.from || dateFilter.to || searchQuery) && (
                 <button
                   onClick={() => {
@@ -577,19 +579,27 @@ const Orders = () => {
                   {selectedOrder.shippingAddress && (
                     <div>
                       <h3 className="font-semibold text-darkTeal mb-3">Endereço de Entrega</h3>
-                      <div className="p-3 bg-bgSecondary rounded-md">
-                        <p className="text-darkTeal">
-                          {selectedOrder.shippingAddress.street}
-                        </p>
-                        <p className="text-darkTeal">
-                          {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}
-                        </p>
-                        <p className="text-darkTeal">
-                          CEP: {selectedOrder.shippingAddress.zipCode}
-                        </p>
-                        <p className="text-darkTeal">
-                          {selectedOrder.shippingAddress.country || 'Brasil'}
-                        </p>
+                      <div className="p-3 bg-bgSecondary rounded-md space-y-1">
+                        {selectedOrder.shippingAddress.street && (
+                          <p className="text-darkTeal text-sm">
+                            <span className="font-medium">Rua e Número:</span> {selectedOrder.shippingAddress.street}
+                          </p>
+                        )}
+                        {(selectedOrder.shippingAddress.city || selectedOrder.shippingAddress.state) && (
+                          <p className="text-darkTeal text-sm">
+                            <span className="font-medium">Cidade/Estado:</span> {selectedOrder.shippingAddress.city || ''}{selectedOrder.shippingAddress.city && selectedOrder.shippingAddress.state ? ', ' : ''}{selectedOrder.shippingAddress.state || ''}
+                          </p>
+                        )}
+                        {selectedOrder.shippingAddress.zipCode && (
+                          <p className="text-darkTeal text-sm">
+                            <span className="font-medium">CEP:</span> {selectedOrder.shippingAddress.zipCode}
+                          </p>
+                        )}
+                        {selectedOrder.shippingAddress.country && (
+                          <p className="text-darkTeal text-sm">
+                            <span className="font-medium">País:</span> {selectedOrder.shippingAddress.country}
+                          </p>
+                        )}
                       </div>
                     </div>
                   )}

@@ -1555,18 +1555,19 @@ const Admin = () => {
                             >
                               Ver detalhes
                             </button>
-                            <select
+                            <ElegantSelect
                               value={order.status}
-                              onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                              className="rounded-md border border-primary/30 bg-white px-2.5 py-1.5 text-xs font-medium text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                            >
-                              <option value="pending">Pendente</option>
-                              <option value="paid">Pago</option>
-                              <option value="processing">Processando</option>
-                              <option value="shipped">Enviado</option>
-                              <option value="delivered">Entregue</option>
-                              <option value="cancelled">Cancelado</option>
-                            </select>
+                              onChange={(value) => handleStatusUpdate(order._id, value)}
+                              options={[
+                                { value: 'pending', label: 'Pendente' },
+                                { value: 'paid', label: 'Pago' },
+                                { value: 'processing', label: 'Processando' },
+                                { value: 'shipped', label: 'Enviado' },
+                                { value: 'delivered', label: 'Entregue' },
+                                { value: 'cancelled', label: 'Cancelado' }
+                              ]}
+                              className="w-full min-w-[140px]"
+                            />
                           </div>
                         </div>
                       </div>
@@ -2796,18 +2797,19 @@ const Admin = () => {
                     </div>
                     <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
                       <p className="text-xs font-medium text-mediumTeal uppercase tracking-wide mb-2">Status</p>
-                      <select
+                      <ElegantSelect
                         value={selectedOrder.status}
-                        onChange={(e) => handleStatusUpdate(selectedOrder._id, e.target.value)}
-                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                      >
-                        <option value="pending">Pendente</option>
-                        <option value="paid">Pago</option>
-                        <option value="processing">Processando</option>
-                        <option value="shipped">Enviado</option>
-                        <option value="delivered">Entregue</option>
-                        <option value="cancelled">Cancelado</option>
-                      </select>
+                        onChange={(value) => handleStatusUpdate(selectedOrder._id, value)}
+                        options={[
+                          { value: 'pending', label: 'Pendente' },
+                          { value: 'paid', label: 'Pago' },
+                          { value: 'processing', label: 'Processando' },
+                          { value: 'shipped', label: 'Enviado' },
+                          { value: 'delivered', label: 'Entregue' },
+                          { value: 'cancelled', label: 'Cancelado' }
+                        ]}
+                        className="w-full"
+                      />
                     </div>
                   </div>
 
@@ -2843,12 +2845,24 @@ const Admin = () => {
                     <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
                       <h3 className="text-base font-semibold text-darkTeal mb-3">Endereço de Envio</h3>
                       <div className="text-mediumTeal space-y-1 text-sm">
-                        <p>{selectedOrder.shippingAddress.fullName}</p>
-                        <p>{selectedOrder.shippingAddress.street}, {selectedOrder.shippingAddress.number}</p>
-                        <p>{selectedOrder.shippingAddress.neighborhood}</p>
-                        <p>{selectedOrder.shippingAddress.city} - {selectedOrder.shippingAddress.state}</p>
-                        <p>{selectedOrder.shippingAddress.zipCode}</p>
-                        <p>{selectedOrder.shippingAddress.country}</p>
+                        {selectedOrder.shippingAddress.fullName && (
+                          <p><span className="font-medium text-darkTeal">Nome Completo:</span> {selectedOrder.shippingAddress.fullName}</p>
+                        )}
+                        {selectedOrder.shippingAddress.street && (
+                          <p><span className="font-medium text-darkTeal">Rua e Número:</span> {selectedOrder.shippingAddress.street}{selectedOrder.shippingAddress.number ? `, ${selectedOrder.shippingAddress.number}` : ''}</p>
+                        )}
+                        {selectedOrder.shippingAddress.neighborhood && (
+                          <p><span className="font-medium text-darkTeal">Bairro:</span> {selectedOrder.shippingAddress.neighborhood}</p>
+                        )}
+                        {(selectedOrder.shippingAddress.city || selectedOrder.shippingAddress.state) && (
+                          <p><span className="font-medium text-darkTeal">Cidade/Estado:</span> {selectedOrder.shippingAddress.city || ''}{selectedOrder.shippingAddress.city && selectedOrder.shippingAddress.state ? ' - ' : ''}{selectedOrder.shippingAddress.state || ''}</p>
+                        )}
+                        {selectedOrder.shippingAddress.zipCode && (
+                          <p><span className="font-medium text-darkTeal">CEP:</span> {selectedOrder.shippingAddress.zipCode}</p>
+                        )}
+                        {selectedOrder.shippingAddress.country && (
+                          <p><span className="font-medium text-darkTeal">País:</span> {selectedOrder.shippingAddress.country}</p>
+                        )}
                       </div>
                     </div>
                   )}

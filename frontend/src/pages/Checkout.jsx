@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import api from '../utils/api';
+import api, { getCurrentUser } from '../utils/api';
 import { createOrder } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
@@ -25,6 +25,29 @@ const Checkout = () => {
   const subtotal = getCartTotal();
   const shipping = 0; // TODO: Calculate shipping
   const total = subtotal + shipping;
+
+  // Load profile address on mount
+  useEffect(() => {
+    const loadProfileAddress = async () => {
+      try {
+        const response = await getCurrentUser();
+        if (response.success && response.user?.address) {
+          const addr = response.user.address;
+          setFormData({
+            street: addr.street || '',
+            city: addr.city || '',
+            state: addr.state || '',
+            zipCode: addr.zipCode || '',
+            country: addr.country || 'Brasil'
+          });
+        }
+      } catch (error) {
+        // Silently fail - user can enter address manually
+        console.error('Error loading profile address:', error);
+      }
+    };
+    loadProfileAddress();
+  }, []);
 
   // Track begin checkout when component mounts
   useEffect(() => {

@@ -14,9 +14,9 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
 
-  // Allowed file types
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
-  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.pdf'];
+  // Allowed file types - only documents
+  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  const allowedExtensions = ['.pdf', '.doc', '.docx'];
   const maxFileSize = 10 * 1024 * 1024; // 10MB
 
   // Validate file
@@ -109,12 +109,24 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
 
   // Get file type icon
   const getFileIcon = (fileType) => {
-    if (fileType?.startsWith('image/')) {
-      return '🖼️';
-    } else if (fileType === 'application/pdf') {
-      return '📄';
+    if (fileType === 'application/pdf') {
+      return (
+        <svg className="w-12 h-12 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      );
+    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      return (
+        <svg className="w-12 h-12 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      );
     }
-    return '📎';
+    return (
+      <svg className="w-12 h-12 mx-auto text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    );
   };
 
   // Remove selected file
@@ -239,7 +251,9 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
 
             {!selectedFile ? (
               <div className="space-y-2">
-                <div className="text-4xl mb-2">📤</div>
+                <svg className="w-16 h-16 mx-auto text-primary/40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
                 <p className="text-darkTeal font-medium">
                   {isDragging ? 'Solte o arquivo aqui' : 'Arraste o arquivo aqui'}
                 </p>
@@ -265,7 +279,7 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
                   </div>
                 ) : (
                   <div className="flex flex-col items-center space-y-2">
-                    <div className="text-6xl">{getFileIcon(selectedFile.type)}</div>
+                    {getFileIcon(selectedFile.type)}
                     <p className="text-darkTeal font-medium">{selectedFile.name}</p>
                   </div>
                 )}
@@ -283,7 +297,10 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
                   <div className="flex justify-between items-center text-sm mt-1">
                     <span className="text-mediumTeal">Tipo:</span>
                     <span className="text-darkTeal font-medium">
-                      {selectedFile.type === 'application/pdf' ? 'PDF' : 'Imagem'}
+                      {selectedFile.type === 'application/pdf' ? 'PDF' : 
+                       selectedFile.type === 'application/msword' ? 'DOC' :
+                       selectedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? 'DOCX' :
+                       'Documento'}
                     </span>
                   </div>
                 </div>
