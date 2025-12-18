@@ -193,6 +193,9 @@ const Home = () => {
 
   // Continuous falling leaves effect - large number of leaves (fall once)
   useEffect(() => {
+    let isMounted = true;
+    let cleanupTimeout = null;
+
     const createContinuousLeaves = () => {
       const leaves = [];
       const leafCount = 80; // Large number of leaves
@@ -211,16 +214,30 @@ const Home = () => {
         });
       }
       
-      setContinuousLeaves(leaves);
+      if (isMounted) {
+        setContinuousLeaves(leaves);
 
-      // Remove leaves after all animations complete
-      const maxDuration = Math.max(...leaves.map(l => l.startDelay + l.duration));
-      setTimeout(() => {
-        setContinuousLeaves([]);
-      }, (maxDuration + 1) * 1000);
+        // Remove leaves after all animations complete
+        const maxDuration = Math.max(...leaves.map(l => l.startDelay + l.duration));
+        cleanupTimeout = setTimeout(() => {
+          if (isMounted) {
+            setContinuousLeaves([]);
+          }
+        }, (maxDuration + 1) * 1000);
+      }
     };
 
     createContinuousLeaves();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      if (cleanupTimeout) {
+        clearTimeout(cleanupTimeout);
+      }
+      // Clear leaves on unmount to prevent state updates after unmount
+      setContinuousLeaves([]);
+    };
   }, []);
 
   useEffect(() => {
@@ -1214,20 +1231,38 @@ const Home = () => {
                     <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
                       {/* Product Image - Only Clickable */}
                       <div 
-                        className="relative z-10"
+                        className="relative z-10 overflow-hidden"
                         style={{
                           animation: productsVisible ? `productImageAppear 0.4s ease-out ${0.3 + productIndex * 0.1}s forwards` : 'none',
-                          opacity: productsVisible ? 0 : 0
+                          opacity: productsVisible ? 0 : 0,
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
                       >
                         {product?.image ? (
                           <Link
                             to={product.slug ? `/produtos/${product.slug}` : "/produtos"}
-                            className="block"
+                            className="block w-full h-full overflow-hidden"
                             style={{ textDecoration: 'none' }}
                             onClick={() => {
                               trackAnalyticsEvent('product_click', { product: product.name, location: 'products_preview' });
                               trackGtmEvent('product_click', { product: product.name, location: 'products_preview' });
+                            }}
+                            onMouseEnter={(e) => {
+                              const img = e.currentTarget.querySelector('img');
+                              if (img) {
+                                img.style.transform = 'scale(1.2)';
+                                img.style.transition = 'transform 0.4s ease-in-out';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              const img = e.currentTarget.querySelector('img');
+                              if (img) {
+                                img.style.transform = 'scale(1)';
+                              }
                             }}
                           >
                             <img                                                                          
@@ -1236,7 +1271,8 @@ const Home = () => {
                               className="w-full h-auto max-h-64 object-contain"
                               style={{ 
                                 filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                transition: 'transform 0.4s ease-in-out'
                               }}
                               crossOrigin="anonymous"
                               onError={(e) => {
