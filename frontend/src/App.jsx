@@ -58,18 +58,22 @@ function App() {
 
   useEffect(() => {
     // Check token expiration on mount
-    const token = localStorage.getItem('token');
-    if (token) {
+    let initialToken = localStorage.getItem('token');
+    if (initialToken) {
       try {
-        const { exp } = JSON.parse(atob(token.split('.')[1]));
+        const { exp } = JSON.parse(atob(initialToken.split('.')[1]));
         if (exp * 1000 < Date.now()) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          initialToken = null;
         }
       } catch (error) {
         console.error('Token validation error:', error);
       }
     }
+    
+    // Store initial auth state for comparison
+    const initialAuthState = !!initialToken;
     
     // Listen for storage changes to sync authentication state across tabs
     const handleStorageChange = (e) => {
@@ -79,7 +83,23 @@ function App() {
       }
     };
     
+    // Check authentication state when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Check if auth state changed in another tab
+        const currentToken = localStorage.getItem('token');
+        const currentAuthState = !!currentToken;
+        
+        // If we were authenticated but now we're not (or vice versa), reload
+        // This handles the case where user logged in/out in another tab
+        if (initialAuthState !== currentAuthState) {
+          window.location.reload();
+        }
+      }
+    };
+    
     window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     
     // Show loading animation
     setTimeout(() => {
@@ -88,6 +108,7 @@ function App() {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

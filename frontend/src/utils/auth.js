@@ -4,13 +4,30 @@ export const getToken = () => {
   return localStorage.getItem('token');
 };
 
+// Helper to dispatch storage event for cross-tab sync
+const dispatchStorageEvent = (key, newValue) => {
+  // Dispatch storage event manually to notify other tabs
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: key,
+    newValue: newValue,
+    oldValue: localStorage.getItem(key),
+    storageArea: localStorage,
+    url: window.location.href
+  }));
+};
+
 export const setToken = (token) => {
   localStorage.setItem('token', token);
+  dispatchStorageEvent('token', token);
 };
 
 export const removeToken = () => {
+  const oldToken = localStorage.getItem('token');
+  const oldUser = localStorage.getItem('user');
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  dispatchStorageEvent('token', null);
+  dispatchStorageEvent('user', null);
 };
 
 export const getUser = () => {
@@ -19,7 +36,9 @@ export const getUser = () => {
 };
 
 export const setUser = (user) => {
-  localStorage.setItem('user', JSON.stringify(user));
+  const userStr = JSON.stringify(user);
+  localStorage.setItem('user', userStr);
+  dispatchStorageEvent('user', userStr);
 };
 
 export const isAuthenticated = () => {
