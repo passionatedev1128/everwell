@@ -223,7 +223,7 @@ const Orders = () => {
         return (
           <div className="min-h-screen bg-bgSecondary py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h1 className="text-4xl font-bold text-darkTeal mb-8 font-heading">Meus Pedidos</h1>
+              <h1 className="text-4xl font-bold text-darkTeal mb-8 font-heading" style={{ color: '#C0DF16' }}>Meus Pedidos</h1>
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
                   <OrderCardSkeleton key={i} />
@@ -282,12 +282,12 @@ const Orders = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-darkTeal mb-2">
-                  Data Final
+                  Final Date
                 </label>
                 <DatePicker
                   value={dateFilter.to}
                   onChange={(e) => setDateFilter({ ...dateFilter, to: e.target.value })}
-                  placeholder="Data Final"
+                  placeholder="Final Date"
                   className="w-full"
                 />
               </div>
