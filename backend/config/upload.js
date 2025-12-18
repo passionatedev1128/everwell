@@ -191,18 +191,25 @@ export const uploadToSupabase = async (file, req, type = 'document') => {
     const baseUrl = getBaseUrl(req);
     const url = `${baseUrl}/uploads/${folder}/${filename}`;
     
-    // Verify file exists
+    // Verify file exists and log details
     if (!fs.existsSync(file.path)) {
       console.error(`❌ File was not saved correctly: ${file.path}`);
       console.error(`📁 Directory exists: ${fs.existsSync(path.dirname(file.path))}`);
+      console.error(`📁 Full directory path: ${path.dirname(file.path)}`);
+      // List files in directory to help debug
+      try {
+        const dirFiles = fs.readdirSync(path.dirname(file.path));
+        console.error(`📋 Files in directory: ${dirFiles.join(', ')}`);
+      } catch (err) {
+        console.error(`❌ Cannot read directory: ${err.message}`);
+      }
       throw new Error(`File was not saved correctly: ${file.path}`);
     }
     
-    // Log upload success (reduced verbosity)
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ File uploaded: ${filename} (${fs.statSync(file.path).size} bytes)`);
-      console.log(`🔗 URL: ${url}`);
-    }
+    // Log upload success (always log in production for debugging)
+    const fileSize = fs.statSync(file.path).size;
+    console.log(`✅ File uploaded: ${filename} (${fileSize} bytes) at ${file.path}`);
+    console.log(`🔗 URL: ${url}`);
     
     return {
       filename,

@@ -177,6 +177,25 @@ export const uploadPaymentProof = async (req, res, next) => {
     const uploadResult = await uploadToSupabase(file, req, 'payment');
     const fileUrl = uploadResult.url;
 
+    // Double-check file exists before saving to database
+    const fs = await import('fs');
+    if (!fs.existsSync(uploadResult.path)) {
+      console.error(`❌ Payment proof file verification failed: ${uploadResult.path}`);
+      console.error(`📁 File path: ${uploadResult.path}`);
+      console.error(`📁 Filename: ${uploadResult.filename}`);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao salvar arquivo. O arquivo não foi salvo corretamente.'
+      });
+    }
+
+    // Log successful upload with details
+    const fileStats = fs.statSync(uploadResult.path);
+    console.log(`✅ Payment proof uploaded successfully for order ${order._id}`);
+    console.log(`📁 File path: ${uploadResult.path}`);
+    console.log(`📁 File size: ${fileStats.size} bytes`);
+    console.log(`🔗 URL: ${fileUrl}`);
+
     // Update payment proof
     order.paymentProof = {
       url: fileUrl,

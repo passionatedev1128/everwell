@@ -118,13 +118,37 @@ app.use('/uploads', (req, res, next) => {
       return res.status(200).send(placeholderSvg);
     }
     
-    // For other missing files, return 404 (but reduce logging)
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`⚠️ File not found: ${filePath}`);
+    // For other missing files, log details and return 404
+    // This is common on Railway/ephemeral filesystems where files are lost on restart
+    console.warn(`⚠️ File not found: ${filePath}`);
+    console.warn(`📁 Expected path: ${fullPath}`);
+    console.warn(`📁 Uploads base path: ${uploadsPath}`);
+    
+    // Check if directory exists
+    const expectedDir = path.dirname(fullPath);
+    if (!fs.existsSync(expectedDir)) {
+      console.warn(`⚠️ Directory does not exist: ${expectedDir}`);
+      // Try to create it
+      try {
+        fs.mkdirSync(expectedDir, { recursive: true });
+        console.log(`✅ Created directory: ${expectedDir}`);
+      } catch (err) {
+        console.warn(`⚠️ Cannot create directory: ${err.message}`);
+      }
+    } else {
+      // List files in directory to help debug
+      try {
+        const files = fs.readdirSync(expectedDir);
+        console.warn(`📋 Files in directory (${files.length} total): ${files.slice(0, 10).join(', ')}${files.length > 10 ? '...' : ''}`);
+      } catch (err) {
+        console.warn(`⚠️ Cannot read directory: ${err.message}`);
+      }
     }
     
+    // Return 404 with helpful message
     return res.status(404).json({ 
       error: 'File not found',
+      message: 'O arquivo pode ter sido removido após uma reinicialização do servidor. Por favor, faça upload novamente.',
       path: filePath
     });
   }
