@@ -200,19 +200,17 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
         <div className="p-4 bg-bgSecondary rounded-md border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-darkTeal">Comprovante atual:</p>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const receiptUrl = typeof currentProof === 'string' ? currentProof : currentProof?.url;
-                if (receiptUrl) {
-                  window.open(receiptUrl, '_blank', 'noopener,noreferrer');
-                }
-              }}
+            <a
+              href={typeof currentProof === 'string' ? currentProof : currentProof?.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm text-primary hover:underline cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
             >
               Ver comprovante →
-            </button>
+            </a>
           </div>
           {typeof currentProof === 'object' && currentProof.url && currentProof.url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
             <img
