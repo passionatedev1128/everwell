@@ -139,6 +139,39 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
     }
   };
 
+  // Download receipt file
+  const handleDownloadReceipt = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const receiptUrl = typeof currentProof === 'string' ? currentProof : currentProof?.url;
+    if (!receiptUrl) return;
+
+    try {
+      const response = await fetch(receiptUrl);
+      if (!response.ok) throw new Error('Failed to fetch file');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      // Extract filename from URL or use default
+      const urlParts = receiptUrl.split('/');
+      const filename = urlParts[urlParts.length - 1] || 'comprovante.pdf';
+      a.download = filename;
+      
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      // Fallback: open in new tab
+      window.open(receiptUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   // Upload file
   const handleUpload = async () => {
     if (!selectedFile || !orderId) return;
@@ -200,17 +233,12 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess, currentProof = null }) =
         <div className="p-4 bg-bgSecondary rounded-md border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-darkTeal">Comprovante atual:</p>
-            <a
-              href={typeof currentProof === 'string' ? currentProof : currentProof?.url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleDownloadReceipt}
               className="text-sm text-primary hover:underline cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
             >
               Ver comprovante →
-            </a>
+            </button>
           </div>
           {typeof currentProof === 'object' && currentProof.url && currentProof.url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
             <img
