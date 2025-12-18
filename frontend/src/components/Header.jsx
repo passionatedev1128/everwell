@@ -161,7 +161,7 @@ const Header = () => {
                     type="button"
                     onClick={() => setIsAccountMenuOpen((prev) => !prev)}
                     className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-primary-dark/20 transition-all duration-300 group"
-                    style={{ color: 'white' }}
+                    style={{ color: 'olivedrab' }}
                   >
                   {hasValidPhoto(user) ? (
                     <img 

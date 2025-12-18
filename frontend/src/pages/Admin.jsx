@@ -1651,7 +1651,7 @@ const Admin = () => {
                           {product.subtitle && (
                             <p className="text-sm text-mediumTeal mb-2">{product.subtitle}</p>
                           )}
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <span className={`px-2 py-1 text-xs font-medium rounded ${
                               product.category === 'gummy' ? 'bg-purple-100 text-purple-700' :
                               product.category === 'oleo' ? 'bg-amber-100 text-amber-700' :
@@ -1664,11 +1664,48 @@ const Admin = () => {
                             }`}>
                               {product.visible ? 'Visível' : 'Oculto'}
                             </span>
+                            {product.usageTiming && product.usageTiming.trim() !== '' && (
+                              <span 
+                                className="px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full shadow-md"
+                                style={{
+                                  background: product.usageTiming === 'Recovery' 
+                                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                                    : product.usageTiming === 'Post-workout'
+                                    ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                                    : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                  color: '#FFFFFF',
+                                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+                                }}
+                              >
+                                {product.usageTiming}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
                       {product.images && product.images.length > 0 && (
-                        <div className="mb-3">
+                        <div className="mb-3 relative">
+                          {/* Usage Timing Badge on Image */}
+                          {product.usageTiming && product.usageTiming.trim() !== '' && (
+                            <div 
+                              className="absolute top-2 right-2 z-50 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
+                              style={{
+                                background: product.usageTiming === 'Recovery' 
+                                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                                  : product.usageTiming === 'Post-workout'
+                                  ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                                  : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                color: '#FFFFFF',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                                pointerEvents: 'none'
+                              }}
+                            >
+                              {product.usageTiming}
+                            </div>
+                          )}
                           <img
                             src={product.images[0]}
                             crossOrigin="anonymous"

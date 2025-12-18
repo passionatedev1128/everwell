@@ -47,6 +47,12 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     default: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F',
     trim: true
+  },
+  usageTiming: {
+    type: String,
+    enum: ['Recovery', 'Post-workout', 'Pre-workout', ''],
+    default: '',
+    trim: true
   }
 }, {
   timestamps: true

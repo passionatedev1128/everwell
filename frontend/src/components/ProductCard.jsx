@@ -53,6 +53,26 @@ const ProductCard = ({ product }) => {
             }
           }}
         >
+          {/* Usage Timing Badge */}
+          {product.usageTiming && product.usageTiming.trim() !== '' && (
+            <div 
+              className="absolute top-3 right-3 z-50 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
+              style={{
+                background: product.usageTiming === 'Recovery' 
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  : product.usageTiming === 'Post-workout'
+                  ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                  : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                color: '#FFFFFF',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                pointerEvents: 'none'
+              }}
+            >
+              {product.usageTiming}
+            </div>
+          )}
           <img
             src={product.images[0]}
             alt={product.name}

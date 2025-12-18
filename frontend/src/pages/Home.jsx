@@ -356,7 +356,8 @@ const Home = () => {
             description: p.description || '',
             image: p.images[0] || '',
             slug: p.slug || '',
-            price: p.price || 0
+            price: p.price || 0,
+            usageTiming: p.usageTiming || ''
           }));
         setProductHighlights(highlights);
       } catch (error) {
@@ -1387,6 +1388,26 @@ const Home = () => {
                     `}</style>
                     {/* Product Image Container with White Circular Pedestal */}
                     <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
+                      {/* Usage Timing Badge */}
+                      {product?.usageTiming && product.usageTiming.trim() !== '' && (
+                        <div 
+                          className="absolute top-4 right-4 z-50 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
+                          style={{
+                            background: product.usageTiming === 'Recovery' 
+                              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                              : product.usageTiming === 'Post-workout'
+                              ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                              : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                            color: '#FFFFFF',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                            pointerEvents: 'none'
+                          }}
+                        >
+                          {product.usageTiming}
+                        </div>
+                      )}
                       {/* Product Image - Only Clickable */}
                       <div 
                         className="relative z-10 overflow-hidden"

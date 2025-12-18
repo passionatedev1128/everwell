@@ -92,7 +92,7 @@ const Footer = () => {
             {/* Contact Links */}
             <div className="flex flex-col space-y-2 sm:space-y-3">
               <Link 
-                to="/duvidas" 
+                to="https://wa.me/5521998170460?text=Gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20EverWell" 
                 className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
                 style={{ fontFamily: 'kodchasan' }}
               >

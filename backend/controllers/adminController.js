@@ -364,7 +364,7 @@ export const getAllProductsAdmin = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, subtitle, price, images, restrictions, visible, category } = req.body;
+    const { name, description, subtitle, price, images, restrictions, visible, category, usageTiming } = req.body;
 
     // Validate required fields
     if (!name || !description || !price || !category) {
@@ -419,7 +419,8 @@ export const createProduct = async (req, res, next) => {
       restrictions: restrictions || 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
       visible: visible !== undefined ? visible : true,
       category,
-      productUrl: req.body.productUrl || 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+      productUrl: req.body.productUrl || 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F',
+      usageTiming: usageTiming || ''
     });
 
     // Create audit log
@@ -454,7 +455,7 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, description, subtitle, price, images, restrictions, visible, category, productUrl } = req.body;
+    const { name, description, subtitle, price, images, restrictions, visible, category, productUrl, usageTiming } = req.body;
 
     const product = await Product.findById(id);
     
@@ -512,6 +513,7 @@ export const updateProduct = async (req, res, next) => {
       product.category = category;
     }
     if (productUrl !== undefined) product.productUrl = productUrl;
+    if (usageTiming !== undefined) product.usageTiming = usageTiming || '';
 
     await product.save();
 

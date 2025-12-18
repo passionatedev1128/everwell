@@ -73,7 +73,27 @@ const ProductDetail = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-8">
           {product.images && product.images.length > 0 && (
-            <div className="mb-8 flex items-center justify-center">
+            <div className="mb-8 flex items-center justify-center relative">
+              {/* Usage Timing Badge */}
+              {product.usageTiming && product.usageTiming.trim() !== '' && (
+                <div 
+                  className="absolute top-4 right-4 z-50 px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide shadow-lg"
+                  style={{
+                    background: product.usageTiming === 'Recovery' 
+                      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                      : product.usageTiming === 'Post-workout'
+                      ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                      : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                    color: '#FFFFFF',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                    pointerEvents: 'none'
+                  }}
+                >
+                  {product.usageTiming}
+                </div>
+              )}
               <img
                 src={product.images[0]}
                 alt={product.name}
@@ -84,7 +104,27 @@ const ProductDetail = () => {
             </div>
           )}
 
-          <h1 className="text-4xl font-bold text-text-dark mb-2">{product.name}</h1>
+          <div className="flex items-start justify-between mb-2">
+            <h1 className="text-4xl font-bold text-text-dark">{product.name}</h1>
+            {/* Usage Timing Badge (alternative position if no image) */}
+            {(!product.images || product.images.length === 0) && product.usageTiming && product.usageTiming.trim() !== '' && (
+              <div 
+                className="px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide shadow-lg"
+                style={{
+                  background: product.usageTiming === 'Recovery' 
+                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                    : product.usageTiming === 'Post-workout'
+                    ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                    : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+                }}
+              >
+                {product.usageTiming}
+              </div>
+            )}
+          </div>
           {product.subtitle && (
             <p className="text-xl font-medium text-primary mb-4">{product.subtitle}</p>
           )}
