@@ -934,7 +934,7 @@ const Home = () => {
         />
         {/* Right Side - Text Content */}
         <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '65%', marginLeft: '60px' }}>
-          <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px' }}>
+          <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px', color: 'olivedrab' }}>
             on
           </p>
           <p 
@@ -948,10 +948,10 @@ const Home = () => {
           >
             Unlock your next level.
           </p>
-          <h3 className="break-through text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em' }}>
+          <h3 className="break-through text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal text-black leading-tight mb-6 md:mb-8" style={{ fontWeight: 100, fontFamily: 'kodchasan', letterSpacing: '-0.02em', color: '#b3cf19' }}>
             It's every well.
           </h3>
-          <p className="fade-in-slow text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, minWidth: '100%' }}>
+          <p className="fade-in-slow text-base sm:text-lg md:text-xl text-black leading-relaxed max-w-lg" style={{ fontWeight: 400, color: 'gray', minWidth: '100%' }}>
             We create CBD-based products for those seeking constant improvement.
           </p>
         </div>
@@ -992,7 +992,8 @@ const Home = () => {
             <h2 
               className="text-2xl sm:text-3xl md:text-4xl font-sans font-normal text-black mb-2" 
               style={{ 
-                fontWeight: 400, 
+                fontWeight: 400,
+                color: 'olivedrab',
                 fontFamily: 'kodchasan',
                 animation: nextLevelVisible ? 'nextLevelTitleSlide 0.8s ease-out 0s forwards' : 'none',
                 opacity: nextLevelVisible ? 0 : 0
@@ -1267,8 +1268,57 @@ const Home = () => {
       )} */}
 
       {/* Our Products */}
-      <section ref={productsRef} className="py-12 sm:py-16 md:py-24" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section 
+        ref={productsRef} 
+        className="py-12 sm:py-16 md:py-24 products-section" 
+        style={{ 
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Wave gradient background */}
+        <div 
+          className="products-wave-bg"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              radial-gradient(ellipse 800px 400px at 20% 30%, rgba(192, 223, 22, 0.08) 0%, transparent 100%),
+              radial-gradient(ellipse 600px 300px at 80% 70%, rgba(192, 223, 22, 0.06) 0%, transparent 100%),
+              radial-gradient(ellipse 1000px 500px at 50% 50%, rgba(192, 223, 22, 0.05) 0%, transparent 60%),
+              linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 250, 250, 0.98) 50%, rgba(255, 255, 255, 0.95) 100%)
+            `,
+            backgroundSize: '100% 100%, 100% 100%, 100% 100%, 100% 100%',
+            backgroundPosition: '0% 0%, 100% 100%, 50% 50%, 0% 0%',
+            animation: 'waveFloat 20s ease-in-out infinite',
+            zIndex: 10,
+            pointerEvents: 'none'
+          }}
+        />
+        <style>{`
+          @keyframes waveFloat {
+            0%, 100% {
+              background-position: 0% 0%, 100% 100%, 50% 50%, 0% 0%;
+              opacity: 1;
+            }
+            25% {
+              background-position: 5% 10%, 95% 90%, 55% 45%, 0% 0%;
+              opacity: 0.95;
+            }
+            50% {
+              background-position: 10% 5%, 90% 95%, 45% 55%, 0% 0%;
+              opacity: 1;
+            }
+            75% {
+              background-position: 5% 15%, 95% 85%, 55% 40%, 0% 0%;
+              opacity: 0.95;
+            }
+          }
+        `}</style>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 11 }}>
           {/* Title at Top Right */}
           <div className="flex justify-end mb-12 sm:mb-16 md:mb-20">
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 300, fontFamily: 'kodchasan', color: '#C0DF16' }}>
@@ -1282,16 +1332,59 @@ const Home = () => {
                 <div key={product.name || product.slug} className="flex flex-col items-center" style={{ minWidth: "100%"}}>
                   {/* Product Frame with Lime Green Border */}
                   <div 
-                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6"
+                    className="relative w-full rounded-lg p-6 sm:p-8 mb-6 product-card"
                     style={{
                       border: '2px solid #C0DF16',
                       borderRadius: '12px',
                       backgroundColor: 'white',
                       animation: productsVisible ? `productCardSlideIn 0.4s ease-out ${productIndex * 0.1}s forwards` : 'none',
                       opacity: productsVisible ? 0 : 0,
-                      transform: productsVisible ? 'translateX(-100px)' : 'translateX(-100px)'
+                      transform: productsVisible ? 'translateX(-100px)' : 'translateX(-100px)',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer',
+                      overflow: 'hidden'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 16px 48px rgba(192, 223, 22, 0.4), 0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 30px rgba(192, 223, 22, 0.3)';
+                      e.currentTarget.style.borderColor = '#D4E83A';
+                      // Add shimmer effect
+                      const shimmer = document.createElement('div');
+                      shimmer.className = 'product-shimmer';
+                      shimmer.style.cssText = `
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 200%;
+                        height: 200%;
+                        background: linear-gradient(45deg, transparent 30%, rgba(192, 223, 22, 0.2) 50%, transparent 70%);
+                        animation: shimmerSlide 1.5s ease-in-out;
+                        pointer-events: none;
+                        z-index: 1;
+                      `;
+                      e.currentTarget.appendChild(shimmer);
+                      setTimeout(() => {
+                        if (shimmer.parentNode) {
+                          shimmer.parentNode.removeChild(shimmer);
+                        }
+                      }, 1500);
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.borderColor = '#C0DF16';
                     }}
                   >
+                    <style>{`
+                      @keyframes shimmerSlide {
+                        0% {
+                          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                        }
+                        100% {
+                          transform: translateX(100%) translateY(100%) rotate(45deg);
+                        }
+                      }
+                    `}</style>
                     {/* Product Image Container with White Circular Pedestal */}
                     <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
                       {/* Product Image - Only Clickable */}
@@ -1319,25 +1412,27 @@ const Home = () => {
                             onMouseEnter={(e) => {
                               const img = e.currentTarget.querySelector('img');
                               if (img) {
-                                img.style.transform = 'scale(1.2)';
-                                img.style.transition = 'transform 0.4s ease-in-out';
+                                img.style.transform = 'scale(1.15)';
+                                img.style.filter = 'drop-shadow(0 12px 24px rgba(192, 223, 22, 0.3))';
+                                img.style.transition = 'all 0.4s ease-in-out';
                               }
                             }}
                             onMouseLeave={(e) => {
                               const img = e.currentTarget.querySelector('img');
                               if (img) {
                                 img.style.transform = 'scale(1)';
+                                img.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))';
                               }
                             }}
                           >
                             <img                                                                          
                               src={product.image} 
                               alt={product.name || 'Product - EverWell'}
-                              className="w-full h-auto max-h-64 object-contain"
+                              className="w-full h-auto max-h-64 object-contain product-image"
                               style={{ 
                                 filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
                                 cursor: 'pointer',
-                                transition: 'transform 0.4s ease-in-out'
+                                transition: 'all 0.4s ease-in-out'
                               }}
                               crossOrigin="anonymous"
                               onError={(e) => {
@@ -1642,7 +1737,7 @@ const Home = () => {
                 className="flex flex-col items-center"
               >
                 <div 
-                  className="flex flex-col items-center"
+                  className="flex flex-col items-center testimonial-card"
                   style={{
                     borderRadius: '12px',
                     backgroundColor: '#C0DF16',
@@ -1654,23 +1749,74 @@ const Home = () => {
                     opacity: testimonialsVisible ? 0 : 0,
                     border: '2px solid #C0DF16',
                     boxShadow: '0 8px 32px rgba(192, 223, 22, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.05)',
-                    position: 'relative'
+                    position: 'relative',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    cursor: 'pointer',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 16px 48px rgba(192, 223, 22, 0.4), 0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 30px rgba(192, 223, 22, 0.3)';
+                    e.currentTarget.style.backgroundColor = '#D4E83A';
+                    // Add shimmer effect
+                    const shimmer = document.createElement('div');
+                    shimmer.className = 'testimonial-shimmer';
+                    shimmer.style.cssText = `
+                      position: absolute;
+                      top: -50%;
+                      left: -50%;
+                      width: 200%;
+                      height: 200%;
+                      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+                      animation: shimmerSlide 1.5s ease-in-out;
+                      pointer-events: none;
+                      z-index: 1;
+                    `;
+                    e.currentTarget.appendChild(shimmer);
+                    setTimeout(() => {
+                      if (shimmer.parentNode) {
+                        shimmer.parentNode.removeChild(shimmer);
+                      }
+                    }, 1500);
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(192, 223, 22, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.05)';
+                    e.currentTarget.style.backgroundColor = '#C0DF16';
                   }}
                 >
+                  <style>{`
+                    @keyframes shimmerSlide {
+                      0% {
+                        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                      }
+                      100% {
+                        transform: translateX(100%) translateY(100%) rotate(45deg);
+                      }
+                    }
+                  `}</style>
                   {/* Person Image - Centered */}
                   <div className="mb-4 flex items-center justify-center">
                     <img
                       src={testimonial.avatar}
                       alt={testimonial.name}
-                      className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover"
+                      className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover testimonial-avatar"
                       style={{
                         border: '3px solid white',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                        transition: 'all 0.3s ease-in-out'
                       }}
                       onError={(e) => {
                         e.target.src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80';
                       }}
                     />
+                    <style>{`
+                      .testimonial-card:hover .testimonial-avatar {
+                        transform: scale(1.1);
+                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.5);
+                        border-color: rgba(255, 255, 255, 0.9);
+                      }
+                    `}</style>
                   </div>
 
                   {/* Name - Bold Black */}
