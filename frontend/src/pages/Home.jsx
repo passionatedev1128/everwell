@@ -955,7 +955,7 @@ const Home = () => {
             We create CBD-based products for those seeking constant improvement.
           </p>
         </div>
-        </div>
+        </div>                      
       </section>
       {/* Trust Badges - Right below header */}
       <section ref={trustBadgesRef} className="w-full pt-16 sm:pt-20 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 relative z-40" style={{ backgroundColor: '#C0DF16', padding: '15px' }}>
@@ -1336,7 +1336,7 @@ const Home = () => {
                     style={{
                       border: '2px solid #C0DF16',
                       borderRadius: '12px',
-                      backgroundColor: 'white',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 255, 240, 0.98) 50%, rgba(255, 255, 255, 0.95) 100%)',
                       animation: productsVisible ? `productCardSlideIn 0.4s ease-out ${productIndex * 0.1}s forwards` : 'none',
                       opacity: productsVisible ? 0 : 0,
                       transform: productsVisible ? 'translateX(-100px)' : 'translateX(-100px)',

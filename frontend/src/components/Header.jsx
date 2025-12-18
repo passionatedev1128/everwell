@@ -179,11 +179,12 @@ const Header = () => {
                     />
                   ) : null}
                   <div 
-                    className={`w-8 h-8 rounded-full bg-primary text-darkTeal flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30 ${
+                    className={`w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm font-medium transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30 relative ${
                       hasValidPhoto(user) ? 'hidden' : ''
                     }`}
+                    style={{ zIndex: 10 }}
                   >
-                    {user?.name?.charAt(0)?.toUpperCase() || 'E'}
+                    <span className="text-darkTeal relative z-10">{user?.name?.charAt(0)?.toUpperCase() || 'E'}</span>
                   </div>
                   <div className="hidden xl:flex flex-col items-start text-left">
                     <span className="text-sm font-medium leading-tight" style={{ color: '#C0DF16' }}>

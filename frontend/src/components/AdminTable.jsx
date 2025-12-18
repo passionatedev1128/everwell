@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePassword, sortConfig, onSort }) => {
+const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePassword, onEditUser, sortConfig, onSort }) => {
   const navigate = useNavigate();
   const authorizedCount = users.filter(u => u.isAuthorized).length;
   const pendingCount = users.filter(u => !u.isAuthorized).length;
@@ -187,19 +187,33 @@ const AdminTable = ({ users, onToggleAuthorization, onDeleteUser, onChangePasswo
                   </button>
                 </td>
                 <td className="px-3 py-4 whitespace-nowrap text-center">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleAuthorization(user._id);
-                    }}
-                    className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      user.isAuthorized
-                        ? 'bg-red-50 text-red-700 hover:bg-red-100'
-                        : 'bg-primary text-brandBlack hover:bg-primary/90'
-                    }`}
-                  >
-                    {user.isAuthorized ? 'Revogar' : 'Autorizar'}
-                  </button>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onEditUser) onEditUser(user);
+                      }}
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                      title="Editar usuário"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleAuthorization(user._id);
+                      }}
+                      className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                        user.isAuthorized
+                          ? 'bg-red-50 text-red-700 hover:bg-red-100'
+                          : 'bg-primary text-brandBlack hover:bg-primary/90'
+                      }`}
+                    >
+                      {user.isAuthorized ? 'Revogar' : 'Autorizar'}
+                    </button>
+                  </div>
                 </td>
                 <td className="px-3 py-4 whitespace-nowrap text-center">
                   <button

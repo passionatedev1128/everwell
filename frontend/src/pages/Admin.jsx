@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import api from '../utils/api';
-import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages, getAllBlogsAdmin, getBlogById, createBlog, updateBlog, deleteBlog, getAllFeedbacksAdmin, updateFeedbackStatus, deleteFeedback, getAllNotificationsAdmin, createNotificationAdmin, sendNotificationToAllUsers, updateNotificationAdmin, deleteNotificationAdmin, updateUserPasswordAdmin } from '../utils/api';
+import { getAllOrdersAdmin, updateOrderStatus, getOrderById, getAllProductsAdmin, createProduct, updateProduct, deleteProduct, uploadProductImages, getAllBlogsAdmin, getBlogById, createBlog, updateBlog, deleteBlog, getAllFeedbacksAdmin, updateFeedbackStatus, deleteFeedback, getAllNotificationsAdmin, createNotificationAdmin, sendNotificationToAllUsers, updateNotificationAdmin, deleteNotificationAdmin, updateUserPasswordAdmin, updateUserAdmin } from '../utils/api';
 import AdminTable from '../components/AdminTable';
 import DatePicker from '../components/DatePicker';
 import ElegantSelect from '../components/ElegantSelect';
@@ -26,7 +28,8 @@ const Admin = () => {
     restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
     visible: true,
     category: 'gummy',
-    productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+    productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F',
+    usageTiming: ''
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -51,6 +54,23 @@ const Admin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordSetSuccess, setPasswordSetSuccess] = useState(false);
   const passwordModalAnimatedRef = useRef(false);
+  const [userEditModal, setUserEditModal] = useState({ open: false, user: null });
+  const [userEditModalClosing, setUserEditModalClosing] = useState(false);
+  const [userEditForm, setUserEditForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'user',
+    isAuthorized: false,
+    emailVerified: false,
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: ''
+    }
+  });
   const [tabTransition, setTabTransition] = useState(false);
   const isMountedRef = useRef(true);
   const [blogs, setBlogs] = useState([]);
@@ -708,7 +728,8 @@ const Admin = () => {
         restrictions: product.restrictions || 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
         visible: product.visible !== undefined ? product.visible : true,
         category: product.category || 'gummy',
-        productUrl: product.productUrl || 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+        productUrl: product.productUrl || 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F',
+        usageTiming: product.usageTiming || ''
       });
       setProductModal({ open: true, product, mode: 'edit' });
     } else {
@@ -721,7 +742,8 @@ const Admin = () => {
         restrictions: 'Produto restrito conforme RDC 327/2019 e 660/2022 da Anvisa. Acesso apenas para usuários autorizados.',
         visible: true,
         category: 'gummy',
-        productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F'
+        productUrl: 'https://pro.quaddro.co/yourbestversion/servicos/vgwg3F',
+        usageTiming: ''
       });
       setProductModal({ open: true, product: null, mode: 'create' });
     }
@@ -1278,6 +1300,25 @@ const Admin = () => {
                   setPasswordSetSuccess(false);
                   setPasswordModal({ open: true, userId, userName, lastSetPassword: '' });
                 }}
+                onEditUser={(user) => {
+                  setUserEditForm({
+                    name: user.name || '',
+                    email: user.email || '',
+                    phone: user.phone || '',
+                    role: user.role || 'user',
+                    isAuthorized: user.isAuthorized || false,
+                    emailVerified: user.emailVerified || false,
+                    address: {
+                      street: user.address?.street || '',
+                      city: user.address?.city || '',
+                      state: user.address?.state || '',
+                      zipCode: user.address?.zipCode || '',
+                      country: user.address?.country || ''
+                    }
+                  });
+                  setUserEditModal({ open: true, user });
+                  setUserEditModalClosing(false);
+                }}
                 sortConfig={userSortConfig}
                 onSort={handleUserSort}
               />
@@ -1641,9 +1682,9 @@ const Admin = () => {
                         </div>
                       )}
                       <div className="mb-3">
-                        <p className="text-sm text-mediumTeal line-clamp-2">{product.description}</p>
+                        <p className="text-sm text-mediumTeal whitespace-nowrap overflow-hidden text-ellipsis">{product.description}</p>
                       </div>
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="mb-3">
                         <span className="text-xl font-bold text-primary">R$ {product.price?.toFixed(2) || '0.00'}</span>
                       </div>
                       <div className="flex gap-2">
@@ -2867,6 +2908,21 @@ const Admin = () => {
                   </div>
 
                   <div>
+                    <ElegantSelect
+                      label="Quando usar este produto para saúde"
+                      value={productForm.usageTiming}
+                      onChange={(usageTiming) => setProductForm({ ...productForm, usageTiming })}
+                      options={[
+                        { value: '', label: 'Selecione...' },
+                        { value: 'Recovery', label: 'Recovery' },
+                        { value: 'Post-workout', label: 'Post-workout' },
+                        { value: 'Pre-workout', label: 'Pre-workout' }
+                      ]}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium text-darkTeal mb-1">
                       Subtítulo
                     </label>
@@ -3102,7 +3158,11 @@ const Admin = () => {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 text-sm font-medium bg-primary text-brandBlack rounded-md hover:bg-primary/90 transition-colors"
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                        productModal.mode === 'edit' 
+                          ? 'bg-primary text-brandBlack hover:bg-primary/90 shadow-lg ring-2 ring-primary ring-offset-2 font-semibold' 
+                          : 'bg-primary text-brandBlack hover:bg-primary/90'
+                      }`}
                     >
                       {productModal.mode === 'create' ? 'Criar Produto' : 'Salvar Alterações'}
                     </button>
@@ -3217,13 +3277,45 @@ const Admin = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-darkTeal mb-2">Conteúdo (Markdown) *</label>
-                    <textarea
-                      value={blogForm.contentMarkdown}
-                      onChange={(e) => setBlogForm({ ...blogForm, contentMarkdown: e.target.value })}
-                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
-                      rows={12}
-                      required
-                    />
+                    <div className="bg-white rounded-md border border-primary/30 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+                      <ReactQuill
+                        theme="snow"
+                        value={blogForm.contentMarkdown}
+                        onChange={(value) => setBlogForm({ ...blogForm, contentMarkdown: value })}
+                        modules={{
+                          toolbar: [
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            [{ 'font': [] }],
+                            [{ 'size': [] }],
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
+                            ['link', 'image'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'align': [] }],
+                            ['clean']
+                          ]
+                        }}
+                        formats={[
+                          'header', 'font', 'size',
+                          'bold', 'italic', 'underline', 'strike', 'blockquote',
+                          'list', 'bullet', 'indent',
+                          'link', 'image',
+                          'color', 'background',
+                          'align'
+                        ]}
+                        style={{ minHeight: '300px' }}
+                        className="blog-editor"
+                      />
+                    </div>
+                    <style>{`
+                      .blog-editor .ql-container {
+                        min-height: 300px;
+                        font-size: 14px;
+                      }
+                      .blog-editor .ql-editor {
+                        min-height: 300px;
+                      }
+                    `}</style>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-darkTeal mb-2">Resumo (máx. 300 caracteres)</label>
@@ -3427,6 +3519,221 @@ const Admin = () => {
                 >
                   Deletar
                 </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Edit User Modal */}
+        {userEditModal.open && createPortal(
+          <div
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
+              userEditModalClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setUserEditModalClosing(true);
+              setTimeout(() => {
+                setUserEditModal({ open: false, user: null });
+                setUserEditModalClosing(false);
+              }, 300);
+            }}
+          >
+            <div
+              className={`bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+                userEditModalClosing 
+                  ? 'opacity-0 scale-95 translate-y-4' 
+                  : 'opacity-100 scale-100 translate-y-0'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: userEditModalClosing ? 'none' : 'modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
+                  <h2 className="text-xl font-semibold text-darkTeal">Editar Usuário</h2>
+                  <button
+                    onClick={() => {
+                      setUserEditModalClosing(true);
+                      setTimeout(() => {
+                        setUserEditModal({ open: false, user: null });
+                        setUserEditModalClosing(false);
+                      }, 300);
+                    }}
+                    className="text-mediumTeal hover:text-darkTeal transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    const response = await updateUserAdmin(userEditModal.user._id, userEditForm);
+                    if (response.success) {
+                      toast.success('Usuário atualizado com sucesso!');
+                      setUserEditModalClosing(true);
+                      setTimeout(() => {
+                        setUserEditModal({ open: false, user: null });
+                        setUserEditModalClosing(false);
+                        fetchUsers();
+                      }, 300);
+                    }
+                  } catch (err) {
+                    toast.error(err.response?.data?.message || 'Erro ao atualizar usuário.');
+                  }
+                }} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">Nome *</label>
+                      <input
+                        type="text"
+                        value={userEditForm.name}
+                        onChange={(e) => setUserEditForm({ ...userEditForm, name: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">Email *</label>
+                      <input
+                        type="email"
+                        value={userEditForm.email}
+                        onChange={(e) => setUserEditForm({ ...userEditForm, email: e.target.value })}
+                        className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-darkTeal mb-1">Telefone</label>
+                    <input
+                      type="tel"
+                      value={userEditForm.phone}
+                      onChange={(e) => setUserEditForm({ ...userEditForm, phone: e.target.value })}
+                      className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">Função</label>
+                      <ElegantSelect
+                        value={userEditForm.role}
+                        onChange={(role) => setUserEditForm({ ...userEditForm, role })}
+                        options={[
+                          { value: 'user', label: 'Usuário' },
+                          { value: 'admin', label: 'Administrador' }
+                        ]}
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-darkTeal mb-1">Status</label>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={userEditForm.isAuthorized}
+                            onChange={(e) => setUserEditForm({ ...userEditForm, isAuthorized: e.target.checked })}
+                            className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                          />
+                          <span className="text-sm text-darkTeal">Autorizado</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={userEditForm.emailVerified}
+                            onChange={(e) => setUserEditForm({ ...userEditForm, emailVerified: e.target.checked })}
+                            className="w-4 h-4 text-primary border-primary/30 rounded focus:ring-primary"
+                          />
+                          <span className="text-sm text-darkTeal">Email Verificado</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-primary/20 pt-4">
+                    <h3 className="text-sm font-semibold text-darkTeal mb-3">Endereço</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-darkTeal mb-1">Rua</label>
+                        <input
+                          type="text"
+                          value={userEditForm.address.street}
+                          onChange={(e) => setUserEditForm({ ...userEditForm, address: { ...userEditForm.address, street: e.target.value } })}
+                          className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-darkTeal mb-1">Cidade</label>
+                          <input
+                            type="text"
+                            value={userEditForm.address.city}
+                            onChange={(e) => setUserEditForm({ ...userEditForm, address: { ...userEditForm.address, city: e.target.value } })}
+                            className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-darkTeal mb-1">Estado</label>
+                          <input
+                            type="text"
+                            value={userEditForm.address.state}
+                            onChange={(e) => setUserEditForm({ ...userEditForm, address: { ...userEditForm.address, state: e.target.value } })}
+                            className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-darkTeal mb-1">CEP</label>
+                          <input
+                            type="text"
+                            value={userEditForm.address.zipCode}
+                            onChange={(e) => setUserEditForm({ ...userEditForm, address: { ...userEditForm.address, zipCode: e.target.value } })}
+                            className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-darkTeal mb-1">País</label>
+                          <input
+                            type="text"
+                            value={userEditForm.address.country}
+                            onChange={(e) => setUserEditForm({ ...userEditForm, address: { ...userEditForm.address, country: e.target.value } })}
+                            className="w-full rounded-md border border-primary/30 bg-white px-3 py-2 text-sm text-darkTeal focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 justify-end pt-4 border-t border-primary/20">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserEditModalClosing(true);
+                        setTimeout(() => {
+                          setUserEditModal({ open: false, user: null });
+                          setUserEditModalClosing(false);
+                        }, 300);
+                      }}
+                      className="px-4 py-2 text-sm font-medium text-mediumTeal hover:text-darkTeal transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm font-medium bg-primary text-brandBlack rounded-md hover:bg-primary/90 transition-colors shadow-lg ring-2 ring-primary ring-offset-2 font-semibold"
+                    >
+                      Salvar Alterações
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>,

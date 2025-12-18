@@ -227,6 +227,65 @@ export const updateUserPassword = async (req, res, next) => {
   }
 };
 
+export const updateUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { name, email, phone, role, isAuthorized, emailVerified, address } = req.body;
+
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado.'
+      });
+    }
+
+    // Update fields
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (phone !== undefined) user.phone = phone;
+    if (role !== undefined) user.role = role;
+    if (isAuthorized !== undefined) user.isAuthorized = isAuthorized;
+    if (emailVerified !== undefined) user.emailVerified = emailVerified;
+    if (address) {
+      user.address = {
+        ...user.address,
+        ...address
+      };
+    }
+
+    await user.save();
+
+    // Create audit log
+    await AuditLog.create({
+      action: 'user_updated',
+      adminId: req.user._id,
+      details: {
+        userId: user._id,
+        userName: user.name,
+        updatedFields: Object.keys(req.body)
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent')
+    });
+
+    res.json({
+      success: true,
+      message: 'Usuário atualizado com sucesso.',
+      user
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email já está em uso.'
+      });
+    }
+    next(error);
+  }
+};
+
 export const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;

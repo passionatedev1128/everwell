@@ -8,9 +8,10 @@ const EmptyState = ({
   actionHref,
   actionOnClick 
 }) => {
+  const isReactElement = typeof icon !== 'string';
   return (
     <div className="bg-white rounded-lg shadow-md p-12 text-center animate-fade-in">
-      <div className="text-6xl mb-4">{icon}</div>
+      <div className="mb-4 flex justify-center">{isReactElement ? icon : <div className="text-6xl">{icon}</div>}</div>
       <h3 className="text-2xl font-semibold text-darkTeal mb-2 font-heading">
         {title}
       </h3>
@@ -54,7 +55,11 @@ export const EmptyOrders = () => (
 
 export const EmptyProducts = () => (
   <EmptyState
-    icon="🔍"
+    icon={
+      <svg className="w-24 h-24 mx-auto text-primary/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    }
     title="Nenhum produto encontrado"
     description="Não encontramos produtos com os filtros selecionados. Tente ajustar sua busca."
   />

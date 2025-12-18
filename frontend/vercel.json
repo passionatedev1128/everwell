@@ -4,6 +4,17 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.hs-scripts.com https://js.hs-analytics.net https://widget.simplybook.me https://*.simplybook.me; img-src 'self' data: https: blob: https://track.hubspot.com; connect-src 'self' https://api.hubapi.com https://*.simplybook.me; frame-src 'self' https://*.simplybook.me;"
+        }
+      ]
+    }
   ]
 }
 

@@ -254,14 +254,17 @@ const NotificationBell = () => {
 
   const handleOpen = () => {
     if (isOpen) {
-      // Only close if not hovering
-      if (!isHovering) {
-        setIsClosing(true);
-        setTimeout(() => {
-          setIsOpen(false);
-          setIsClosing(false);
-        }, 300);
+      // Close when clicking bell button again, regardless of hover state
+      setIsClosing(true);
+      setIsHovering(false);
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
       }
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsOpen(false);
+        setIsClosing(false);
+        closeTimeoutRef.current = null;
+      }, 300);
     } else {
       setIsOpen(true);
       setIsHovering(false); // Reset hover state when opening

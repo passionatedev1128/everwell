@@ -341,6 +341,11 @@ export const updateUserPasswordAdmin = async (userId, password) => {
   return response.data;
 };
 
+export const updateUserAdmin = async (userId, userData) => {
+  const response = await api.patch(`/admin/users/${userId}`, userData);
+  return response.data;
+};
+
 // Admin document management
 export const updateDocumentStatus = async (userId, documentType, status) => {
   const response = await api.patch('/admin/users/documents/status', {

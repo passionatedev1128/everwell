@@ -175,11 +175,22 @@ const SimplyBookWidget = ({ companyId, serviceId = null }) => {
         ) : (
           <>
             {status === 'loading' && (
-              <div className="rounded-3xl bg-white/90 border border-white/60 shadow-[0_24px_60px_-30px_rgba(15,41,61,0.45)] min-h-[640px] flex items-center justify-center">
+              <div className="rounded-3xl bg-white/90 border border-white/60 shadow-[0_24px_60px_-30px_rgba(15,41,61,0.45)] min-h-[640px] flex flex-col items-center justify-center">
+                <div className="w-full max-w-md px-4 mb-4">
+                  <div className="h-1 bg-primary/20 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full animate-pulse" style={{ width: '60%', animation: 'loadingBar 2s ease-in-out infinite' }} />
+                  </div>
+                </div>
                 <div className="text-center space-y-3">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
                   <p className="text-mediumTeal">Conectando à agenda segura da EverWell…</p>
                 </div>
+                <style>{`
+                  @keyframes loadingBar {
+                    0%, 100% { width: 20%; }
+                    50% { width: 80%; }
+                  }
+                `}</style>
               </div>
             )}
             <div

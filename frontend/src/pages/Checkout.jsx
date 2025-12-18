@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
+import { createOrder } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
 import { getCountriesList, getCountryCode } from '../utils/countries';
@@ -52,7 +53,7 @@ const Checkout = () => {
         totalAmount: total
       };
 
-      const response = await api.createOrder(orderData);
+      const response = await createOrder(orderData);
       
       if (response.success) {
         // Track purchase
