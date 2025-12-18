@@ -93,7 +93,7 @@ const Blog = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in-up">
             <p className="section-heading mb-4">Conhecimento e bem-estar</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-darkTeal mb-6 leading-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-darkTeal mb-6 leading-tight" style={{ color: '#C0DF16' }}>
               Blog EverWell
             </h1>
             <p className="text-xl md:text-2xl text-mediumTeal max-w-3xl mx-auto">

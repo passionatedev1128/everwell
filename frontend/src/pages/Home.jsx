@@ -228,7 +228,7 @@ const Home = () => {
     };
 
     createContinuousLeaves();
-
+    
     // Cleanup function
     return () => {
       isMounted = false;
@@ -854,7 +854,7 @@ const Home = () => {
             {/* Right Side - Blurred Image with fade in from right */}
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <img src="/images/focus.png" alt="Focus" className="fade-in-from-right"
-                style={{ width: '90%', height: '40%', marginTop: '40px' }}
+                style={{ width: '90%', height: '40%', marginTop: '40px', zIndex: 1000 }}
               />
             </div>
           </div>
