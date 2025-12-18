@@ -40,8 +40,14 @@ function PageViewTracker() {
   useEffect(() => {
     // Track page view on route change
     trackPageView(location.pathname + location.search, document.title);
-    // HubSpot tracking is handled by HubspotTracker component
     gtmTrackPageView(location.pathname + location.search, document.title);
+    
+    // HubSpot manual page tracking for SPA route changes
+    // HubSpot does NOT auto-track SPAs, so we need to manually notify on every route change
+    if (window._hsq) {
+      window._hsq.push(['setPath', window.location.pathname]);
+      window._hsq.push(['trackPageView']);
+    }
   }, [location]);
 
   return null;

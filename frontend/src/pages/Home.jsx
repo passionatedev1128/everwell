@@ -179,7 +179,7 @@ const Home = () => {
         });
       }
       
-      setFallingLeaves(leaves);
+      //setFallingLeaves(leaves);
       
       // Remove leaves after animation completes
       const maxDuration = Math.max(...leaves.map(l => l.fallDelay + l.duration));
@@ -188,7 +188,7 @@ const Home = () => {
       }, (maxDuration + 1) * 1000);
     };
     
-    createLeaves();
+    // createLeaves();
   }, []);
 
   // Continuous falling leaves effect - large number of leaves (fall once)
