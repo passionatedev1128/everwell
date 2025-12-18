@@ -2875,10 +2875,15 @@ const Admin = () => {
                           e.preventDefault();
                           e.stopPropagation();
                           
-                          const receiptUrl = typeof selectedOrder.paymentProof === 'string' 
+                          let receiptUrl = typeof selectedOrder.paymentProof === 'string' 
                             ? selectedOrder.paymentProof 
                             : selectedOrder.paymentProof?.url;
                           if (!receiptUrl) return;
+
+                          // Convert HTTP to HTTPS if page is served over HTTPS (fixes mixed content error)
+                          if (window.location.protocol === 'https:' && receiptUrl.startsWith('http://')) {
+                            receiptUrl = receiptUrl.replace('http://', 'https://');
+                          }
 
                           try {
                             const response = await fetch(receiptUrl);
