@@ -715,10 +715,59 @@ const Home = () => {
             {/* Left Side - Text Content */}
             <div className="font-kodchasan flex flex-col justify-center z-10">
               {/* Stacked headline: focus, performance, recovery (lowercase) with cascading animation */}
-              <div className="text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontFamily: 'kodchasan', fontSize: '88px' }}>
-                <span className="cascade-text-0 inline-block">focus</span><br />
-                <span className="cascade-text-1 inline-block">performance</span><br />
-                <span className="cascade-text-2 inline-block">recovery</span>
+              <div className="text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontFamily: 'kodchasan', fontSize: '88px', lineHeight: '1.05' }}>
+                <span 
+                  className="cascade-text-0 inline-block"
+                  style={{
+                    backgroundImage: 'linear-gradient(135deg, #C0DF16 0%, #FF6B9D 25%, #4ECDC4 50%, #FFE66D 75%, #C0DF16 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    backgroundSize: '200% 200%',
+                    animation: 'cascadeInFromLeft 0.8s ease-out 0.3s forwards, gradientShift 4s ease infinite',
+                    display: 'inline-block',
+                    fontWeight: 'normal',
+                    color: '#C0DF16',
+                    opacity: 0
+                  }}
+                >
+                  focus
+                </span><br />
+                <span 
+                  className="cascade-text-1 inline-block"
+                  style={{
+                    backgroundImage: 'linear-gradient(135deg, #FF6B9D 0%, #4ECDC4 25%, #FFE66D 50%, #C0DF16 75%, #FF6B9D 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    backgroundSize: '200% 200%',
+                    animation: 'cascadeInFromLeft 0.8s ease-out 0.6s forwards, gradientShift 4s ease infinite 0.3s',
+                    display: 'inline-block',
+                    fontWeight: 'normal',
+                    color: '#FF6B9D',
+                    opacity: 0
+                  }}
+                >
+                  performance
+                </span><br />
+                <span 
+                  className="cascade-text-2 inline-block"
+                  style={{
+                    backgroundImage: 'linear-gradient(135deg, #4ECDC4 0%, #FFE66D 25%, #C0DF16 50%, #FF6B9D 75%, #4ECDC4 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    backgroundSize: '200% 200%',
+                    animation: 'cascadeInFromLeft 0.8s ease-out 0.9s forwards, gradientShift 4s ease infinite 0.6s',
+                    display: 'inline-block',
+                    fontWeight: 'normal',
+                    color: '#4ECDC4',
+                    opacity: 0,
+                    paddingBottom: '11px'
+                  }}
+                >
+                  recovery
+                </span>
               </div>
               <br />
               
@@ -893,7 +942,8 @@ const Home = () => {
             style={{ 
               fontWeight: 400, 
               fontFamily: 'kodchasan', 
-              letterSpacing: '-0.02em'
+              letterSpacing: '-0.02em',
+              paddingBottom: '14px'
             }}
           >
             Unlock your next level.
@@ -960,9 +1010,14 @@ const Home = () => {
             >
               <span
                 style={{
-                  animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 0.8s forwards' : 'none',
                   opacity: nextLevelVisible ? 0 : 0,
-                  display: 'inline-block'
+                  display: 'inline-block',
+                  background: 'linear-gradient(135deg, #C0DF16 0%, #A8C912 25%, #90B30E 50%, #A8C912 75%, #C0DF16 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  backgroundSize: '200% 200%',
+                  animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 0.8s forwards, gradientShift 3s ease infinite' : 'gradientShift 3s ease infinite'
                 }}
               >
                 in
@@ -970,10 +1025,15 @@ const Home = () => {
               {' '}
               <span
                 style={{
-                  animation: nextLevelVisible ? 'numberThreeDrop 0.6s ease-out 2.0s forwards' : 'none',
                   opacity: nextLevelVisible ? 0 : 0,
                   display: 'inline-block',
-                  transform: nextLevelVisible ? 'translateY(-30px)' : 'translateY(-30px)'
+                  transform: nextLevelVisible ? 'translateY(-30px)' : 'translateY(-30px)',
+                  background: 'linear-gradient(135deg, #C0DF16 0%, #A8C912 25%, #90B30E 50%, #A8C912 75%, #C0DF16 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  backgroundSize: '200% 200%',
+                  animation: nextLevelVisible ? 'numberThreeDrop 0.6s ease-out 2.0s forwards, gradientShift 3s ease infinite' : 'gradientShift 3s ease infinite'
                 }}
               >
                 3
@@ -981,9 +1041,14 @@ const Home = () => {
               {' '}
               <span
                 style={{
-                  animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 1.2s forwards' : 'none',
                   opacity: nextLevelVisible ? 0 : 0,
-                  display: 'inline-block'
+                  display: 'inline-block',
+                  background: 'linear-gradient(135deg, #C0DF16 0%, #A8C912 25%, #90B30E 50%, #A8C912 75%, #C0DF16 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  backgroundSize: '200% 200%',
+                  animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 1.2s forwards, gradientShift 3s ease infinite' : 'gradientShift 3s ease infinite'
                 }}
               >
                 Steps
@@ -1486,16 +1551,33 @@ const Home = () => {
                 transform: testimonialsVisible ? 'translateY(0)' : 'translateY(100px)'
               }}
             >
-              We are recognized.
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #C0DF16 0%, #D4E83A 20%, #E8F15C 40%, #FFB6C1 60%, #B0E0E6 80%, #C0DF16 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  backgroundSize: '200% 200%',
+                  animation: 'gradientShift 4s ease infinite'
+                }}
+              >
+                We are recognized.
+              </span>
             </h2>
             <h3 
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal text-black mb-2"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-normal mb-2"
               style={{ 
                 fontWeight: 400, 
                 fontFamily: 'kodchasan',
                 animation: testimonialsVisible ? 'slideUpFromBottom 0.8s ease-out 0.3s forwards' : 'none',
                 opacity: testimonialsVisible ? 1 : 0,
-                transform: testimonialsVisible ? 'translateY(0)' : 'translateY(100px)'
+                transform: testimonialsVisible ? 'translateY(0)' : 'translateY(100px)',
+                background: 'linear-gradient(135deg, #C0DF16 0%, #D4E83A 20%, #E8F15C 40%, #FFB6C1 60%, #B0E0E6 80%, #C0DF16 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                backgroundSize: '200% 200%',
+                animation: testimonialsVisible ? 'slideUpFromBottom 0.8s ease-out 0.3s forwards, gradientShift 4s ease infinite 0.3s' : 'gradientShift 4s ease infinite'
               }}
             >
               For those who matter,
@@ -2034,7 +2116,7 @@ const Home = () => {
         </div>
 
         {/* Thin Dark Horizontal Line at Bottom */}
-        <div className="w-full h-px bg-black" style={{ height: '1px', borderColor: '#C0DF16' }} />
+        <div className="w-full h-px" style={{ height: '2px', backgroundColor: '#C0DF16' }} />
       </section>
 
       {/* FAQ */}
