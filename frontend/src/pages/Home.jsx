@@ -109,6 +109,7 @@ const Home = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [fireworkVisible, setFireworkVisible] = useState(false);
   const [fallingLeaves, setFallingLeaves] = useState([]);
+  const [continuousLeaves, setContinuousLeaves] = useState([]);
   const [trustBadgesVisible, setTrustBadgesVisible] = useState(false);
   const [nextLevelVisible, setNextLevelVisible] = useState(false);
   const [productsVisible, setProductsVisible] = useState(false);
@@ -188,6 +189,38 @@ const Home = () => {
     };
     
     createLeaves();
+  }, []);
+
+  // Continuous falling leaves effect - large number of leaves (fall once)
+  useEffect(() => {
+    const createContinuousLeaves = () => {
+      const leaves = [];
+      const leafCount = 80; // Large number of leaves
+      
+      for (let i = 0; i < leafCount; i++) {
+        leaves.push({
+          id: `continuous-leaf-${i}-${Date.now()}`,
+          startX: Math.random() * 100, // Random horizontal position (0-100%)
+          startDelay: Math.random() * 15, // Staggered start times (0-15s)
+          duration: 8 + Math.random() * 6, // Fall duration (8-14 seconds)
+          rotation: Math.random() * 360, // Random initial rotation
+          rotationSpeed: (Math.random() - 0.5) * 4, // Random rotation speed
+          size: 40 + Math.random() * 40, // Random size (40-80px)
+          opacity: 0.6 + Math.random() * 0.4, // Varying opacity (0.6-1.0)
+          horizontalDrift: (Math.random() - 0.5) * 100, // Horizontal drift while falling
+        });
+      }
+      
+      setContinuousLeaves(leaves);
+
+      // Remove leaves after all animations complete
+      const maxDuration = Math.max(...leaves.map(l => l.startDelay + l.duration));
+      setTimeout(() => {
+        setContinuousLeaves([]);
+      }, (maxDuration + 1) * 1000);
+    };
+
+    createContinuousLeaves();
   }, []);
 
   useEffect(() => {
@@ -556,6 +589,106 @@ const Home = () => {
           </div>
         </div>
       ))}
+
+      {/* Continuous falling leaves effect - large number */}
+      {continuousLeaves.map(leaf => (
+        <div
+          key={leaf.id}
+          className="falling-leaf-continuous"
+          style={{
+            position: 'fixed',
+            left: `${leaf.startX}%`,
+            top: '-100px',
+            width: `${leaf.size}px`,
+            height: `${leaf.size}px`,
+            zIndex: 9997,
+            pointerEvents: 'none',
+            opacity: leaf.opacity,
+            animation: `fallLeafContinuous${leaf.id.replace(/[^a-zA-Z0-9]/g, '_')} ${leaf.duration}s linear ${leaf.startDelay}s forwards`,
+          }}
+        >
+          <style>{`
+            @keyframes fallLeafContinuous${leaf.id.replace(/[^a-zA-Z0-9]/g, '_')} {
+              0% {
+                transform: translateY(0) translateX(0) rotate(${leaf.rotation}deg);
+                opacity: ${leaf.opacity};
+              }
+              50% {
+                transform: translateY(50vh) translateX(${leaf.horizontalDrift * 0.5}px) rotate(${leaf.rotation + leaf.rotationSpeed * 180}deg);
+                opacity: ${leaf.opacity};
+              }
+              100% {
+                transform: translateY(calc(100vh + 200px)) translateX(${leaf.horizontalDrift}px) rotate(${leaf.rotation + leaf.rotationSpeed * 360}deg);
+                opacity: 0;
+              }
+            }
+          `}</style>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#C0DF16',
+              clipPath: 'polygon(50% 0%, 60% 5%, 75% 15%, 85% 30%, 90% 45%, 88% 60%, 82% 70%, 75% 78%, 65% 85%, 50% 90%, 35% 85%, 25% 78%, 18% 70%, 12% 60%, 10% 45%, 15% 30%, 25% 15%, 40% 5%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(192, 223, 22, 0.5), 0 2px 6px rgba(0, 0, 0, 0.2)',
+              position: 'relative',
+              filter: 'brightness(1.05) saturate(1.1)',
+            }}
+          >
+            {/* Leaf vein lines */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '0',
+                left: '50%',
+                width: '1.5px',
+                height: '90%',
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                transform: 'translateX(-50%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                width: '1px',
+                height: '40%',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                transform: 'translateX(-50%) rotate(-25deg)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                width: '1px',
+                height: '40%',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                transform: 'translateX(-50%) rotate(25deg)',
+              }}
+            />
+            {/* Everwell text on leaf */}
+            <span
+              style={{
+                color: 'white',
+                fontSize: `${leaf.size * 0.18}px`,
+                fontWeight: 'bold',
+                fontFamily: 'kodchasan',
+                textShadow: '0 2px 6px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.3)',
+                zIndex: 1,
+                position: 'relative',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Everwell
+            </span>
+          </div>
+        </div>
+      ))}
       
       <div className="relative z-10">
       {/* Hero Section - Focus Performance Recovery */}
@@ -852,12 +985,19 @@ const Home = () => {
                   minHeight: '400px',
                   borderColor: '#C0DF16',
                   animation: nextLevelVisible ? `stepCardAppear 0.5s ease-out ${1.0 + stepIndex * 0.15}s forwards` : 'none',
-                  opacity: nextLevelVisible ? 0 : 0
+                  opacity: nextLevelVisible ? 0 : 0,
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  boxShadow: '0 8px 32px rgba(192, 223, 22, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.05)',
+                  border: '1px solid rgba(192, 223, 22, 0.3)',
+                  position: 'relative',
+                  overflow: 'visible'
                 }}
               >
                 {/* Circular Lime Green Badge - Top Left, Overlapping Border */}
                 <div 
-                  className="absolute -top-4 -left-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-10"
+                  className="absolute -top-2 -left-2 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center z-10"
                   style={{
                     backgroundColor: 'white',
                     border: '2px solid black',
@@ -1393,7 +1533,10 @@ const Home = () => {
                     width: '100%',
                     color: 'white',
                     animation: testimonialsVisible ? `testimonialCardSlideInFromRight 0.8s ease-out ${index * 0.15}s forwards` : 'none',
-                    opacity: testimonialsVisible ? 0 : 0
+                    opacity: testimonialsVisible ? 0 : 0,
+                    border: '2px solid #C0DF16',
+                    boxShadow: '0 8px 32px rgba(192, 223, 22, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.05)',
+                    position: 'relative'
                   }}
                 >
                   {/* Person Image - Centered */}
@@ -1719,20 +1862,30 @@ const Home = () => {
           <div className="w-full md:w-2/3 flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-12 md:py-16" style={{ alignItems: 'flex-end' }}>
             {/* Text Content */}
             <div className="mb-8 sm:mb-12 text-left">
-              <h2 className="version-text-your-best text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ 
+              <h2 className="version-text-your-best text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal mb-2" style={{ 
                 float: "right", 
                 fontWeight: 400, 
                 fontFamily: 'kodchasan',
-                animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 0.8s forwards' : 'none',
-                opacity: versionSectionVisible ? 0 : 0
+                opacity: versionSectionVisible ? 0 : 0,
+                background: 'linear-gradient(135deg, #C0DF16 0%, #A8C912 25%, #90B30E 50%, #A8C912 75%, #C0DF16 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                backgroundSize: '200% 200%',
+                animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 0.8s forwards, gradientShift 3s ease infinite' : 'none'
               }}>
                 Your best
               </h2>
-              <h3 className="version-text-starts text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal text-black mb-2" style={{ 
+              <h3 className="version-text-starts text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal mb-2" style={{ 
                 fontWeight: 400, 
                 fontFamily: 'kodchasan',
-                animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 1.2s forwards' : 'none',
-                opacity: versionSectionVisible ? 0 : 0
+                opacity: versionSectionVisible ? 0 : 0,
+                background: 'linear-gradient(135deg, #C0DF16 0%, #A8C912 25%, #90B30E 50%, #A8C912 75%, #C0DF16 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                backgroundSize: '200% 200%',
+                animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 1.2s forwards, gradientShift 3s ease infinite' : 'none'
               }}>
                 version starts
               </h3>

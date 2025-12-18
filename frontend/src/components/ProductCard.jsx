@@ -10,14 +10,59 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="bg-white shadow-sm border border-primary/20 overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col" style={{ minHeight: '580px', height: '580px', width: '100%', borderRadius: '40px' }}>
+    <div 
+      className="bg-white shadow-sm border border-primary/20 overflow-hidden h-full flex flex-col transition-all duration-300 ease-in-out" 
+      style={{ 
+        minHeight: '580px', 
+        height: '580px', 
+        width: '100%', 
+        borderRadius: '40px',
+        cursor: 'pointer'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+        e.currentTarget.style.boxShadow = '0 12px 32px rgba(192, 223, 22, 0.3), 0 0 0 2px rgba(192, 223, 22, 0.2)';
+        e.currentTarget.style.borderColor = '#C0DF16';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+        e.currentTarget.style.boxShadow = '';
+        e.currentTarget.style.borderColor = '';
+      }}
+    >
       {product.images && product.images.length > 0 && (
-        <div className="bg-primary/5 flex items-center justify-center flex-shrink-0" style={{ height: '250px', minHeight: '250px', maxHeight: '250px' }}>
+        <div 
+          className="bg-primary/5 flex items-center justify-center flex-shrink-0 overflow-hidden" 
+          style={{ 
+            height: '250px', 
+            minHeight: '250px', 
+            maxHeight: '250px',
+            position: 'relative'
+          }}
+          onMouseEnter={(e) => {
+            const img = e.currentTarget.querySelector('img');
+            if (img) {
+              img.style.transform = 'scale(1.15)';
+              img.style.transition = 'transform 0.4s ease-in-out';
+            }
+          }}
+          onMouseLeave={(e) => {
+            const img = e.currentTarget.querySelector('img');
+            if (img) {
+              img.style.transform = 'scale(1)';
+            }
+          }}
+        >
           <img
             src={product.images[0]}
             alt={product.name}
             className="w-full h-full object-contain"
-            style={{ maxWidth: '100%', maxHeight: '250px', padding: '10px' }}
+            style={{ 
+              maxWidth: '100%', 
+              maxHeight: '250px', 
+              padding: '10px',
+              transition: 'transform 0.4s ease-in-out'
+            }}
           />
         </div>
       )}
