@@ -732,7 +732,7 @@ const Home = () => {
                     opacity: 0
                   }}
                 >
-                  focus
+                  foco
                 </span><br />
                 <span 
                   className="cascade-text-1 inline-block"
@@ -749,7 +749,7 @@ const Home = () => {
                     opacity: 0
                   }}
                 >
-                  performance
+                  desempenho
                 </span><br />
                 <span 
                   className="cascade-text-2 inline-block"
@@ -767,7 +767,7 @@ const Home = () => {
                     paddingBottom: '11px'
                   }}
                 >
-                  recovery
+                  recuperação
                 </span>
               </div>
               <br />
@@ -821,7 +821,7 @@ const Home = () => {
                     fontFamily: 'kodchasan'
                   }}
                 >
-                  every day
+                  diariamente
                 </p>
               </div>
               <br />                                
@@ -848,7 +848,7 @@ const Home = () => {
                   trackGtmEvent('cta_click', { cta: 'our_products', location: 'hero' });
                 }}
               >
-                OUR PRODUCTS
+                NOSSOS PRODUTOS
               </Link>
             </div>
             
@@ -936,7 +936,7 @@ const Home = () => {
         {/* Right Side - Text Content */}
         <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '65%', marginLeft: '60px' }}>
           <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px', color: 'olivedrab' }}>
-            on
+            sobre
           </p>
           <p 
             className="unlock-text-slide unlock-gradient-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight mb-4 md:mb-6" 
@@ -1000,7 +1000,7 @@ const Home = () => {
                 opacity: nextLevelVisible ? 0 : 0
               }}
             >
-              Your next level
+              Seu próximo nível
             </h2>
             <h3 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-black" 
@@ -1022,7 +1022,7 @@ const Home = () => {
                   animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 0.8s forwards, gradientShift 3s ease infinite' : 'gradientShift 3s ease infinite'
                 }}
               >
-                in
+                em
               </span>
               {' '}
               <span
@@ -1053,7 +1053,7 @@ const Home = () => {
                   animation: nextLevelVisible ? 'inStepsSlow 1.2s ease-out 1.2s forwards, gradientShift 3s ease infinite' : 'gradientShift 3s ease infinite'
                 }}
               >
-                Steps
+                passos
               </span>
             </h3>
           </div>
@@ -1317,13 +1317,13 @@ const Home = () => {
               background-position: 5% 15%, 95% 85%, 55% 40%, 0% 0%;
               opacity: 0.95;
             }
-          }
+          }                                                    
         `}</style>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 11 }}>
           {/* Title at Top Right */}
           <div className="flex justify-end mb-12 sm:mb-16 md:mb-20">
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold" style={{ fontWeight: 300, fontFamily: 'kodchasan', color: '#C0DF16' }}>
-              Our Products
+              Nossos produtos
             </h2>
           </div>
           {/* Product Cards Container with Carousel */}
@@ -1387,27 +1387,7 @@ const Home = () => {
                       }
                     `}</style>
                     {/* Product Image Container with White Circular Pedestal */}
-                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px' }}>
-                      {/* Usage Timing Badge */}
-                      {product?.usageTiming && product.usageTiming.trim() !== '' && (
-                        <div 
-                          className="absolute top-4 right-4 z-50 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
-                          style={{
-                            background: product.usageTiming === 'Recovery' 
-                              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                              : product.usageTiming === 'Post-workout'
-                              ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-                              : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                            color: '#FFFFFF',
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255, 255, 255, 0.3)',
-                            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-                            pointerEvents: 'none'
-                          }}
-                        >
-                          {product.usageTiming}
-                        </div>
-                      )}
+                    <div className="relative flex items-center justify-center mb-6" style={{ minHeight: '300px', zIndex: 1 }}>
                       {/* Product Image - Only Clickable */}
                       <div 
                         className="relative z-10 overflow-hidden"
@@ -1446,6 +1426,28 @@ const Home = () => {
                               }
                             }}
                           >
+                            {/* Usage Timing Badge */}
+                            {product?.usageTiming && product.usageTiming.trim() !== '' && (
+                              <div 
+                                className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
+                                style={{
+                                  background: product.usageTiming === 'Recovery' 
+                                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                                    : product.usageTiming === 'Post-workout'
+                                    ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                                    : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                  color: '#FFFFFF',
+                                  backdropFilter: 'blur(10px)',
+                                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                                  pointerEvents: 'none',
+                                  zIndex: 100,
+                                  position: 'absolute'
+                                }}
+                              >
+                                {product.usageTiming}
+                              </div>
+                            )}
                             <img                                                                          
                               src={product.image} 
                               alt={product.name || 'Product - EverWell'}
@@ -1453,7 +1455,9 @@ const Home = () => {
                               style={{ 
                                 filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))',
                                 cursor: 'pointer',
-                                transition: 'all 0.4s ease-in-out'
+                                transition: 'all 0.4s ease-in-out',
+                                position: 'relative',
+                                zIndex: 1
                               }}
                               crossOrigin="anonymous"
                               onError={(e) => {
@@ -1517,7 +1521,7 @@ const Home = () => {
                 trackGtmEvent('cta_click', { cta: 'discover_products', location: 'products_preview' });
               }}
             >
-              DISCOVER THE PRODUCTS
+              DESCUBRA OS PRODUTOS
             </Link>
           </div>
         </div>
@@ -1677,7 +1681,7 @@ const Home = () => {
                   animation: 'gradientShift 4s ease infinite'
                 }}
               >
-                We are recognized.
+                Somos reconhecidos.
               </span>
             </h2>
             <h3 
@@ -1696,7 +1700,7 @@ const Home = () => {
                 animation: testimonialsVisible ? 'slideUpFromBottom 0.8s ease-out 0.3s forwards, gradientShift 4s ease infinite 0.3s' : 'gradientShift 4s ease infinite'
               }}
             >
-              For those who matter,
+              Para aqueles que importam,
             </h3>
             <h4 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold"
@@ -1711,7 +1715,7 @@ const Home = () => {
                 transform: youDropped ? 'translateY(0) scale(1)' : 'translateY(-200px) scale(1)'
               }}
             >
-              YOU
+              Você
               {/* Dust particles */}
               {youDropped && [...Array(12)].map((_, i) => {
                 const angle = (i / 12) * Math.PI * 2;
@@ -1761,10 +1765,12 @@ const Home = () => {
                   className="flex flex-col items-center testimonial-card"
                   style={{
                     borderRadius: '12px',
-                    backgroundColor: '#C0DF16',
+                    backgroundColor: 'white',
                     padding: '2rem',
+                    height: '400px',
                     minHeight: '400px',
-                    width: '100%',
+                    maxHeight: '400px',
+                    width: '314px',
                     color: 'white',
                     animation: testimonialsVisible ? `testimonialCardSlideInFromRight 0.8s ease-out ${index * 0.15}s forwards` : 'none',
                     opacity: testimonialsVisible ? 0 : 0,
@@ -1773,12 +1779,14 @@ const Home = () => {
                     position: 'relative',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
                     e.currentTarget.style.boxShadow = '0 16px 48px rgba(192, 223, 22, 0.4), 0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 30px rgba(192, 223, 22, 0.3)';
-                    e.currentTarget.style.backgroundColor = '#D4E83A';
+                    e.currentTarget.style.backgroundColor = 'white';
                     // Add shimmer effect
                     const shimmer = document.createElement('div');
                     shimmer.className = 'testimonial-shimmer';
@@ -1803,7 +1811,7 @@ const Home = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
                     e.currentTarget.style.boxShadow = '0 8px 32px rgba(192, 223, 22, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.05)';
-                    e.currentTarget.style.backgroundColor = '#C0DF16';
+                    e.currentTarget.style.backgroundColor = 'white';
                   }}
                 >
                   <style>{`
@@ -1842,10 +1850,11 @@ const Home = () => {
 
                   {/* Name - Bold Black */}
                   <h3 
-                    className="text-xl sm:text-2xl font-bold text-white mb-4 text-center"
+                    className="text-xl sm:text-2xl font-bold mb-4 text-center"
                     style={{ 
                       fontWeight: 700, 
-                      fontFamily: 'kodchasan' 
+                      fontFamily: 'kodchasan',
+                      color: '#C0DF16'
                     }}
                   >
                     {testimonial.name}
@@ -1853,10 +1862,11 @@ const Home = () => {
 
                   {/* Testimonial Text */}
                   <p 
-                    className="text-sm sm:text-base text-white mb-4 text-center flex-grow"
+                    className="text-sm sm:text-base mb-4 text-center flex-grow"
                     style={{ 
                       fontFamily: 'kodchasan',
-                      lineHeight: '1.6'
+                      lineHeight: '1.6',
+                      color: 'olivedrab'
                     }}
                   >
                     "{testimonial.quote}"
@@ -2159,7 +2169,7 @@ const Home = () => {
                 backgroundSize: '200% 200%',
                 animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 0.8s forwards, gradientShift 3s ease infinite' : 'none'
               }}>
-                Your best
+                Sua melhor
               </h2>
               <h3 className="version-text-starts text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-normal mb-2" style={{ 
                 fontWeight: 400, 
@@ -2172,7 +2182,7 @@ const Home = () => {
                 backgroundSize: '200% 200%',
                 animation: versionSectionVisible ? 'versionTextSlideInFromRight 0.8s ease-out 1.2s forwards, gradientShift 3s ease infinite' : 'none'
               }}>
-                sua melhor versão começa
+                versão começa.
               </h3>
               <h4 className="version-text-now text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-sans font-bold" style={{ 
                 float: "right", 
@@ -2231,7 +2241,8 @@ const Home = () => {
                   fontWeight: 500,
                   fontFamily: 'kodchasan',
                   animation: versionSectionVisible ? 'versionButtonSlideIn 0.6s ease-out 2.7s forwards' : 'none',
-                  opacity: versionSectionVisible ? 0 : 0
+                  opacity: versionSectionVisible ? 0 : 0,
+                  textAlign: 'center'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#C0DF16';
@@ -2246,7 +2257,7 @@ const Home = () => {
                   trackGtmEvent('cta_click', { cta: 'discover_products', location: 'cta' });
                 }}
               >
-                DISCOVER THE PRODUCTS
+                DESCUBRA OS PRODUTOS
               </Link>
 
               {/* Button 3: GET YOUR QUESTIONS ANSWERED */}
@@ -2261,7 +2272,8 @@ const Home = () => {
                   fontWeight: 500,
                   fontFamily: 'kodchasan',
                   animation: versionSectionVisible ? 'versionButtonSlideIn 0.6s ease-out 3.0s forwards' : 'none',
-                  opacity: versionSectionVisible ? 0 : 0
+                  opacity: versionSectionVisible ? 0 : 0,
+                  textAlign: 'center'
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#C0DF16';
@@ -2276,7 +2288,7 @@ const Home = () => {
                   trackGtmEvent('cta_click', { cta: 'get_questions_answered', location: 'cta' });
                 }}
               >
-                GET YOUR QUESTIONS ANSWERED
+                TIRE SUAS DÚVIDAS
               </Link>
             </div>
           </div>

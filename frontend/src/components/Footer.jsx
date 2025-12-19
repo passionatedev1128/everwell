@@ -34,16 +34,16 @@ const Footer = () => {
           {/* Middle Column - Legal and Informational Text */}
           <div className="flex flex-col space-y-3 sm:space-y-4" style={{ alignItems: 'center' }}>
             <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
-              Terms and Conditions for Healthcare Professionals | Terms and Conditions for Patients
+              Termos e Condições para Profissionais de Saúde | Termos e Condições para Pacientes
             </p>
             <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
-              EverWell is not intended to diagnose, treat, cure, or prevent any disease.
+              A EverWell não se destina a diagnosticar, tratar, curar ou prevenir qualquer doença.
             </p>
             <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
-              We connect doctors and patients.
+              Conectamos médicos e pacientes.
             </p>
             <p className="text-sm sm:text-base font-normal leading-relaxed text-white" style={{ fontFamily: 'kodchasan' }}>
-              The medications presented are under study and already have thousands of research studies and proven cases worldwide.
+              Os medicamentos apresentados estão em estudo e já contam com milhares de pesquisas e casos comprovados em todo o mundo.
             </p>
           </div>
 
@@ -96,21 +96,21 @@ const Footer = () => {
                 className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
                 style={{ fontFamily: 'kodchasan' }}
               >
-                Contact
+                Contato
               </Link>
               <Link 
                 to="/duvidas" 
                 className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
                 style={{ fontFamily: 'kodchasan' }}
               >
-                Exchange Policy
+                Política de Troca
               </Link>
               <Link 
                 to="/duvidas" 
                 className="text-sm sm:text-base font-normal hover:opacity-80 transition-opacity text-white"
                 style={{ fontFamily: 'kodchasan' }}
               >
-                Privacy Policy
+                Política de Privacidade
               </Link>
             </div>
           </div>

@@ -117,7 +117,26 @@ const Blog = () => {
               <p className="text-mediumTeal">Novos artigos serão publicados em breve.</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+            <div className="flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-10" style={{ maxWidth: '100%' }}>
+              <style>{`
+                .blog-card-wrapper {
+                  width: 100%;
+                  max-width: 400px;
+                  flex: 0 1 calc(100% - 1rem);
+                }
+                @media (min-width: 768px) {
+                  .blog-card-wrapper {
+                    flex: 0 1 calc(50% - 1rem);
+                    max-width: calc(50% - 1rem);
+                  }
+                }
+                @media (min-width: 1024px) {
+                  .blog-card-wrapper {
+                    flex: 0 1 calc(33.333% - 1.5rem);
+                    max-width: calc(33.333% - 1.5rem);
+                  }
+                }
+              `}</style>
               {blogs.map((blog, index) => {
                 const readingTime = calculateReadingTime(blog.contentMarkdown);
                 const formattedDate = formatDate(blog.publishedAt);
@@ -127,7 +146,7 @@ const Blog = () => {
                     key={blog._id}
                     to={`/blog/${blog.slug}`}
                     ref={(el) => (blogCardsRef.current[index] = el)}
-                    className="group relative block"
+                    className="group relative block blog-card-wrapper"
                     style={{
                       opacity: 0,
                       transform: 'translateY(30px)',
@@ -135,7 +154,7 @@ const Blog = () => {
                       transitionDelay: `${index * 0.1}s`
                     }}
                   >
-                    <article className="card h-full flex flex-col overflow-hidden">
+                    <article className="card h-full flex flex-col overflow-hidden" style={{ height: '600px', minHeight: '600px', maxHeight: '600px' }}>
                       {/* Image Container */}
                       {blog.imageUrl && (
                         <div className="relative w-full h-64 overflow-hidden rounded-t-3xl mb-6 bg-primary/5">

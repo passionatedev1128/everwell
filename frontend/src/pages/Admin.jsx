@@ -898,7 +898,8 @@ const Admin = () => {
         restrictions: productForm.restrictions.trim(),
         visible: productForm.visible,
         category: productForm.category,
-        productUrl: productForm.productUrl.trim()
+        productUrl: productForm.productUrl.trim(),
+        usageTiming: productForm.usageTiming || ''
       };
 
       if (productModal.mode === 'create') {

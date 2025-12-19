@@ -48,9 +48,28 @@ const Header = () => {
 
   // Listen for user updates and auth state changes
   useEffect(() => {
-    const handleUserUpdate = () => {
-      const updatedUser = getUser();
-      setUserState(updatedUser);
+    const handleUserUpdate = async () => {
+      // Fetch fresh user data from API when avatar is updated
+      if (authenticated) {
+        try {
+          const response = await getCurrentUser();
+          if (response.success && response.user) {
+            setUser(response.user);
+            setUserState(response.user);
+          } else {
+            // Fallback to localStorage
+            const updatedUser = getUser();
+            setUserState(updatedUser);
+          }
+        } catch (error) {
+          // Fallback to localStorage on error
+          const updatedUser = getUser();
+          setUserState(updatedUser);
+        }
+      } else {
+        const updatedUser = getUser();
+        setUserState(updatedUser);
+      }
     };
     
     const handleAuthStateChange = () => {

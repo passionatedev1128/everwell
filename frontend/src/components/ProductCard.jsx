@@ -37,7 +37,8 @@ const ProductCard = ({ product }) => {
             height: '250px', 
             minHeight: '250px', 
             maxHeight: '250px',
-            position: 'relative'
+            position: 'relative',
+            zIndex: 1
           }}
           onMouseEnter={(e) => {
             const img = e.currentTarget.querySelector('img');
@@ -53,10 +54,23 @@ const ProductCard = ({ product }) => {
             }
           }}
         >
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-contain"
+            style={{ 
+              maxWidth: '100%', 
+              maxHeight: '250px', 
+              padding: '10px',
+              transition: 'transform 0.4s ease-in-out',
+              position: 'relative',
+              zIndex: 1
+            }}
+          />
           {/* Usage Timing Badge */}
           {product.usageTiming && product.usageTiming.trim() !== '' && (
             <div 
-              className="absolute top-3 right-3 z-50 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
+              className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
               style={{
                 background: product.usageTiming === 'Recovery' 
                   ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
@@ -67,23 +81,14 @@ const ProductCard = ({ product }) => {
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                zIndex: 100,
+                position: 'absolute'
               }}
             >
               {product.usageTiming}
             </div>
           )}
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="w-full h-full object-contain"
-            style={{ 
-              maxWidth: '100%', 
-              maxHeight: '250px', 
-              padding: '10px',
-              transition: 'transform 0.4s ease-in-out'
-            }}
-          />
         </div>
       )}
       <div className="p-6 flex flex-col flex-shrink-0" style={{ height: '330px', minHeight: '330px' }}>
