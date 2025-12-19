@@ -124,24 +124,26 @@ const Login = () => {
         }
       } else {
         // Registration flow - Email and password only
+        // TEMPORARILY: Auto-login after registration (email verification bypassed)
         const response = await api.post('/auth/register', {
           email: data.email,
           password: data.password
         });
         
-        if (response.data.success && response.data.emailSent) {
-          toast.success('Link de verificação enviado para seu email! Clique no link para verificar e fazer login.');
-          // Reset form
-          reset({
-            email: '',
-            password: ''
+        if (response.data.success && response.data.token) {
+          // Auto-login user after registration (email verification bypassed)
+          setToken(response.data.token);
+          setUser(response.data.user);
+          // Identify contact in HubSpot (async, but don't wait for it)
+          identifyContact(response.data.user).catch(err => {
+            console.warn('HubSpot: Failed to identify contact after registration', err);
           });
-          // Optionally switch to login mode
-          setTimeout(() => {
-            setIsLogin(true);
-          }, 2000);
-        } else if (response.data.success === false || !response.data.emailSent) {
-          toast.error('The verification link can\'t be sent to your email.');
+          trackLogin('email');
+          gtmTrackLogin('email');
+          toast.success('Registro realizado com sucesso! Você já está logado.');
+          navigate('/');
+        } else if (response.data.success === false) {
+          toast.error(response.data.message || 'Erro ao realizar registro. Tente novamente.');
         }
       }
     } catch (err) {

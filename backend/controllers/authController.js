@@ -48,20 +48,16 @@ export const register = async (req, res, next) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Generate email verification token
-    const emailVerificationToken = crypto.randomBytes(32).toString('hex');
-    const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-    // Create user with password already set
-    // TEMPORARILY: Bypass email verification and auto-verify
+    // TEMPORARILY: Bypass email verification for ALL email types (gmail, outlook, everwell.com, etc.)
+    // Create user with auto-verification - no email verification required
     const userData = {
       name: defaultName, // Default name from email, can be updated in profile later
       email: email.toLowerCase(),
       passwordHash,
       isAuthorized: true, // Auto-authorize after registration
-      emailVerified: true, // TEMPORARILY: Auto-verify (bypass email verification)
-      emailVerificationToken: null,
-      emailVerificationTokenExpires: null,
+      emailVerified: true, // TEMPORARILY: Auto-verify (bypass email verification for all email types)
+      emailVerificationToken: null, // No verification token needed
+      emailVerificationTokenExpires: null, // No expiration needed
       registrationPending: false // Registration is complete (password is set)
     };
 
