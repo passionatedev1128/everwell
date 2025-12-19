@@ -1673,9 +1673,9 @@ const Admin = () => {
                               <span 
                                 className="px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full shadow-md"
                                 style={{
-                                  background: product.usageTiming === 'Recovery' 
+                                  background: product.usageTiming === 'Recuperação' 
                                     ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                                    : product.usageTiming === 'Post-workout'
+                                    : product.usageTiming === 'Pós-treino'
                                     ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
                                     : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                                   color: '#FFFFFF',
@@ -1696,9 +1696,9 @@ const Admin = () => {
                             <div 
                               className="absolute top-2 right-2 z-50 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
                               style={{
-                                background: product.usageTiming === 'Recovery' 
+                                background: product.usageTiming === 'Recuperação' 
                                   ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                                  : product.usageTiming === 'Post-workout'
+                                  : product.usageTiming === 'Pós-treino'
                                   ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
                                   : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                                 color: '#FFFFFF',
@@ -3004,9 +3004,9 @@ const Admin = () => {
                       onChange={(usageTiming) => setProductForm({ ...productForm, usageTiming })}
                       options={[
                         { value: '', label: 'Selecione...' },
-                        { value: 'Recovery', label: 'Recovery' },
-                        { value: 'Post-workout', label: 'Post-workout' },
-                        { value: 'Pre-workout', label: 'Pre-workout' }
+                        { value: 'Recuperação', label: 'Recuperação' },
+                        { value: 'Pós-treino', label: 'Pós-treino' },
+                        { value: 'Pré-treino', label: 'Pré-treino' }
                       ]}
                       className="w-full"
                     />

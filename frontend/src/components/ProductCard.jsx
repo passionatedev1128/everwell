@@ -72,9 +72,9 @@ const ProductCard = ({ product }) => {
             <div 
               className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide shadow-lg"
               style={{
-                background: product.usageTiming === 'Recovery' 
+                background: product.usageTiming === 'Recuperação' 
                   ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : product.usageTiming === 'Post-workout'
+                  : product.usageTiming === 'Pós-treino'
                   ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
                   : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                 color: '#FFFFFF',

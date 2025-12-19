@@ -79,9 +79,9 @@ const ProductDetail = () => {
                 <div 
                   className="absolute top-4 right-4 z-50 px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide shadow-lg"
                   style={{
-                    background: product.usageTiming === 'Recovery' 
+                    background: product.usageTiming === 'Recuperação' 
                       ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                      : product.usageTiming === 'Post-workout'
+                      : product.usageTiming === 'Pós-treino'
                       ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
                       : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                     color: '#FFFFFF',
@@ -111,9 +111,9 @@ const ProductDetail = () => {
               <div 
                 className="px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide shadow-lg"
                 style={{
-                  background: product.usageTiming === 'Recovery' 
+                  background: product.usageTiming === 'Recuperação' 
                     ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                    : product.usageTiming === 'Post-workout'
+                    : product.usageTiming === 'Pós-treino'
                     ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
                     : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                   color: '#FFFFFF',
