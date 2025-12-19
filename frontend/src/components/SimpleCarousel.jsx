@@ -128,7 +128,7 @@ const SimpleCarousel = ({ items, itemsPerView = 3, gap = 'gap-8 sm:gap-10 md:gap
     return (
       <div 
         ref={staticContainerRef}
-        className={`flex ${gap} flex-wrap justify-center`}
+        className={`flex ${gap} justify-center`}
       >
         {items.map((item, index) => (
           <div

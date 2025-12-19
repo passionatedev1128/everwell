@@ -935,7 +935,7 @@ const Home = () => {
         />
         {/* Right Side - Text Content */}
         <div className="w-full md:w-1/2 flex flex-col justify-center text-left" style={{ fontFamily: 'kodchasan', minWidth: '65%', marginLeft: '60px' }}>
-          <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px', color: 'limegreen' }}>
+          <p className="on-bounce text-black text-5xl md:text-6xl leading-[1.05] font-normal" style={{ fontSize: '40px', color: 'olivedrab' }}>
             sobre
           </p>
           <p 
