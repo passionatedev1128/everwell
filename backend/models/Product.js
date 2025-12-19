@@ -50,7 +50,7 @@ const ProductSchema = new mongoose.Schema({
   },
   usageTiming: {
     type: String,
-    enum: ['Recovery', 'Post-workout', 'Pre-workout', ''],
+    enum: ['Recuperação', 'Pós-treino', 'Pré-treino', ''],
     default: '',
     trim: true
   }
