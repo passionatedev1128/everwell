@@ -53,43 +53,40 @@ export const register = async (req, res, next) => {
     const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user with password already set
+    // TEMPORARILY: Bypass email verification and auto-verify
     const userData = {
       name: defaultName, // Default name from email, can be updated in profile later
       email: email.toLowerCase(),
       passwordHash,
       isAuthorized: true, // Auto-authorize after registration
-      emailVerified: false,
-      emailVerificationToken,
-      emailVerificationTokenExpires,
+      emailVerified: true, // TEMPORARILY: Auto-verify (bypass email verification)
+      emailVerificationToken: null,
+      emailVerificationTokenExpires: null,
       registrationPending: false // Registration is complete (password is set)
     };
 
     const user = await User.create(userData);
 
-    // Send verification email and wait for result (with timeout)
-    const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, false);
-    const emailResult = await sendEmail({
-      to: user.email,
-      subject: verificationTemplate.subject,
-      html: verificationTemplate.html,
-      text: verificationTemplate.text
-    });
+    // TEMPORARILY: Skip sending verification email and auto-login user
+    // Generate JWT token for auto-login
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
 
-    if (!emailResult || !emailResult.success) {
-      // Don't delete the user - they can request a new verification link later
-      // Just return an error message
-      return res.status(500).json({
-        success: false,
-        message: emailResult?.message || 'The verification link can\'t be sent to your email.',
-        emailSent: false
-      });
-    }
-
-    console.log(`✅ Verification email sent to ${user.email}`);
     res.status(201).json({
       success: true,
-      message: 'Link de verificação enviado para seu email. Clique no link para verificar e fazer login.',
-      emailSent: true
+      message: 'Registro realizado com sucesso! Você já está logado.',
+      token: jwtToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isAuthorized: user.isAuthorized,
+        emailVerified: user.emailVerified
+      }
     });
   } catch (error) {
     next(error);
@@ -197,12 +194,24 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      // User doesn't exist - return error (don't create user or send verification email)
-      return res.status(401).json({
-        success: false,
-        message: 'Email ou senha inválidos.'
+      // User doesn't exist - create user automatically
+      const emailName = email.toLowerCase().split('@')[0];
+      const defaultName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      
+      // Hash password
+      const saltRounds = 10;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+      
+      // Create user with auto-verification
+      user = await User.create({
+        name: defaultName,
+        email: email.toLowerCase(),
+        passwordHash,
+        isAuthorized: true,
+        emailVerified: true, // Auto-verify
+        registrationPending: false
       });
     }
 

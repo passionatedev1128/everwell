@@ -43,6 +43,21 @@ const Dashboard = () => {
     };
   }, [activeTab]);
 
+  // Listen for feedback created event
+  useEffect(() => {
+    const handleFeedbackCreated = () => {
+      if (activeTab === 'feedbacks') {
+        fetchFeedbacks();
+      }
+    };
+    
+    window.addEventListener('feedbackCreated', handleFeedbackCreated);
+    
+    return () => {
+      window.removeEventListener('feedbackCreated', handleFeedbackCreated);
+    };
+  }, [activeTab]);
+
   const fetchUserData = async () => {
     try {
       setLoading(true);

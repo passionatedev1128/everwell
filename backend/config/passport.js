@@ -79,13 +79,13 @@ export const registerGoogleStrategy = () => {
                 return done(null, user);
               }
 
-              // Create new user (will need email verification before login)
+              // Create new user - TEMPORARILY: Auto-verify (bypass email verification)
               user = await User.create({
                 name: profile.displayName || profile.name?.givenName + ' ' + profile.name?.familyName,
                 email: profile.emails[0].value.toLowerCase(),
                 googleId: profile.id,
                 provider: 'google',
-                emailVerified: false, // Will be verified after clicking email link
+                emailVerified: true, // TEMPORARILY: Auto-verify
                 isAuthorized: true, // Auto-authorize after first sign up
               });
 

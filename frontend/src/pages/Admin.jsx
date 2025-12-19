@@ -1160,7 +1160,10 @@ const Admin = () => {
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-1 inline-flex relative">
           <button
-            onClick={() => setActiveTab('users')}
+            onClick={() => {
+              setActiveTab('users');
+              fetchUsers();
+            }}
             className={`px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-300 relative z-10 overflow-hidden ${
               activeTab === 'users'
                 ? 'bg-primary text-brandBlack shadow-md transform scale-105'

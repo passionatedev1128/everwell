@@ -96,18 +96,10 @@ function App() {
             authStateRef.current = newAuthState;
             
             // Dispatch custom event to update UI components (like Header)
+            // Don't reload page - just update the UI state
             window.dispatchEvent(new CustomEvent('authStateChanged', { 
               detail: { isAuthenticated: newAuthState } 
             }));
-            
-            // Always navigate to homepage when auth state changes in another tab
-            // This ensures the UI reflects the new auth state
-            // If already on homepage, reload to refresh the state
-            if (window.location.pathname === '/') {
-              window.location.reload();
-            } else {
-              window.location.href = '/';
-            }
           } else {
             // Even if auth state didn't change, dispatch event to update UI
             // (in case user data was updated)
@@ -134,16 +126,11 @@ function App() {
           if (oldAuthState !== newAuthState) {
             authStateRef.current = newAuthState;
             
+            // Dispatch custom event to update UI components (like Header)
+            // Don't reload page - just update the UI state
             window.dispatchEvent(new CustomEvent('authStateChanged', { 
               detail: { isAuthenticated: newAuthState } 
             }));
-            
-            // Navigate to homepage
-            if (window.location.pathname === '/') {
-              window.location.reload();
-            } else {
-              window.location.href = '/';
-            }
           }
           
           isHandlingAuthChangeRef.current = false;

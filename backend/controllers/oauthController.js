@@ -17,50 +17,28 @@ export const googleCallback = async (req, res, next) => {
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-    // Check if this is a new user (just created)
-    const isNewUser = user.provider === 'google' && user.createdAt && (Date.now() - new Date(user.createdAt).getTime()) < 60000;
-
-    if (isNewUser) {
-      // New user: Don't auto-login, send verification email instead
-      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
-      const emailVerificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-      
-      user.emailVerified = false; // Set to false so they must verify
-      user.emailVerificationToken = emailVerificationToken;
-      user.emailVerificationTokenExpires = emailVerificationTokenExpires;
+    // TEMPORARILY: Auto-verify and auto-login all users (bypass email verification)
+    // Ensure user is verified and authorized
+    if (!user.emailVerified) {
+      user.emailVerified = true;
+      user.emailVerificationToken = null;
+      user.emailVerificationTokenExpires = null;
       await user.save();
-
-      const verificationTemplate = emailVerificationTemplate(user.name, emailVerificationToken, false);
-      try {
-        const emailResult = await sendEmail({
-          to: user.email,
-          subject: verificationTemplate.subject,
-          html: verificationTemplate.html,
-          text: verificationTemplate.text
-        });
-        
-        if (emailResult && emailResult.success) {
-          console.log(`✅ Verification email sent to ${user.email}`);
-          // Redirect to message page telling user to check email
-          res.redirect(`${frontendUrl}/login?message=verify_email&email=${encodeURIComponent(user.email)}`);
-        } else {
-          console.error(`❌ Failed to send verification email to ${user.email}:`, emailResult?.message || emailResult?.error);
-          res.redirect(`${frontendUrl}/login?error=email_send_failed`);
-        }
-      } catch (err) {
-        console.error('❌ Error sending verification email:', err);
-        res.redirect(`${frontendUrl}/login?error=email_send_failed`);
-      }
-    } else {
-      // Existing user: Auto-login
-      const token = jwt.sign(
-        { id: user._id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-      );
-
-      res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
     }
+    
+    if (!user.isAuthorized) {
+      user.isAuthorized = true;
+      await user.save();
+    }
+
+    // Auto-login (both new and existing users)
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
+
+    res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
   } catch (error) {
     next(error);
   }
