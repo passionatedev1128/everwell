@@ -9,6 +9,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef(null);
+  const photoCacheRef = useRef({});
   const navigate = useNavigate();
   const location = useLocation();
   const authenticated = isAuthenticated();
@@ -23,6 +24,21 @@ const Header = () => {
            user.photo.trim() !== '' && 
            user.photo !== 'null' && 
            user.photo !== 'undefined';
+  };
+
+  // Helper function to get cache-busted photo URL
+  const getPhotoUrl = (photoUrl) => {
+    if (!photoUrl) return photoUrl;
+    // If photo URL changed, update cache timestamp
+    if (photoCacheRef.current.url !== photoUrl) {
+      photoCacheRef.current = {
+        url: photoUrl,
+        timestamp: Date.now()
+      };
+    }
+    // Add cache-busting parameter
+    const separator = photoUrl.includes('?') ? '&' : '?';
+    return `${photoUrl}${separator}t=${photoCacheRef.current.timestamp}`;
   };
 
   // Fetch fresh user data from API when component mounts and user is authenticated
@@ -50,7 +66,8 @@ const Header = () => {
   useEffect(() => {
     const handleUserUpdate = async () => {
       // Fetch fresh user data from API when avatar is updated
-      if (authenticated) {
+      const isAuth = isAuthenticated();
+      if (isAuth) {
         try {
           const response = await getCurrentUser();
           if (response.success && response.user) {
@@ -87,20 +104,11 @@ const Header = () => {
     window.addEventListener('userUpdated', handleUserUpdate);
     window.addEventListener('authStateChanged', handleAuthStateChange);
     
-    // Also refresh on location change (in case user data was updated elsewhere)
-    const interval = setInterval(() => {
-      const currentUser = getUser();
-      if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
-        setUserState(currentUser);
-      }
-    }, 1000);
-    
     return () => {
       window.removeEventListener('userUpdated', handleUserUpdate);
       window.removeEventListener('authStateChanged', handleAuthStateChange);
-      clearInterval(interval);
     };
-  }, [user, authenticated]);
+  }, [authenticated]);
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -201,9 +209,10 @@ const Header = () => {
                   >
                   {hasValidPhoto(user) ? (
                     <img 
-                      src={user.photo} 
+                      src={getPhotoUrl(user.photo)} 
                       alt={user?.name || 'User'} 
                       className="w-8 h-8 rounded-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/30"
+                      key={user.photo}
                       onError={(e) => {
                         // If image fails to load, hide it and show fallback
                         e.target.style.display = 'none';
@@ -413,9 +422,10 @@ const Header = () => {
                   <div className="flex items-center gap-3 px-3 sm:px-4 py-2">
                     {hasValidPhoto(user) ? (
                       <img 
-                        src={user.photo} 
+                        src={getPhotoUrl(user.photo)} 
                         alt={user?.name || 'User'} 
                         className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
+                        key={user.photo}
                         onError={(e) => {
                           // If image fails to load, hide it and show fallback
                           e.target.style.display = 'none';
