@@ -44,7 +44,7 @@ const Admin = () => {
   const [userFilter, setUserFilter] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
   const [userSortConfig, setUserSortConfig] = useState({ field: null, direction: 'asc' });
-  const [deleteModal, setDeleteModal] = useState({ open: false, user: null });
+  const [deleteModal, setDeleteModal] = useState({ open: false, user: null, deleteAssociatedData: false });
   const [deleteBlogModal, setDeleteBlogModal] = useState({ open: false, blog: null });
   const [deleteFeedbackModal, setDeleteFeedbackModal] = useState({ open: false, feedback: null });
   const [deleteMessageModal, setDeleteMessageModal] = useState({ open: false, message: null });
@@ -543,7 +543,7 @@ const Admin = () => {
     if (!deleteModal.user) return;
 
     try {
-      const response = await api.delete(`/admin/users/${deleteModal.user.id}`);
+      const response = await api.delete(`/admin/users/${deleteModal.user.id}?deleteAssociatedData=${deleteModal.deleteAssociatedData}`);
       if (response.data.success) {
         const message = response.data.message || 'Usuário deletado com sucesso!';
         // Parse message to highlight user name
@@ -575,7 +575,7 @@ const Admin = () => {
         }
         setDeleteModalClosing(true);
         setTimeout(() => {
-          setDeleteModal({ open: false, user: null });
+          setDeleteModal({ open: false, user: null, deleteAssociatedData: false });
           setDeleteModalClosing(false);
           fetchUsers();
         }, 300); // Refresh list
@@ -3839,7 +3839,7 @@ const Admin = () => {
             onClick={() => {
               setDeleteModalClosing(true);
               setTimeout(() => {
-                setDeleteModal({ open: false, user: null });
+                setDeleteModal({ open: false, user: null, deleteAssociatedData: false });
                 setDeleteModalClosing(false);
               }, 300);
             }}
@@ -3866,18 +3866,33 @@ const Admin = () => {
                   <p className="text-sm text-mediumTeal">Esta ação é irreversível</p>
                 </div>
               </div>
-              <p className="text-mediumTeal mb-6">
+              <p className="text-mediumTeal mb-4">
                 Tem certeza que deseja deletar o usuário <strong className="text-darkTeal">{deleteModal.user?.name}</strong>?
-                <br />
-                <br />
-                Esta ação também removerá todos os pedidos associados a este usuário.
               </p>
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={deleteModal.deleteAssociatedData}
+                    onChange={(e) => setDeleteModal({ ...deleteModal, deleteAssociatedData: e.target.checked })}
+                    className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-yellow-800 mb-1">
+                      Deletar todos os dados associados
+                    </p>
+                    <p className="text-xs text-yellow-700">
+                      Se marcado, todos os pedidos, feedbacks, mensagens e agendamentos associados a este usuário também serão deletados. Caso contrário, apenas o usuário será removido da lista.
+                    </p>
+                  </div>
+                </label>
+              </div>
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => {
                     setDeleteModalClosing(true);
                     setTimeout(() => {
-                      setDeleteModal({ open: false, user: null });
+                      setDeleteModal({ open: false, user: null, deleteAssociatedData: false });
                       setDeleteModalClosing(false);
                     }, 300);
                   }}

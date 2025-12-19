@@ -190,29 +190,25 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     // Find user
-    let user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      // User doesn't exist - create user automatically
-      const emailName = email.toLowerCase().split('@')[0];
-      const defaultName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-      
-      // Hash password
-      const saltRounds = 10;
-      const passwordHash = await bcrypt.hash(password, saltRounds);
-      
-      // Create user with auto-verification
-      user = await User.create({
-        name: defaultName,
-        email: email.toLowerCase(),
-        passwordHash,
-        isAuthorized: true,
-        emailVerified: true, // Auto-verify
-        registrationPending: false
+      // User doesn't exist - return error (only Google OAuth should auto-create users)
+      return res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos. Por favor, registre-se primeiro.'
       });
     }
 
-    // Check if user has a password (OAuth users or pending registrations might not have one)
+    // Check if user has a password
+    // Google users (with googleId) can login with email/password if they have set a password
     if (!user.passwordHash) {
+      // If user has Google account, suggest using Google login or setting a password
+      if (user.googleId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Este email está associado a uma conta Google. Use "Continuar com Google" ou defina uma senha no seu perfil primeiro.'
+        });
+      }
       return res.status(401).json({
         success: false,
         message: 'Email ou senha inválidos.'

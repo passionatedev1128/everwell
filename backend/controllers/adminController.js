@@ -2,6 +2,9 @@ import User from '../models/User.js';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import AuditLog from '../models/AuditLog.js';
+import Feedback from '../models/Feedback.js';
+import Notification from '../models/Notification.js';
+import Booking from '../models/Booking.js';
 import { sendEmail } from '../config/email.js';
 import { uploadToSupabase } from '../config/upload.js';
 import bcrypt from 'bcrypt';
@@ -289,6 +292,9 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { deleteAssociatedData } = req.query; // Get query parameter
+    const shouldDeleteData = deleteAssociatedData === 'true';
+    
     const user = await User.findById(id);
     
     if (!user) {
@@ -306,11 +312,26 @@ export const deleteUser = async (req, res, next) => {
       });
     }
 
-    // Count user's orders before deletion
+    // Count associated data before deletion
     const orderCount = await Order.countDocuments({ userId: user._id });
+    const feedbackCount = await Feedback.countDocuments({ userId: user._id });
+    const notificationCount = await Notification.countDocuments({ userId: user._id });
+    const bookingCount = await Booking.countDocuments({ userId: user._id });
 
-    // Delete all orders associated with this user
-    await Order.deleteMany({ userId: user._id });
+    const deletedData = {
+      orders: 0,
+      feedbacks: 0,
+      notifications: 0,
+      bookings: 0
+    };
+
+    // Delete associated data if requested
+    if (shouldDeleteData) {
+      deletedData.orders = await Order.deleteMany({ userId: user._id }).then(result => result.deletedCount);
+      deletedData.feedbacks = await Feedback.deleteMany({ userId: user._id }).then(result => result.deletedCount);
+      deletedData.notifications = await Notification.deleteMany({ userId: user._id }).then(result => result.deletedCount);
+      deletedData.bookings = await Booking.deleteMany({ userId: user._id }).then(result => result.deletedCount);
+    }
 
     // Create audit log before deletion
     await AuditLog.create({
@@ -320,7 +341,11 @@ export const deleteUser = async (req, res, next) => {
       details: {
         deletedUserName: user.name,
         deletedUserEmail: user.email,
-        ordersDeleted: orderCount
+        deleteAssociatedData: shouldDeleteData,
+        ordersDeleted: deletedData.orders,
+        feedbacksDeleted: deletedData.feedbacks,
+        notificationsDeleted: deletedData.notifications,
+        bookingsDeleted: deletedData.bookings
       },
       ipAddress: req.ip,
       userAgent: req.get('user-agent')
@@ -329,18 +354,30 @@ export const deleteUser = async (req, res, next) => {
     // Delete the user
     await User.findByIdAndDelete(id);
 
-    // Note: User's session will be invalidated on next request since the user no longer exists
-    // The frontend should handle this by checking user existence on API calls
+    // Build response message
+    let message = `Usuário ${user.name} deletado com sucesso.`;
+    if (shouldDeleteData) {
+      const dataParts = [];
+      if (deletedData.orders > 0) dataParts.push(`${deletedData.orders} pedido(s)`);
+      if (deletedData.feedbacks > 0) dataParts.push(`${deletedData.feedbacks} feedback(s)`);
+      if (deletedData.notifications > 0) dataParts.push(`${deletedData.notifications} notificação(ões)`);
+      if (deletedData.bookings > 0) dataParts.push(`${deletedData.bookings} agendamento(s)`);
+      if (dataParts.length > 0) {
+        message += ` ${dataParts.join(', ')} também foram removidos.`;
+      }
+    } else {
+      message += ` Dados associados (${orderCount} pedido(s), ${feedbackCount} feedback(s), ${notificationCount} notificação(ões), ${bookingCount} agendamento(s)) foram preservados.`;
+    }
 
     res.json({
       success: true,
-      message: `Usuário ${user.name} deletado com sucesso. ${orderCount} pedido(s) associado(s) também foram removidos.`,
+      message,
       deletedUser: {
         id: user._id,
         name: user.name,
         email: user.email
       },
-      ordersDeleted: orderCount
+      deletedData
     });
   } catch (error) {
     next(error);
